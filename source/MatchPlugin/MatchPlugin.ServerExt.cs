@@ -7,7 +7,7 @@ using CounterStrikeSharp.API;
 
 namespace MatchPlugin;
 
-public class ServerUtl
+public class ServerExt
 {
     public static void ExecuteCommand(List<string> commands) =>
         commands.ForEach(Server.ExecuteCommand);

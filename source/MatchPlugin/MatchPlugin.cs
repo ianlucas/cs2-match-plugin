@@ -14,10 +14,20 @@ public partial class MatchPlugin : BasePlugin
     public override string ModuleName => "MatchPlugin";
     public override string ModuleVersion => "1.0.0";
 
-    private readonly Match _match = new();
+    private readonly Match _match;
+
+    public MatchPlugin()
+    {
+        _match = new(this);
+        _match.bots.ValueChanged += OnMatchBotsChanged;
+    }
 
     public override void Load(bool hotReload)
     {
         RegisterListener<Listeners.OnTick>(OnTick);
+        RegisterEventHandler<EventPlayerConnect>(OnPlayerConnect);
+        RegisterEventHandler<EventPlayerConnectFull>(OnPlayerConnectFull);
+        RegisterEventHandler<EventPlayerDisconnect>(OnPlayerDisconnect);
+        AddCommand("match_status", "Print match status.", OnMatchStatusCommand);
     }
 }

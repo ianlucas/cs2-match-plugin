@@ -8,7 +8,7 @@ namespace MatchPlugin;
 public class Config
 {
     public static void ExecWarmup(int warmupTime = -1) =>
-        ServerUtl.ExecuteCommand(
+        ServerExt.ExecuteCommand(
             [
                 "bot_chatter off",
                 "bot_join_after_player 0",

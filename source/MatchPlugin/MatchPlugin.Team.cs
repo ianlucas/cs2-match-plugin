@@ -8,13 +8,15 @@ using CounterStrikeSharp.API.Modules.Utils;
 
 namespace MatchPlugin;
 
-public class Team(CsTeam startingTeam)
+public class Team(Match match, CsTeam startingTeam)
 {
+    private Match _match = match;
     private Team? _opposition;
 
+    public List<Player> Players = [];
     public CsTeam StartingTeam = startingTeam;
     public Player? InGameLeader = null;
-    public readonly int Index = startingTeam == CsTeam.Terrorist ? 0 : 1;
+    public readonly int Index = (byte)startingTeam - 2;
     public string Name = "";
     public Team Oppositon
     {
@@ -25,5 +27,23 @@ public class Team(CsTeam startingTeam)
             return _opposition;
         }
         set { _opposition = value; }
+    }
+
+    public bool CanAddPlayer()
+    {
+        return Players.Count < _match.players_needed_per_team.Value;
+    }
+
+    public void AddPlayer(Player player)
+    {
+        Players.Add(player);
+        InGameLeader ??= player;
+    }
+
+    public void RemovePlayer(Player player)
+    {
+        Players.Remove(player);
+        if (InGameLeader == player)
+            InGameLeader = Players.FirstOrDefault();
     }
 }

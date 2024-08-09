@@ -5,10 +5,4 @@
 
 namespace MatchPlugin;
 
-public class WarmupState(Match match) : State(match)
-{
-    public override void Load()
-    {
-        Config.ExecWarmup();
-    }
-}
+public class StateKnifeRound(Match match) : State(match) { }
