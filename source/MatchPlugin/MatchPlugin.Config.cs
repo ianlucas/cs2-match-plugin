@@ -7,7 +7,7 @@ namespace MatchPlugin;
 
 public class Config
 {
-    public static void ExecWarmup(int warmupTime = -1) =>
+    public static void ExecWarmup(int warmupTime = -1, bool lockTeams = false) =>
         ServerX.ExecuteCommand(
             [
                 "bot_chatter off",
@@ -34,8 +34,8 @@ public class Config
                 "sv_vote_issue_pause_match_allowed 0",
                 "sv_vote_issue_timeout_allowed 0",
                 // Team lock convars
-                //$"mp_force_pick_time {(_match.IsTeamLocked() ? 0 : 15)}",
-                //$"sv_disable_teamselect_menu {(_match.IsTeamLocked() ? 1 : 0)}",
+                $"mp_force_pick_time {(lockTeams ? 0 : 15)}",
+                $"sv_disable_teamselect_menu {(lockTeams ? 1 : 0)}",
                 // Backup convars
                 //$"mp_backup_round_file {(_match.IsTeamLocked() ? _match.GetMatchBackupPrefix() : "\"\"")}",
                 // ...then run these

@@ -19,7 +19,7 @@ public partial class MatchPlugin
         {
             var originalTeam = h.GetParam<int>(1);
             var player = _match.GetPlayerFromSteamID(controller.SteamID);
-            if (_match.LoadedFromFile || _match.State is not StateWarmupReady)
+            if (_match.AreTeamsLocked())
             {
                 if (player != null)
                 {

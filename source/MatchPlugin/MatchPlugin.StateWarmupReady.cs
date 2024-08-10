@@ -28,7 +28,7 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
         foreach (var player in Match.Teams.SelectMany(t => t.Players))
             player.IsReady = false;
 
-        Config.ExecWarmup();
+        Config.ExecWarmup(lockTeams: Match.AreTeamsLocked());
     }
 
     public override void Unload()

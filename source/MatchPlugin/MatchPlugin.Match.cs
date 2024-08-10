@@ -97,6 +97,11 @@ public class Match
         player?.Team.RemovePlayer(player);
     }
 
+    public bool AreTeamsLocked()
+    {
+        return LoadedFromFile || State is not StateWarmupReady;
+    }
+
     public bool AreTeamsPlayingSwitchedSides(int? round = null)
     {
         if (State is not StateLive)

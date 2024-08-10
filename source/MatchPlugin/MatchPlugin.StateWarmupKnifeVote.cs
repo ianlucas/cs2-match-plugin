@@ -33,7 +33,7 @@ public class StateWarmupKnifeVote(Match match) : StateWarmup(match)
         foreach (var player in Match.Teams.SelectMany(t => t.Players))
             player.KnifeRoundVote = KnifeRoundVote.None;
 
-        Config.ExecWarmup(warmupTime: Match.knife_vote_timeout.Value);
+        Config.ExecWarmup(warmupTime: Match.knife_vote_timeout.Value, lockTeams: true);
     }
 
     public override void Unload()
