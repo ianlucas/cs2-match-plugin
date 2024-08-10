@@ -76,7 +76,7 @@ public partial class MatchPlugin
                 player.IsReady = true;
         }
         foreach (var team in _match.Teams)
-            ServerX.SetTeamName(team.StartingTeam, team.GetServerName());
+            ServerX.SetTeamName(team.StartingTeam, team.ServerName);
         _match.SetState<StateKnifeRound>();
     }
 }

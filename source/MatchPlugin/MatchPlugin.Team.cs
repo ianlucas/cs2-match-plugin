@@ -12,16 +12,25 @@ namespace MatchPlugin;
 public class Team(Match match, CsTeam startingTeam)
 {
     private readonly Match _match = match;
+
     private Team? _opposition;
 
     public readonly List<Player> Players = [];
+
     public readonly List<ulong> SurrenderVotes = [];
+
     public readonly int Index = (byte)startingTeam - 2;
+
     public CsTeam StartingTeam = startingTeam;
+
     public Player? InGameLeader = null;
+
     public string Name = "";
+
     public bool IsUnpauseMatch = false;
+
     public bool IsSurrended = false;
+
     public Team Oppositon
     {
         get
@@ -31,6 +40,47 @@ public class Team(Match match, CsTeam startingTeam)
             return _opposition;
         }
         set { _opposition = value; }
+    }
+
+    public CsTeam CurrentTeam
+    {
+        get =>
+            _match.AreTeamsPlayingSwitchedSides()
+                ? UtilitiesX.ToggleCsTeam(StartingTeam)
+                : StartingTeam;
+    }
+
+    public string ServerName
+    {
+        get =>
+            Name == ""
+                ? InGameLeader != null
+                    ? $"team_{InGameLeader.Name}"
+                    : "\"\""
+                : Name;
+    }
+
+    public string FormattedName
+    {
+        get =>
+            Name == ""
+                ? InGameLeader != null
+                    ? $"team_{InGameLeader.Name}"
+                    : _match.Plugin.Localizer[
+                        CurrentTeam == CsTeam.Terrorist ? "match.t" : "match.ct"
+                    ]
+                : Name;
+    }
+
+    public int Score
+    {
+        get => UtilitiesX.GetTeamManager(CurrentTeam)?.Score ?? 0;
+        set
+        {
+            var manager = UtilitiesX.GetTeamManager(CurrentTeam);
+            if (manager != null)
+                manager.Score = value;
+        }
     }
 
     public void Reset()
@@ -59,41 +109,6 @@ public class Team(Match match, CsTeam startingTeam)
         Players.Remove(player);
         if (InGameLeader == player)
             InGameLeader = Players.FirstOrDefault();
-    }
-
-    public CsTeam GetCurrentTeam()
-    {
-        return _match.AreTeamsPlayingSwitchedSides()
-            ? UtilitiesX.ToggleCsTeam(StartingTeam)
-            : StartingTeam;
-    }
-
-    public string GetServerName() =>
-        Name == ""
-            ? InGameLeader != null
-                ? $"team_{InGameLeader.Name}"
-                : "\"\""
-            : Name;
-
-    public string GetName() =>
-        Name == ""
-            ? InGameLeader != null
-                ? $"team_{InGameLeader.Name}"
-                : _match.Plugin.Localizer[
-                    GetCurrentTeam() == CsTeam.Terrorist ? "match.t" : "match.ct"
-                ]
-            : Name;
-
-    public int GetScore()
-    {
-        return UtilitiesX.GetTeamManager(GetCurrentTeam())?.Score ?? 0;
-    }
-
-    public void SetScore(int score)
-    {
-        var manager = UtilitiesX.GetTeamManager(GetCurrentTeam());
-        if (manager != null)
-            manager.Score = score;
     }
 
     public void PrintToChat(string message)

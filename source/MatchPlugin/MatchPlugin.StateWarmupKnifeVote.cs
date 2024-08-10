@@ -61,7 +61,7 @@ public class StateWarmupKnifeVote(Match match) : StateWarmup(match)
                 Match.Plugin.Localizer[
                     "match.knife_vote",
                     Match.GetChatPrefix(),
-                    team.GetName(),
+                    team.FormattedName,
                     leader.Name
                 ]
             );
@@ -133,7 +133,7 @@ public class StateWarmupKnifeVote(Match match) : StateWarmup(match)
                 localize[
                     "match.knife_decision",
                     Match.GetChatPrefix(),
-                    winnerTeam.GetName(),
+                    winnerTeam.FormattedName,
                     decisionLabel
                 ]
             );
@@ -143,7 +143,7 @@ public class StateWarmupKnifeVote(Match match) : StateWarmup(match)
             foreach (var team in Match.Teams)
             {
                 team.StartingTeam = UtilitiesX.ToggleCsTeam(team.StartingTeam);
-                ServerX.SetTeamName(team.StartingTeam, team.GetServerName());
+                ServerX.SetTeamName(team.StartingTeam, team.ServerName);
                 foreach (var player in team.Players)
                     player.Controller?.SwitchTeam(team.StartingTeam);
             }

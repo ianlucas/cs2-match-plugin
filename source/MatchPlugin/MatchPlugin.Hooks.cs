@@ -23,7 +23,7 @@ public partial class MatchPlugin
             {
                 if (player != null)
                 {
-                    var currentTeam = (int)player.Team.GetCurrentTeam();
+                    var currentTeam = (int)player.Team.CurrentTeam;
                     if (originalTeam != currentTeam)
                     {
                         h.SetParam<int>(1, currentTeam);

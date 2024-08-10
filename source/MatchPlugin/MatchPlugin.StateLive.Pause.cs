@@ -26,13 +26,13 @@ public partial class StateLive
                     Match.Plugin.Localizer[
                         "match.pause_start",
                         Match.GetChatPrefix(),
-                        player.Team.GetName()
+                        player.Team.FormattedName
                     ]
                 );
                 Server.ExecuteCommand("mp_pause_match");
                 return;
             }
-            var currentTeam = player.Team.GetCurrentTeam();
+            var currentTeam = player.Team.CurrentTeam;
             var gameRules = UtilitiesX.GetGameRules();
             var timeouts =
                 currentTeam == CsTeam.Terrorist
@@ -48,7 +48,7 @@ public partial class StateLive
                     Match.Plugin.Localizer[
                         "match.pause_start",
                         Match.GetChatPrefix(),
-                        player.Team.GetName()
+                        player.Team.FormattedName
                     ]
                 );
                 Server.ExecuteCommand(
@@ -79,7 +79,7 @@ public partial class StateLive
                     Match.Plugin.Localizer[
                         "match.pause_unpause1",
                         Match.GetChatPrefix(),
-                        player.Team.GetName()
+                        player.Team.FormattedName
                     ]
                 );
                 return;
@@ -89,7 +89,7 @@ public partial class StateLive
                     Match.Plugin.Localizer[
                         "match.pause_unpause2",
                         Match.GetChatPrefix(),
-                        player.Team.GetName()
+                        player.Team.FormattedName
                     ]
                 );
             Server.ExecuteCommand("mp_unpause_match");

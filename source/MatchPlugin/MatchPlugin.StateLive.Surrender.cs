@@ -40,17 +40,17 @@ public partial class StateLive
                     Match.Plugin.Localizer[
                         "match.surrender_success",
                         Match.GetChatPrefix(),
-                        player.Team.GetName()
+                        player.Team.FormattedName
                     ]
                 );
                 player.Team.IsSurrended = true;
-                player.Team.SetScore(0);
-                player.Team.Oppositon.SetScore(1);
+                player.Team.Score = 0;
+                player.Team.Oppositon.Score = 1;
                 UtilitiesX
                     .GetGameRules()
                     ?.TerminateRoundX(
                         0,
-                        player.Team.GetCurrentTeam() == CsTeam.Terrorist
+                        player.Team.CurrentTeam == CsTeam.Terrorist
                             ? RoundEndReason.TerroristsSurrender
                             : RoundEndReason.CTsSurrender
                     );

@@ -124,7 +124,7 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
                 else
                     controller.ChangeTeam(CsTeam.Spectator);
             foreach (var team in Match.Teams)
-                ServerX.SetTeamName(team.StartingTeam, team.GetServerName());
+                ServerX.SetTeamName(team.StartingTeam, team.ServerName);
             Match.SetState<StateKnifeRound>();
         }
     }

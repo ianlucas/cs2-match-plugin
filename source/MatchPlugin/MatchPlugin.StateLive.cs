@@ -94,10 +94,10 @@ public partial class StateLive(Match match) : State(match)
             localize[
                 "match.round_end_score",
                 Match.GetChatPrefix(),
-                home.GetName(),
-                home.GetScore(),
-                away.GetScore(),
-                away.GetName()
+                home.FormattedName,
+                home.Score,
+                away.Score,
+                away.FormattedName
             ]
         );
         foreach (var player in Match.Teams.SelectMany(t => t.Players))
@@ -137,7 +137,7 @@ public partial class StateLive(Match match) : State(match)
                 );
                 break;
             }
-            if (team.GetScore() > team.Oppositon.GetScore())
+            if (team.Score > team.Oppositon.Score)
             {
                 result = MapResult.Completed;
                 winner = team.Index;
