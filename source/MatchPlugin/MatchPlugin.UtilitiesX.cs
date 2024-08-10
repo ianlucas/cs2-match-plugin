@@ -22,6 +22,12 @@ public class UtilitiesX
     public static IEnumerable<CCSPlayerController> GetUnfilteredPlayers() =>
         Utilities.FindAllEntitiesByDesignerName<CCSPlayerController>("cs_player_controller");
 
+    public static CCSTeam? GetTeamManager(CsTeam team) =>
+        Utilities
+            .FindAllEntitiesByDesignerName<CCSTeam>("cs_team_manager")
+            .Where(t => t.TeamNum == (byte)team)
+            .FirstOrDefault();
+
     public static CsTeam ToggleCsTeam(CsTeam team) =>
         team == CsTeam.Terrorist ? CsTeam.CounterTerrorist : CsTeam.Terrorist;
 

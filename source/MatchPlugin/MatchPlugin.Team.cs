@@ -84,17 +84,16 @@ public class Team(Match match, CsTeam startingTeam)
                 ]
             : Name;
 
-    public CCSTeam? GetEntity()
-    {
-        return Utilities
-            .FindAllEntitiesByDesignerName<CCSTeam>("cs_team_manager")
-            .Where(team => team.TeamNum == (byte)GetCurrentTeam())
-            .FirstOrDefault();
-    }
-
     public int GetScore()
     {
-        return GetEntity()?.Score ?? 0;
+        return UtilitiesX.GetTeamManager(GetCurrentTeam())?.Score ?? 0;
+    }
+
+    public void SetScore(int score)
+    {
+        var manager = UtilitiesX.GetTeamManager(GetCurrentTeam());
+        if (manager != null)
+            manager.Score = score;
     }
 
     public void PrintToChat(string message)

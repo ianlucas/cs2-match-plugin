@@ -15,19 +15,11 @@ namespace MatchPlugin;
 
 public static class Extensions
 {
-    private static readonly bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-
-    public static MemoryFunctionVoid<IntPtr, float, RoundEndReason, int, uint> WTerminateRoundFunc =
+    public static MemoryFunctionVoid<IntPtr, float, RoundEndReason, int, uint> TerminateRoundFunc =
         new(GameData.GetSignature("TerminateRound"));
 
-    public static Action<IntPtr, float, RoundEndReason, int, uint> WindowsTerminateRound =
-        WTerminateRoundFunc.Invoke;
-
-    public static MemoryFunctionVoid<IntPtr, RoundEndReason, int, uint, float> LTerminateRoundFunc =
-        new(GameData.GetSignature("TerminateRound"));
-
-    public static Action<IntPtr, RoundEndReason, int, uint, float> LinuxTerminateRound =
-        LTerminateRoundFunc.Invoke;
+    public static Action<IntPtr, float, RoundEndReason, int, uint> TerminateRound =
+        TerminateRoundFunc.Invoke;
 
     public static void SetClan(this CCSPlayerController controller, string clan)
     {
@@ -65,13 +57,7 @@ public static class Extensions
         this CCSGameRules gameRules,
         float delay,
         RoundEndReason roundEndReason
-    )
-    {
-        if (IsWindows)
-            WindowsTerminateRound(gameRules.Handle, delay, roundEndReason, 0, 0);
-        else
-            LinuxTerminateRound(gameRules.Handle, roundEndReason, 0, 0, delay);
-    }
+    ) => TerminateRound(gameRules.Handle, delay, roundEndReason, 0, 0);
 
     public static CsTeam GetKnifeRoundWinner(this CCSGameRules _)
     {

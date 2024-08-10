@@ -28,11 +28,12 @@ public class StateWarmupKnifeVote(Match match) : StateWarmup(match)
         StayCmds.ForEach(c => Match.Plugin.AddCommand(c, "Stay in current team.", OnStayCommand));
         SwitchCmds.ForEach(c => Match.Plugin.AddCommand(c, "Switch current team", OnSwitchCommand));
         Match.Plugin.CreateChatTimer("PrintKnifeVoteCommands", OnPrintKnifeVoteCommands);
+        Match.Plugin.CreateTimer("KnifeVoteTimeout", Match.knife_vote_timeout.Value - 1, OnTimeOut);
 
         foreach (var player in Match.Teams.SelectMany(t => t.Players))
             player.KnifeRoundVote = KnifeRoundVote.None;
 
-        Config.ExecWarmup(warmupTime: 60);
+        Config.ExecWarmup(warmupTime: Match.knife_vote_timeout.Value);
     }
 
     public override void Unload()
@@ -43,6 +44,7 @@ public class StateWarmupKnifeVote(Match match) : StateWarmup(match)
         StayCmds.ForEach(c => Match.Plugin.RemoveCommand(c, OnStayCommand));
         SwitchCmds.ForEach(c => Match.Plugin.RemoveCommand(c, OnSwitchCommand));
         Match.Plugin.ClearTimer("PrintKnifeVoteCommands");
+        Match.Plugin.ClearTimer("KnifeVoteTimeout");
     }
 
     public HookResult OnPlayerTeamPre(EventPlayerTeam @event, GameEventInfo _)
@@ -109,26 +111,33 @@ public class StateWarmupKnifeVote(Match match) : StateWarmup(match)
                 }
     }
 
+    public void OnTimeOut()
+    {
+        ProcessKnifeVote(KnifeRoundVote.None);
+    }
+
     public void ProcessKnifeVote(KnifeRoundVote decision)
     {
         var winnerTeam = Match.KnifeRoundWinner;
         if (winnerTeam == null)
             return;
-
-        var localize = Match.Plugin.Localizer;
-        var decisionLabel = localize[
-            decision == KnifeRoundVote.Switch
-                ? "match.knife_decision_switch"
-                : "match.knife_decision_stay"
-        ];
-        Server.PrintToChatAll(
-            localize[
-                "match.knife_decision",
-                Match.GetChatPrefix(),
-                winnerTeam.GetName(),
-                decisionLabel
-            ]
-        );
+        if (decision != KnifeRoundVote.None)
+        {
+            var localize = Match.Plugin.Localizer;
+            var decisionLabel = localize[
+                decision == KnifeRoundVote.Switch
+                    ? "match.knife_decision_switch"
+                    : "match.knife_decision_stay"
+            ];
+            Server.PrintToChatAll(
+                localize[
+                    "match.knife_decision",
+                    Match.GetChatPrefix(),
+                    winnerTeam.GetName(),
+                    decisionLabel
+                ]
+            );
+        }
         if (decision == KnifeRoundVote.Switch)
         {
             foreach (var team in Match.Teams)

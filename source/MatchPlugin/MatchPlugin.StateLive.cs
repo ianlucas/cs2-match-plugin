@@ -157,6 +157,6 @@ public partial class StateLive(Match match) : State(match)
     {
         if (!Match.LoadedFromFile)
             Match.Reset();
-        Match.SetState<StateWarmup>();
+        Match.SetState<StateWarmupReady>();
     }
 }

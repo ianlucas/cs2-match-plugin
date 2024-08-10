@@ -57,7 +57,7 @@ public partial class MatchPlugin
     {
         if (caller != null && !AdminManager.PlayerHasPermissions(caller, "@css/config"))
             return;
-        foreach (var controller in UtilitiesX.GetPlayersInTeams())
+        foreach (var controller in UtilitiesX.GetPlayersInTeams().Where(p => !p.IsBot))
         {
             controller.SetClan("");
             var player = _match.GetPlayerFromSteamID(controller.SteamID);
@@ -75,6 +75,8 @@ public partial class MatchPlugin
             if (player != null)
                 player.IsReady = true;
         }
+        foreach (var team in _match.Teams)
+            ServerX.SetTeamName(team.StartingTeam, team.GetServerName());
         _match.SetState<StateKnifeRound>();
     }
 }

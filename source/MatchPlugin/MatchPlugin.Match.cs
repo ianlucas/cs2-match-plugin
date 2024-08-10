@@ -34,8 +34,10 @@ public class Match
         new("match_ot_max_rounds", "Additional rounds to determine winner.", 4);
     public readonly FakeConVar<bool> friendly_pause =
         new("match_friendly_pause", "Teams can pause at any time.", false);
+    public readonly FakeConVar<int> knife_vote_timeout =
+        new("match_knife_vote_timeout", "Time to decide side.", 60);
     public readonly FakeConVar<int> surrender_timeout =
-        new("match_surrender_timeout", "Time to vote surrender.", 60);
+        new("match_surrender_timeout", "Time to vote surrender.", 30);
 
     public State State;
     public readonly MatchPlugin Plugin;
