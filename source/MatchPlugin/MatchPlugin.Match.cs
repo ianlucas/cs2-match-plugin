@@ -28,6 +28,10 @@ public class Match
         new("match_players_needed", "Number of players needed for a match.", 10);
     public readonly FakeConVar<int> players_needed_per_team =
         new("match_players_needed_per_team", "Number of players needed per team.", 5);
+    public readonly FakeConVar<bool> matchmaking =
+        new("match_matchmaking", "Matchmaking mode", false);
+    public readonly FakeConVar<int> matchmaking_ready_timeout =
+        new("match_matchmaking_ready_timeout", "Time to players ready up.", 300);
     public readonly FakeConVar<int> max_rounds =
         new("match_max_rounds", "Max number of rounds to play.", 6);
     public readonly FakeConVar<int> ot_max_rounds =
@@ -36,13 +40,16 @@ public class Match
         new("match_friendly_pause", "Teams can pause at any time.", false);
     public readonly FakeConVar<int> knife_vote_timeout =
         new("match_knife_vote_timeout", "Time to decide side.", 60);
+    public readonly FakeConVar<int> forfeit_timeout =
+        new("match_forfeit_timeout", "Time to forfeit a team.", 60);
     public readonly FakeConVar<int> surrender_timeout =
         new("match_surrender_timeout", "Time to vote surrender.", 30);
 
+    public string? Id = null;
     public State State;
     public readonly MatchPlugin Plugin;
     public readonly List<Team> Teams = [];
-    public bool LoadedFromFile = false;
+    public bool IsLoadedFromFile = false;
     public Team? KnifeRoundWinner;
     public int CurrentRound = 0;
 
@@ -59,6 +66,8 @@ public class Match
 
     public void Reset()
     {
+        Id = null;
+        IsLoadedFromFile = false;
         CurrentRound = 0;
         KnifeRoundWinner = null;
         foreach (var team in Teams)
@@ -97,9 +106,14 @@ public class Match
         player?.Team.RemovePlayer(player);
     }
 
+    public bool IsMatchmaking()
+    {
+        return IsLoadedFromFile && matchmaking.Value;
+    }
+
     public bool AreTeamsLocked()
     {
-        return LoadedFromFile || State is not StateWarmupReady;
+        return IsLoadedFromFile || State is not StateWarmupReady;
     }
 
     public bool AreTeamsPlayingSwitchedSides(int? round = null)

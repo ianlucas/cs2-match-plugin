@@ -3,8 +3,11 @@
 *  Licensed under the MIT License. See License.txt in the project root for license information.
 *--------------------------------------------------------------------------------------------*/
 
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Commands;
+using CounterStrikeSharp.API.Modules.Entities;
+using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Utils;
 
 namespace MatchPlugin;
@@ -14,6 +17,8 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
     public static readonly List<string> ReadyCmds = ["css_ready", "css_r", "css_pronto"];
     public static readonly List<string> UnreadyCmds = ["css_unready", "css_ur", "css_naopronto"];
 
+    private long _warmupStart = 0;
+
     public override void Load()
     {
         base.Load();
@@ -21,6 +26,7 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
         Match.Plugin.RegisterListener<Listeners.OnTick>(OnTick);
         Match.Plugin.RegisterEventHandler<EventPlayerTeam>(OnPlayerTeam);
         Match.Plugin.RegisterEventHandler<EventPlayerDisconnect>(OnPlayerDisconnect);
+        Match.Plugin.RegisterEventHandler<EventCsWinPanelMatch>(OnCsWinPanelMatch);
         Match.Plugin.CreateChatTimer("PrintWarmupCommands", OnPrintWarmupCommands);
         ReadyCmds.ForEach(c => Match.Plugin.AddCommand(c, "Mark as ready.", OnReadyCommand));
         UnreadyCmds.ForEach(c => Match.Plugin.AddCommand(c, "Mark as unready.", OnUnreadyCommand));
@@ -28,7 +34,24 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
         foreach (var player in Match.Teams.SelectMany(t => t.Players))
             player.IsReady = false;
 
-        Config.ExecWarmup(lockTeams: Match.AreTeamsLocked());
+        if (Match.IsMatchmaking())
+        {
+            _warmupStart = ServerX.Now();
+            Match.Plugin.CreateSecondIntervalTimer(
+                "PrintWaitingPlayersReady",
+                PrintMatchmakingReady
+            );
+            Match.Plugin.CreateTimer(
+                "MatchmakingReadyTimeout",
+                Match.matchmaking_ready_timeout.Value,
+                () => OnMatchCancelled()
+            );
+        }
+
+        Config.ExecWarmup(
+            warmupTime: Match.IsMatchmaking() ? Match.matchmaking_ready_timeout.Value : -1,
+            lockTeams: Match.AreTeamsLocked()
+        );
     }
 
     public override void Unload()
@@ -38,7 +61,10 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
         Match.Plugin.RemoveListener<Listeners.OnTick>(OnTick);
         Match.Plugin.DeregisterEventHandler<EventPlayerTeam>(OnPlayerTeam);
         Match.Plugin.DeregisterEventHandler<EventPlayerDisconnect>(OnPlayerDisconnect);
+        Match.Plugin.DeregisterEventHandler<EventCsWinPanelMatch>(OnCsWinPanelMatch);
         Match.Plugin.ClearTimer("PrintWarmupCommands");
+        Match.Plugin.ClearTimer("PrintWaitingPlayersReady");
+        Match.Plugin.ClearTimer("MatchmakingReadyTimeout");
         ReadyCmds.ForEach(c => Match.Plugin.RemoveCommand(c, OnReadyCommand));
         UnreadyCmds.ForEach(c => Match.Plugin.RemoveCommand(c, OnUnreadyCommand));
     }
@@ -76,19 +102,58 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
         }
     }
 
+    public void PrintMatchmakingReady()
+    {
+        var timeleft = Math.Max(
+            0,
+            Match.matchmaking_ready_timeout.Value - (ServerX.Now() - _warmupStart)
+        );
+        if (timeleft % 30 != 0)
+            return;
+        var formattedTimeleft = UtilitiesX.FormatTimeString(timeleft);
+        var unreadyTeams = Match.Teams.Where(t => t.Players.Any(p => !p.IsReady));
+        if (timeleft == 0)
+            Match.Plugin.ClearTimer("PrintWaitingPlayersReady");
+        else
+            switch (unreadyTeams.Count())
+            {
+                case 1:
+                    var team = unreadyTeams.First();
+                    Server.PrintToChatAll(
+                        Match.Plugin.Localizer[
+                            "match.match_waiting_team",
+                            Match.GetChatPrefix(),
+                            team.FormattedName,
+                            formattedTimeleft
+                        ]
+                    );
+                    break;
+
+                case 2:
+                    Server.PrintToChatAll(
+                        Match.Plugin.Localizer[
+                            "match.match_waiting_players",
+                            Match.GetChatPrefix(),
+                            formattedTimeleft
+                        ]
+                    );
+                    break;
+            }
+    }
+
     public HookResult OnPlayerTeam(EventPlayerTeam @event, GameEventInfo _)
     {
-        if (!Match.LoadedFromFile)
+        if (!Match.IsLoadedFromFile)
             Match.RemovePlayerBySteamID(@event.Userid?.SteamID);
         return HookResult.Continue;
     }
 
     public void OnReadyCommand(CCSPlayerController? controller, CommandInfo _)
     {
-        if (controller != null)
+        if (controller != null && !_matchCancelled)
         {
             var player = Match.GetPlayerFromSteamID(controller.SteamID);
-            if (player == null && !Match.LoadedFromFile)
+            if (player == null && !Match.IsLoadedFromFile)
             {
                 var team = Match.GetTeamFromCsTeam(controller.Team);
                 if (team != null && team.CanAddPlayer())
@@ -131,7 +196,7 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
 
     public HookResult OnPlayerDisconnect(EventPlayerDisconnect @event, GameEventInfo _)
     {
-        if (!Match.LoadedFromFile)
+        if (!Match.IsLoadedFromFile)
             Match.RemovePlayerBySteamID(@event.Userid?.SteamID);
         return HookResult.Continue;
     }

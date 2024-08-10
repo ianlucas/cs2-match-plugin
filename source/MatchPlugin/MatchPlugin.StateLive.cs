@@ -19,15 +19,20 @@ public partial class StateLive(Match match) : State(match)
     public static readonly List<string> UnpauseCmds = ["css_unpause", "css_up", "css_despausar"];
     public static readonly List<string> SurrenderCmds = ["css_gg", "css_desistir"];
 
+    private bool _isForfeiting = false;
+
     public override void Load()
     {
         SurrenderCmds.ForEach(c => Match.Plugin.AddCommand(c, "Surrender", OnSurrenderCommand));
         PauseCmds.ForEach(c => Match.Plugin.AddCommand(c, "Pause the match", OnPauseCommand));
         UnpauseCmds.ForEach(c => Match.Plugin.AddCommand(c, "Unpause the match", OnUnpauseCommand));
+        Match.Plugin.RegisterEventHandler<EventPlayerConnect>(OnPlayerConnect);
+        Match.Plugin.RegisterEventHandler<EventPlayerConnectFull>(OnPlayerConnectFull);
         Match.Plugin.RegisterEventHandler<EventRoundStart>(OnRoundStart);
         Match.Plugin.RegisterEventHandler<EventPlayerHurt>(OnPlayerHurt);
         Match.Plugin.RegisterEventHandler<EventRoundEnd>(OnRoundEndPre, HookMode.Pre);
         Match.Plugin.RegisterEventHandler<EventCsWinPanelMatch>(OnCsWinPanelMatch);
+        Match.Plugin.RegisterEventHandler<EventPlayerDisconnect>(OnPlayerDisconnect);
 
         Config.ExecLive(
             max_rounds: Match.max_rounds.Value,
@@ -53,6 +58,28 @@ public partial class StateLive(Match match) : State(match)
         Match.Plugin.RegisterEventHandler<EventRoundStart>(OnRoundStart);
         Match.Plugin.DeregisterEventHandler<EventPlayerHurt>(OnPlayerHurt);
         Match.Plugin.DeregisterEventHandler<EventRoundEnd>(OnRoundEndPre, HookMode.Pre);
+    }
+
+    public HookResult OnPlayerConnect(EventPlayerConnect @event, GameEventInfo _)
+    {
+        OnPlayerConnected(@event.Userid);
+        return HookResult.Continue;
+    }
+
+    public HookResult OnPlayerConnectFull(EventPlayerConnectFull @event, GameEventInfo _)
+    {
+        OnPlayerConnected(@event.Userid);
+        return HookResult.Continue;
+    }
+
+    public void OnPlayerConnected(CCSPlayerController? controller)
+    {
+        var player = Match.GetPlayerFromSteamID(controller?.SteamID);
+        if (player != null && Match.Teams.All(t => t.Players.Any(p => p.Controller != null)))
+        {
+            _isForfeiting = false;
+            Match.Plugin.ClearTimer("ForfeitMatch");
+        }
     }
 
     public HookResult OnRoundStart(EventRoundStart @event, GameEventInfo _)
@@ -122,43 +149,20 @@ public partial class StateLive(Match match) : State(match)
         return HookResult.Continue;
     }
 
-    public HookResult OnCsWinPanelMatch(EventCsWinPanelMatch @event, GameEventInfo _)
+    public HookResult OnPlayerDisconnect(EventPlayerDisconnect @event, GameEventInfo _)
     {
-        var result = MapResult.None;
-        int? winner = null;
-        foreach (var team in Match.Teams)
-        {
-            if (team.IsSurrended)
-            {
-                result = MapResult.Forfeited;
-                winner = team.Oppositon.Index;
-                Server.PrintToConsole(
-                    $"StateLive::OnCsWinPanelMatch forfeited, result={result}, winner={winner}"
-                );
-                break;
-            }
-            if (team.Score > team.Oppositon.Score)
-            {
-                result = MapResult.Completed;
-                winner = team.Index;
-                Server.PrintToConsole(
-                    $"StateLive::OnCsWinPanelMatch completed, result={result}, winner={winner}"
-                );
-            }
-        }
-        var mp_match_restart_delay = ConVar
-            .Find("mp_match_restart_delay")
-            ?.GetPrimitiveValue<int>();
-        var interval = mp_match_restart_delay != null ? mp_match_restart_delay - 2 : 1;
-        Match.Plugin.CreateTimer("matchend", (float)interval, OnMatchEnd);
-        // @todo: Kick players if matchmaking.
+        var player = Match.GetPlayerFromSteamID(@event.Userid?.SteamID);
+        if (player != null && !_isForfeiting)
+            foreach (var team in Match.Teams)
+                if (team.Players.All(p => p.SteamID == player.SteamID || p.Controller == null))
+                {
+                    _isForfeiting = true;
+                    Match.Plugin.CreateTimer(
+                        "ForfeitMatch",
+                        Match.forfeit_timeout.Value,
+                        () => OnMatchCancelled()
+                    );
+                }
         return HookResult.Continue;
-    }
-
-    public void OnMatchEnd()
-    {
-        if (!Match.LoadedFromFile)
-            Match.Reset();
-        Match.SetState<StateWarmupReady>();
     }
 }

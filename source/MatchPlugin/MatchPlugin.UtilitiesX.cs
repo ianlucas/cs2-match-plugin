@@ -13,6 +13,8 @@ public class UtilitiesX
 {
     static CCSGameRulesProxy? GameRulesProxy;
 
+    public static string FormatTimeString(long seconds) => $"{seconds / 60}:{seconds % 60:D2}";
+
     public static IEnumerable<CCSPlayerController> GetPlayersFromTeam(CsTeam team) =>
         Utilities.GetPlayers().Where(p => p.Team == team);
 

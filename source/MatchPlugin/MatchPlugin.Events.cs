@@ -13,21 +13,19 @@ public partial class MatchPlugin
 {
     public HookResult OnPlayerConnect(EventPlayerConnect @event, GameEventInfo _)
     {
-        if (@event.Userid != null)
-            OnPlayerConnected(@event.Userid);
+        OnPlayerConnected(@event.Userid);
         return HookResult.Continue;
     }
 
     public HookResult OnPlayerConnectFull(EventPlayerConnectFull @event, GameEventInfo _)
     {
-        if (@event.Userid != null)
-            OnPlayerConnected(@event.Userid);
+        OnPlayerConnected(@event.Userid);
         return HookResult.Continue;
     }
 
-    public void OnPlayerConnected(CCSPlayerController controller)
+    public void OnPlayerConnected(CCSPlayerController? controller)
     {
-        var player = _match.GetPlayerFromSteamID(controller.SteamID);
+        var player = _match.GetPlayerFromSteamID(controller?.SteamID);
         if (player != null)
             player.Controller = controller;
     }

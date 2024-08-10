@@ -44,4 +44,9 @@ public partial class MatchPlugin
     {
         _timers[name] = AddTimer(interval, callback, TimerFlags.STOP_ON_MAPCHANGE);
     }
+
+    public void CreateSecondIntervalTimer(string name, Action callback)
+    {
+        _timers[name] = AddTimer(1.0f, callback, TimerFlags.REPEAT | TimerFlags.STOP_ON_MAPCHANGE);
+    }
 }

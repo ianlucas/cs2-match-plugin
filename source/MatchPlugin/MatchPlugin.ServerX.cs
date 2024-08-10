@@ -10,6 +10,8 @@ namespace MatchPlugin;
 
 public class ServerX
 {
+    public static long Now() => DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
     public static void ExecuteCommand(List<string> commands) =>
         commands.ForEach(Server.ExecuteCommand);
 
