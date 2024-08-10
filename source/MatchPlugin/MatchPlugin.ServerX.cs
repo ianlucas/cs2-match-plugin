@@ -7,8 +7,14 @@ using CounterStrikeSharp.API;
 
 namespace MatchPlugin;
 
-public class ServerExt
+public class ServerX
 {
     public static void ExecuteCommand(List<string> commands) =>
         commands.ForEach(Server.ExecuteCommand);
+
+    public static void PrintToChatAllRepeat(string message, int amount = 3)
+    {
+        for (var n = 0; n < amount; n++)
+            Server.PrintToChatAll(message);
+    }
 }

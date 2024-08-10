@@ -3,6 +3,7 @@
 *  Licensed under the MIT License. See License.txt in the project root for license information.
 *--------------------------------------------------------------------------------------------*/
 
+using System.Reflection;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Events;
@@ -42,5 +43,62 @@ public static class Extensions
         {
             Server.ExecuteCommand($"kickid {(ushort)controller.UserId}");
         }
+    }
+
+    public static CsTeam GetCustomRoundWinner(this CCSGameRules _)
+    {
+        var tPlayers = UtilitiesX.GetPlayersFromTeam(CsTeam.Terrorist);
+        var ctPlayers = UtilitiesX.GetPlayersFromTeam(CsTeam.CounterTerrorist);
+        int tAlive = tPlayers.Count(CountAlive);
+        int tHealth = tPlayers.Sum(SumHealth);
+        int ctAlive = ctPlayers.Count(CountAlive);
+        int ctHealth = ctPlayers.Sum(SumHealth);
+        if (ctAlive != tAlive)
+        {
+            var winner = ctAlive > tAlive ? CsTeam.CounterTerrorist : CsTeam.Terrorist;
+            Server.PrintToConsole(
+                $"[CCSGameRules::GetCustomRoundWinner] (Alive ct={ctAlive} t={tAlive}) winner={winner}"
+            );
+            return winner;
+        }
+        if (ctHealth != tHealth)
+        {
+            var winner = ctHealth > tHealth ? CsTeam.CounterTerrorist : CsTeam.Terrorist;
+            Server.PrintToConsole(
+                $"[CCSGameRules::GetCustomRoundWinner] (Health ct={ctHealth} t={tHealth}) winner={winner}"
+            );
+            return winner;
+        }
+        var randomWinner = (CsTeam)new Random().Next(2, 4);
+        Server.PrintToConsole(
+            $"[CCSGameRules::GetCustomRoundWinner] (Random) randomWinner={randomWinner}"
+        );
+        return randomWinner;
+
+        static bool CountAlive(CCSPlayerController player) => player.GetHealth() > 0;
+        static int SumHealth(CCSPlayerController player) => player.GetHealth();
+    }
+
+    public static void SetRoundEndWinner(this CCSGameRules gameRules, CsTeam team)
+    {
+        var reason = 10;
+        var message = "";
+        switch (team)
+        {
+            case CsTeam.CounterTerrorist:
+                reason = 8;
+                message = "#SFUI_Notice_CTs_Win";
+                break;
+            case CsTeam.Terrorist:
+                reason = 9;
+                message = "#SFUI_Notice_Terrorists_Win";
+                break;
+        }
+        gameRules.RoundEndReason = reason;
+        gameRules.RoundEndFunFactToken = "";
+        gameRules.RoundEndMessage = message;
+        gameRules.RoundEndWinnerTeam = (int)team;
+        gameRules.RoundEndFunFactData1 = 0;
+        gameRules.RoundEndFunFactPlayerSlot = 0;
     }
 }

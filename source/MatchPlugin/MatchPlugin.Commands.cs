@@ -18,7 +18,6 @@ public partial class MatchPlugin
     {
         if (controller != null && !AdminManager.PlayerHasPermissions(controller, "@css/config"))
             return;
-
         var message = "[MatchPlugin Status]\n\n";
         message += "[State]\n";
         message += _match.State.GetType().Name;
@@ -48,8 +47,34 @@ public partial class MatchPlugin
                     message += " (Disconnected)";
                 message += "\n";
             }
-            message += "\n";
         }
+        if (controller != null)
+            controller.PrintToConsole(message);
         Server.PrintToConsole(message);
+    }
+
+    public void OnStartCommand(CCSPlayerController? caller, CommandInfo _)
+    {
+        if (caller != null && !AdminManager.PlayerHasPermissions(caller, "@css/config"))
+            return;
+        foreach (var controller in UtilitiesX.GetPlayersInTeams())
+        {
+            controller.SetClan("");
+            var player = _match.GetPlayerFromSteamID(controller.SteamID);
+            if (player == null)
+            {
+                var team = _match.GetTeamFromCsTeam(controller.Team);
+                if (team == null)
+                    controller.ChangeTeam(CsTeam.Spectator);
+                else
+                {
+                    player = new(controller.SteamID, controller.PlayerName, team, controller);
+                    team.AddPlayer(player);
+                }
+            }
+            if (player != null)
+                player.IsReady = true;
+        }
+        _match.SetState<StateKnifeRound>();
     }
 }

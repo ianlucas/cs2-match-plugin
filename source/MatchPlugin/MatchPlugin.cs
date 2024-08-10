@@ -29,5 +29,6 @@ public partial class MatchPlugin : BasePlugin
         RegisterEventHandler<EventPlayerConnectFull>(OnPlayerConnectFull);
         RegisterEventHandler<EventPlayerDisconnect>(OnPlayerDisconnect);
         AddCommand("match_status", "Print match status.", OnMatchStatusCommand);
+        AddCommand("css_start", "Forcefully start match.", OnStartCommand);
     }
 }

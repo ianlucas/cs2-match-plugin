@@ -8,7 +8,7 @@ namespace MatchPlugin;
 public class Config
 {
     public static void ExecWarmup(int warmupTime = -1) =>
-        ServerExt.ExecuteCommand(
+        ServerX.ExecuteCommand(
             [
                 "bot_chatter off",
                 "bot_join_after_player 0",
@@ -43,6 +43,33 @@ public class Config
                     ? $"mp_warmup_pausetimer 0;mp_warmuptime {warmupTime}"
                     : "mp_warmup_pausetimer 1",
                 "mp_warmup_start"
+            ]
+        );
+
+    public static void ExecKnife() =>
+        ServerX.ExecuteCommand(
+            [
+                "mp_maxrounds 4",
+                "mp_ct_default_secondary \"\"",
+                "mp_free_armor 1",
+                "mp_freezetime 15",
+                "mp_friendlyfire 0",
+                "mp_give_player_c4 0",
+                "mp_playercashawards 0",
+                "mp_round_restart_delay 5",
+                "mp_roundtime 120",
+                "mp_startmoney 0",
+                "mp_t_default_secondary \"\"",
+                "mp_team_intro_time 0",
+                "mp_teamcashawards 0",
+                // Team lock convars
+                "mp_force_pick_time 0",
+                "sv_disable_teamselect_menu 0",
+                // Backup convars
+                //$"mp_backup_round_file {(_match.IsTeamLocked() ? _match.GetMatchBackupPrefix() : "\"\"")}",
+                // ...then run these
+                "mp_warmup_end",
+                "mp_warmup_pausetimer 0"
             ]
         );
 }

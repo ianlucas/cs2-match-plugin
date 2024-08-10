@@ -17,7 +17,7 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
     public override void Load()
     {
         base.Load();
-        Config.ExecWarmup();
+
         Match.Plugin.RegisterListener<Listeners.OnTick>(OnTick);
         Match.Plugin.RegisterEventHandler<EventPlayerTeam>(OnPlayerTeam);
         Match.Plugin.RegisterEventHandler<EventPlayerDisconnect>(OnPlayerDisconnect);
@@ -27,6 +27,8 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
 
         foreach (var player in Match.Teams.SelectMany(t => t.Players))
             player.IsReady = false;
+
+        Config.ExecWarmup();
     }
 
     public override void Unload()
@@ -44,7 +46,7 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
     {
         if (Match.State is not StateWarmupReady)
             return;
-        foreach (var controller in UtilitiesExt.GetPlayersInTeams())
+        foreach (var controller in UtilitiesX.GetPlayersInTeams())
             if (!controller.IsBot)
                 controller.SetClan(
                     Match.Plugin.Localizer[
@@ -60,7 +62,7 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
         var needed =
             Match.players_needed.Value
             - Match.Teams.SelectMany(t => t.Players).Count(p => p.IsReady);
-        foreach (var controller in UtilitiesExt.GetPlayersInTeams())
+        foreach (var controller in UtilitiesX.GetPlayersInTeams())
         {
             var localize = Match.Plugin.Localizer;
             var player = Match.GetPlayerFromSteamID(controller.SteamID);
@@ -115,7 +117,7 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
         if (players.Count() == Match.players_needed.Value && players.All(p => p.IsReady))
         {
             var idsInMatch = players.Select(p => p.SteamID);
-            foreach (var controller in UtilitiesExt.GetPlayersInTeams())
+            foreach (var controller in UtilitiesX.GetPlayersInTeams())
                 if (idsInMatch.Contains(controller.SteamID))
                     controller.SetClan("");
                 else

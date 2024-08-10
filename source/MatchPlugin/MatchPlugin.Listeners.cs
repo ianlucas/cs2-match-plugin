@@ -39,7 +39,7 @@ public partial class MatchPlugin
 
     public void OnMatchBotsChanged(object? sender, bool value)
     {
-        ServerExt.ExecuteCommand(
+        ServerX.ExecuteCommand(
             ["bot_quota_mode fill", $"bot_quota {(value ? _match.players_needed.Value : 0)}"]
         );
     }
@@ -49,8 +49,8 @@ public partial class MatchPlugin
         var neededPerTeam = _match.players_needed_per_team.Value;
         List<IEnumerable<CCSPlayerController>> teams =
         [
-            UtilitiesExt.GetPlayersFromTeam(CsTeam.Terrorist),
-            UtilitiesExt.GetPlayersFromTeam(CsTeam.CounterTerrorist)
+            UtilitiesX.GetPlayersFromTeam(CsTeam.Terrorist),
+            UtilitiesX.GetPlayersFromTeam(CsTeam.CounterTerrorist)
         ];
         foreach (var team in teams)
         {

@@ -12,19 +12,24 @@ namespace MatchPlugin;
 
 public class Match
 {
+    public readonly FakeConVar<string> chat_prefix =
+        new("match_chat_prefix", "Prefix for chat messages.", "[{red}Match{default}]");
     public readonly FakeConVar<bool> bots =
         new("match_bots", "Bots join the game to fill slots.", true);
     public readonly FakeConVar<int> players_needed =
         new("match_players_needed", "Number of players needed for a match.", 10);
     public readonly FakeConVar<int> players_needed_per_team =
         new("match_players_needed_per_team", "Number of players needed per team.", 5);
-    public readonly FakeConVar<string> chat_prefix =
-        new("match_chat_prefix", "Prefix for chat messages.", "[{red}Match{default}]");
+    public readonly FakeConVar<int> max_rounds =
+        new("match_max_rounds", "Max number of rounds to play.", 6);
+    public readonly FakeConVar<int> ot_max_rounds =
+        new("match_ot_max_rounds", "Additional rounds to determine winner.", 4);
 
     public State State;
     public readonly MatchPlugin Plugin;
     public readonly List<Team> Teams = [];
     public bool LoadedFromFile = false;
+    public Team? KnifeRoundWinner;
 
     public Match(MatchPlugin plugin)
     {
@@ -53,7 +58,7 @@ public class Match
         State.Load();
     }
 
-    public Team? GetTeamFromCsTeam(CsTeam csTeam)
+    public Team? GetTeamFromCsTeam(CsTeam? csTeam)
     {
         return Teams.FirstOrDefault(t => t.StartingTeam == csTeam);
     }
