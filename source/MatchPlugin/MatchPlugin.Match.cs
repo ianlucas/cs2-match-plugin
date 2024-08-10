@@ -10,6 +10,14 @@ using CounterStrikeSharp.API.Modules.Utils;
 
 namespace MatchPlugin;
 
+public enum MapResult : int
+{
+    None,
+    Completed,
+    Cancelled,
+    Forfeited
+}
+
 public class Match
 {
     public readonly FakeConVar<string> chat_prefix =
@@ -24,12 +32,17 @@ public class Match
         new("match_max_rounds", "Max number of rounds to play.", 6);
     public readonly FakeConVar<int> ot_max_rounds =
         new("match_ot_max_rounds", "Additional rounds to determine winner.", 4);
+    public readonly FakeConVar<bool> friendly_pause =
+        new("match_friendly_pause", "Teams can pause at any time.", false);
+    public readonly FakeConVar<int> surrender_timeout =
+        new("match_surrender_timeout", "Time to vote surrender.", 60);
 
     public State State;
     public readonly MatchPlugin Plugin;
     public readonly List<Team> Teams = [];
     public bool LoadedFromFile = false;
     public Team? KnifeRoundWinner;
+    public int CurrentRound = 0;
 
     public Match(MatchPlugin plugin)
     {
@@ -40,6 +53,14 @@ public class Match
         Teams = [terrorists, cts];
         Plugin = plugin;
         State = new(this);
+    }
+
+    public void Reset()
+    {
+        CurrentRound = 0;
+        KnifeRoundWinner = null;
+        foreach (var team in Teams)
+            team.Reset();
     }
 
     public string GetChatPrefix()
@@ -74,8 +95,26 @@ public class Match
         player?.Team.RemovePlayer(player);
     }
 
-    public bool IsHalfTime()
+    public bool AreTeamsPlayingSwitchedSides(int? round = null)
     {
-        return false;
+        if (State is not StateLive)
+            return false;
+        round ??= CurrentRound;
+        var regulationMaxRound = max_rounds.Value;
+        var overtimeRoundsPerSide = ot_max_rounds.Value / 2;
+        if (round <= regulationMaxRound)
+            return round > regulationMaxRound / 2;
+        var overtimeRound = round - regulationMaxRound + (overtimeRoundsPerSide * 5);
+        var cycle = (overtimeRound - 1) / (overtimeRoundsPerSide * 2);
+        return cycle % 2 == 0
+            ? overtimeRound > overtimeRoundsPerSide
+            : overtimeRound <= overtimeRoundsPerSide;
+    }
+
+    public bool AreTeamsSwitchingSidesNextRound()
+    {
+        if (State is not StateLive)
+            return false;
+        return AreTeamsPlayingSwitchedSides() != AreTeamsPlayingSwitchedSides(CurrentRound + 1);
     }
 }

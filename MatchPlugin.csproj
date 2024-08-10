@@ -15,6 +15,7 @@
 	</ItemGroup>
 
 	<Target Name="PostBuild" AfterTargets="Build">
+		<Copy SourceFiles="gamedata\match.json" DestinationFolder="$(OutputPath)\..\..\gamedata" />
 		<Copy SourceFiles="@(LangFiles)" DestinationFolder="$(OutputPath)\lang" />
 	</Target>
 

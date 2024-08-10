@@ -1,0 +1,9 @@
+{
+  "TerminateRound": {
+    "signatures": {
+      "library": "server",
+      "windows": "48 8B C4 4C 89 48 ? 48 89 48 ? 55 56",
+      "linux": "8B 87 30 0A 00 00 85 C0 75 ? E9 ? ? ? ?"
+    }
+  }
+}

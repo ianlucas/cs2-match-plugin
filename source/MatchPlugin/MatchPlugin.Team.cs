@@ -11,14 +11,17 @@ namespace MatchPlugin;
 
 public class Team(Match match, CsTeam startingTeam)
 {
-    private Match _match = match;
+    private readonly Match _match = match;
     private Team? _opposition;
 
-    public List<Player> Players = [];
+    public readonly List<Player> Players = [];
+    public readonly List<ulong> SurrenderVotes = [];
+    public readonly int Index = (byte)startingTeam - 2;
     public CsTeam StartingTeam = startingTeam;
     public Player? InGameLeader = null;
-    public readonly int Index = (byte)startingTeam - 2;
     public string Name = "";
+    public bool IsUnpauseMatch = false;
+    public bool IsSurrended = false;
     public Team Oppositon
     {
         get
@@ -28,6 +31,16 @@ public class Team(Match match, CsTeam startingTeam)
             return _opposition;
         }
         set { _opposition = value; }
+    }
+
+    public void Reset()
+    {
+        Players.Clear();
+        SurrenderVotes.Clear();
+        InGameLeader = null;
+        Name = "";
+        IsUnpauseMatch = false;
+        IsSurrended = false;
     }
 
     public bool CanAddPlayer()
@@ -48,9 +61,11 @@ public class Team(Match match, CsTeam startingTeam)
             InGameLeader = Players.FirstOrDefault();
     }
 
-    public CsTeam? GetCurrentTeam()
+    public CsTeam GetCurrentTeam()
     {
-        return _match.IsHalfTime() ? UtilitiesX.ToggleCsTeam(StartingTeam) : StartingTeam;
+        return _match.AreTeamsPlayingSwitchedSides()
+            ? UtilitiesX.ToggleCsTeam(StartingTeam)
+            : StartingTeam;
     }
 
     public string GetServerName() =>
@@ -68,4 +83,23 @@ public class Team(Match match, CsTeam startingTeam)
                     GetCurrentTeam() == CsTeam.Terrorist ? "match.t" : "match.ct"
                 ]
             : Name;
+
+    public CCSTeam? GetEntity()
+    {
+        return Utilities
+            .FindAllEntitiesByDesignerName<CCSTeam>("cs_team_manager")
+            .Where(team => team.TeamNum == (byte)GetCurrentTeam())
+            .FirstOrDefault();
+    }
+
+    public int GetScore()
+    {
+        return GetEntity()?.Score ?? 0;
+    }
+
+    public void PrintToChat(string message)
+    {
+        foreach (var player in Players)
+            player.Controller?.PrintToChat(message);
+    }
 }

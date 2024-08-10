@@ -39,4 +39,9 @@ public partial class MatchPlugin
             TimerFlags.REPEAT | TimerFlags.STOP_ON_MAPCHANGE
         );
     }
+
+    public void CreateTimer(string name, float interval, Action callback)
+    {
+        _timers[name] = AddTimer(interval, callback, TimerFlags.STOP_ON_MAPCHANGE);
+    }
 }

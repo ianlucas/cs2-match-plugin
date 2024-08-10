@@ -11,8 +11,8 @@ namespace MatchPlugin;
 
 public class StateWarmupReady(Match match) : StateWarmup(match)
 {
-    public static readonly List<string> ReadyCmds = ["css_ready", "css_r"];
-    public static readonly List<string> UnreadyCmds = ["css_unready", "css_ur"];
+    public static readonly List<string> ReadyCmds = ["css_ready", "css_r", "css_pronto"];
+    public static readonly List<string> UnreadyCmds = ["css_unready", "css_ur", "css_naopronto"];
 
     public override void Load()
     {

@@ -3,15 +3,32 @@
 *  Licensed under the MIT License. See License.txt in the project root for license information.
 *--------------------------------------------------------------------------------------------*/
 
+using System.Runtime.InteropServices;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Events;
+using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
 
 namespace MatchPlugin;
 
 public static class Extensions
 {
+    private static readonly bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+
+    public static MemoryFunctionVoid<IntPtr, float, RoundEndReason, int, uint> WTerminateRoundFunc =
+        new(GameData.GetSignature("TerminateRound"));
+
+    public static Action<IntPtr, float, RoundEndReason, int, uint> WindowsTerminateRound =
+        WTerminateRoundFunc.Invoke;
+
+    public static MemoryFunctionVoid<IntPtr, RoundEndReason, int, uint, float> LTerminateRoundFunc =
+        new(GameData.GetSignature("TerminateRound"));
+
+    public static Action<IntPtr, RoundEndReason, int, uint, float> LinuxTerminateRound =
+        LTerminateRoundFunc.Invoke;
+
     public static void SetClan(this CCSPlayerController controller, string clan)
     {
         try
@@ -42,6 +59,18 @@ public static class Extensions
         {
             Server.ExecuteCommand($"kickid {(ushort)controller.UserId}");
         }
+    }
+
+    public static void TerminateRoundX(
+        this CCSGameRules gameRules,
+        float delay,
+        RoundEndReason roundEndReason
+    )
+    {
+        if (IsWindows)
+            WindowsTerminateRound(gameRules.Handle, delay, roundEndReason, 0, 0);
+        else
+            LinuxTerminateRound(gameRules.Handle, roundEndReason, 0, 0, delay);
     }
 
     public static CsTeam GetKnifeRoundWinner(this CCSGameRules _)
