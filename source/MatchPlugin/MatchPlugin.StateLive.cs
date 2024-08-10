@@ -57,6 +57,7 @@ public partial class StateLive(Match match) : State(match)
 
     public HookResult OnRoundStart(EventRoundStart @event, GameEventInfo _)
     {
+        _canSurrender = true;
         Match.CurrentRound += 1;
         return HookResult.Continue;
     }
@@ -85,6 +86,7 @@ public partial class StateLive(Match match) : State(match)
 
     public HookResult OnRoundEndPre(EventRoundEnd @event, GameEventInfo _)
     {
+        _canSurrender = false;
         var localize = Match.Plugin.Localizer;
         var home = Match.Teams.First();
         var away = Match.Teams.Last();

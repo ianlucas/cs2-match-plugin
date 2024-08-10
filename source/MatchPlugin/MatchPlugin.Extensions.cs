@@ -21,6 +21,11 @@ public static class Extensions
     public static Action<IntPtr, float, RoundEndReason, int, uint> TerminateRound =
         TerminateRoundFunc.Invoke;
 
+    public static readonly MemoryFunctionVoid<IntPtr, int> ChangeTeamFunc =
+        new(GameData.GetSignature("ChangeTeam"));
+
+    public static readonly Action<IntPtr, int> ChangeTeam = ChangeTeamFunc.Invoke;
+
     public static void SetClan(this CCSPlayerController controller, string clan)
     {
         try

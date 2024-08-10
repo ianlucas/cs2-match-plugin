@@ -25,6 +25,7 @@ public partial class MatchPlugin : BasePlugin
     public override void Load(bool hotReload)
     {
         RegisterListener<Listeners.OnTick>(OnTick);
+        Extensions.ChangeTeamFunc.Hook(OnChangeTeam, HookMode.Pre);
         RegisterEventHandler<EventPlayerConnect>(OnPlayerConnect);
         RegisterEventHandler<EventPlayerConnectFull>(OnPlayerConnectFull);
         RegisterEventHandler<EventPlayerDisconnect>(OnPlayerDisconnect);

@@ -23,6 +23,7 @@
   "match.round_end_damage": "{0} To: [{1} / {2} hits] From: [{3} / {4} hits] - {5} ({6} hp)",
   "match.surrender_start": "{0} A vote to surrender was initiated by {1}. Your team must reach {2} votes within {3} seconds.",
   "match.surrender_vote": "{0} {1} of {2} required surrender votes have been cast.",
-  "match.surrender_fail": "{0} Not enough players on your team voted to surrender.",
+  "match.surrender_fail1": "{0} Surrender failed. Please try again.",
+  "match.surrender_fail2": "{0} Not enough players on your team voted to surrender.",
   "match.surrender_success": "{0} Team {1} surrendered."
 }

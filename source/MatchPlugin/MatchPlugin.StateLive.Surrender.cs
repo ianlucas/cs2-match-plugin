@@ -15,12 +15,14 @@ namespace MatchPlugin;
 public partial class StateLive
 {
     private Team? _surrendingTeam;
+    private bool _canSurrender = false;
 
     public void OnSurrenderCommand(CCSPlayerController? controller, CommandInfo _)
     {
         var player = Match.GetPlayerFromSteamID(controller?.SteamID);
         if (
             player != null
+            && _canSurrender
             && (_surrendingTeam == null || _surrendingTeam == player.Team)
             && !player.Team.SurrenderVotes.Contains(player.SteamID)
         )
@@ -31,6 +33,8 @@ public partial class StateLive
             var timerName = $"surrender{player.Team.Index}";
             if (player.Team.SurrenderVotes.Count >= neededVotes)
             {
+                if (!_canSurrender)
+                    return;
                 Match.Plugin.ClearTimer(timerName);
                 Server.PrintToChatAll(
                     Match.Plugin.Localizer[
@@ -68,9 +72,16 @@ public partial class StateLive
                     () =>
                     {
                         _surrendingTeam = null;
+                        var hadAllSurrenderVotes =
+                            player.Team.SurrenderVotes.Count == player.Team.Players.Count;
                         player.Team.SurrenderVotes.Clear();
                         player.Team.PrintToChat(
-                            Match.Plugin.Localizer["match.surrender_fail", Match.GetChatPrefix()]
+                            Match.Plugin.Localizer[
+                                hadAllSurrenderVotes
+                                    ? "match.surrender_fail1"
+                                    : "match.surrender_fail2",
+                                Match.GetChatPrefix()
+                            ]
                         );
                     }
                 );
