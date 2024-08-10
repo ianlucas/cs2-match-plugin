@@ -51,7 +51,7 @@ public class StateKnifeRound(Match match) : State(match)
     public HookResult OnRoundEndPre(EventRoundEnd @event, GameEventInfo _)
     {
         var gameRules = UtilitiesX.GetGameRules();
-        var winner = gameRules?.GetCustomRoundWinner();
+        var winner = gameRules?.GetKnifeRoundWinner();
         var team = Match.GetTeamFromCsTeam(winner);
         if (team != null)
         {

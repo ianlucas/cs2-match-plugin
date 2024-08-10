@@ -73,4 +73,9 @@ public class Match
         var player = GetPlayerFromSteamID(steamId);
         player?.Team.RemovePlayer(player);
     }
+
+    public bool IsHalfTime()
+    {
+        return false;
+    }
 }

@@ -3,6 +3,7 @@
 *  Licensed under the MIT License. See License.txt in the project root for license information.
 *--------------------------------------------------------------------------------------------*/
 
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 
@@ -46,4 +47,25 @@ public class Team(Match match, CsTeam startingTeam)
         if (InGameLeader == player)
             InGameLeader = Players.FirstOrDefault();
     }
+
+    public CsTeam? GetCurrentTeam()
+    {
+        return _match.IsHalfTime() ? UtilitiesX.ToggleCsTeam(StartingTeam) : StartingTeam;
+    }
+
+    public string GetServerName() =>
+        Name == ""
+            ? InGameLeader != null
+                ? $"team_{InGameLeader.Name}"
+                : "\"\""
+            : Name;
+
+    public string GetName() =>
+        Name == ""
+            ? InGameLeader != null
+                ? $"team_{InGameLeader.Name}"
+                : _match.Plugin.Localizer[
+                    GetCurrentTeam() == CsTeam.Terrorist ? "match.t" : "match.ct"
+                ]
+            : Name;
 }

@@ -32,6 +32,7 @@ public partial class MatchPlugin
 
     public void CreateChatTimer(string name, Action callback)
     {
+        callback();
         _timers[name] = AddTimer(
             _chatInterval,
             callback,

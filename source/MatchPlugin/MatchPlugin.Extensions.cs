@@ -3,7 +3,6 @@
 *  Licensed under the MIT License. See License.txt in the project root for license information.
 *--------------------------------------------------------------------------------------------*/
 
-using System.Reflection;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Events;
@@ -45,7 +44,7 @@ public static class Extensions
         }
     }
 
-    public static CsTeam GetCustomRoundWinner(this CCSGameRules _)
+    public static CsTeam GetKnifeRoundWinner(this CCSGameRules _)
     {
         var tPlayers = UtilitiesX.GetPlayersFromTeam(CsTeam.Terrorist);
         var ctPlayers = UtilitiesX.GetPlayersFromTeam(CsTeam.CounterTerrorist);
@@ -57,7 +56,7 @@ public static class Extensions
         {
             var winner = ctAlive > tAlive ? CsTeam.CounterTerrorist : CsTeam.Terrorist;
             Server.PrintToConsole(
-                $"[CCSGameRules::GetCustomRoundWinner] (Alive ct={ctAlive} t={tAlive}) winner={winner}"
+                $"CCSGameRules::GetCustomRoundWinner (Alive ct={ctAlive} t={tAlive}) winner={winner}"
             );
             return winner;
         }
@@ -65,13 +64,13 @@ public static class Extensions
         {
             var winner = ctHealth > tHealth ? CsTeam.CounterTerrorist : CsTeam.Terrorist;
             Server.PrintToConsole(
-                $"[CCSGameRules::GetCustomRoundWinner] (Health ct={ctHealth} t={tHealth}) winner={winner}"
+                $"CCSGameRules::GetCustomRoundWinner (Health ct={ctHealth} t={tHealth}) winner={winner}"
             );
             return winner;
         }
         var randomWinner = (CsTeam)new Random().Next(2, 4);
         Server.PrintToConsole(
-            $"[CCSGameRules::GetCustomRoundWinner] (Random) randomWinner={randomWinner}"
+            $"CCSGameRules::GetCustomRoundWinner (Random) randomWinner={randomWinner}"
         );
         return randomWinner;
 

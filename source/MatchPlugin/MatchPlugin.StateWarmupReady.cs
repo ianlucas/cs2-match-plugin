@@ -34,6 +34,7 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
     public override void Unload()
     {
         base.Unload();
+
         Match.Plugin.RemoveListener<Listeners.OnTick>(OnTick);
         Match.Plugin.DeregisterEventHandler<EventPlayerTeam>(OnPlayerTeam);
         Match.Plugin.DeregisterEventHandler<EventPlayerDisconnect>(OnPlayerDisconnect);

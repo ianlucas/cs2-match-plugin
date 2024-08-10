@@ -22,6 +22,9 @@ public class UtilitiesX
     public static IEnumerable<CCSPlayerController> GetUnfilteredPlayers() =>
         Utilities.FindAllEntitiesByDesignerName<CCSPlayerController>("cs_player_controller");
 
+    public static CsTeam ToggleCsTeam(CsTeam team) =>
+        team == CsTeam.Terrorist ? CsTeam.CounterTerrorist : CsTeam.Terrorist;
+
     public static CCSGameRules? GetGameRules() =>
         GameRulesProxy?.IsValid == true
             ? GameRulesProxy.GameRules

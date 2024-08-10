@@ -4,6 +4,7 @@
 *--------------------------------------------------------------------------------------------*/
 
 using CounterStrikeSharp.API;
+using CounterStrikeSharp.API.Modules.Utils;
 
 namespace MatchPlugin;
 
@@ -16,5 +17,11 @@ public class ServerX
     {
         for (var n = 0; n < amount; n++)
             Server.PrintToChatAll(message);
+    }
+
+    public static void SetTeamName(CsTeam team, string name)
+    {
+        var index = team == CsTeam.CounterTerrorist ? 1 : 2;
+        Server.ExecuteCommand($"mp_teamname_{index} {name}");
     }
 }
