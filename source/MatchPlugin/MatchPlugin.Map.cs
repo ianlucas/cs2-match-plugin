@@ -33,8 +33,8 @@ public class Map(string mapName)
     [JsonPropertyName("stats")]
     public object? Stats { get; set; }
 
-    [JsonPropertyName("demoPath")]
-    public string? DemoPath { get; set; }
+    [JsonPropertyName("demoFilename")]
+    public string? DemoFilename { get; set; }
 
     [JsonPropertyName("knifeRoundWinner")]
     public int? KnifeRoundWinner { get; set; }

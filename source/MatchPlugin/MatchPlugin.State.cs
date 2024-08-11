@@ -83,9 +83,10 @@ public class State(Match match)
     {
         var map = Match.GetCurrentMap();
         var stats = ServerX.GetLastRoundSaveContents();
+        var demoFilename = Match.Cstv.GetFilename();
         if (map != null)
         {
-            map.DemoPath = Match.Cstv.GetFullPath();
+            map.DemoFilename = demoFilename;
             map.KnifeRoundWinner = Match.KnifeRoundWinner?.Index;
             map.Result = result;
             map.Stats = stats;
@@ -98,7 +99,7 @@ public class State(Match match)
                 [
                     new(Server.MapName)
                     {
-                        DemoPath = Match.Cstv.GetFullPath(),
+                        DemoFilename = demoFilename,
                         KnifeRoundWinner = Match.KnifeRoundWinner?.Index,
                         Result = result,
                         Stats = stats,

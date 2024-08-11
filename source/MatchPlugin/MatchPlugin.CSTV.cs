@@ -54,7 +54,7 @@ public class CSTV
         }
     }
 
-    public string? GetFullPath() => _filename != null ? ServerX.GetFullPath(_filename) : null;
+    public string? GetFilename() => _filename;
 
     public bool IsEnabled()
     {
