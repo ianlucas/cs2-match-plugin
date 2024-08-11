@@ -38,4 +38,10 @@ public partial class MatchPlugin : BasePlugin
 
         Directory.CreateDirectory(ServerX.GetFullPath("/matches"));
     }
+
+    public override void Unload(bool hotReload)
+    {
+        ClearAllTimers();
+        _match.State.Unload();
+    }
 }
