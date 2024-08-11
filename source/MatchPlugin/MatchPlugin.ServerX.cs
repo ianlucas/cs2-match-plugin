@@ -34,12 +34,19 @@ public class ServerX
         Server.ExecuteCommand($"mp_teamname_{index} {name}");
     }
 
-    public static string? GetLastRoundSaveContents()
+    public static object? GetLastRoundSaveContents()
     {
-        var file = ConVar.Find("mp_backup_round_file_last")?.StringValue;
-        if (file == null)
+        try
+        {
+            var file = ConVar.Find("mp_backup_round_file_last")?.StringValue;
+            if (file == null)
+                return null;
+            var path = Path.Combine(Server.GameDirectory, "csgo", file);
+            return File.Exists(path) ? KeyValues.Parse<object>(File.ReadAllText(path)) : null;
+        }
+        catch
+        {
             return null;
-        var path = Path.Combine(Server.GameDirectory, "csgo", file);
-        return File.Exists(path) ? File.ReadAllText(path) : null;
+        }
     }
 }
