@@ -21,6 +21,9 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
 
     public override void Load()
     {
+        Server.PrintToConsole($"StateWarmupReady::Load matchmaking={Match.IsMatchmaking()}");
+        Match.Cstv.Stop();
+
         if (Match.CheckCurrentMap())
             return /* Map will be changed. */
             ;
@@ -59,6 +62,8 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
             warmupTime: Match.IsMatchmaking() ? Match.matchmaking_ready_timeout.Value : -1,
             lockTeams: Match.AreTeamsLocked()
         );
+
+        _matchCancelled = false;
     }
 
     public override void Unload()
@@ -129,7 +134,7 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
                     Server.PrintToChatAll(
                         Match.Plugin.Localizer[
                             "match.match_waiting_team",
-                            Match.GetChatPrefix(),
+                            Match.GetChatPrefix(stripColors: true),
                             team.FormattedName,
                             formattedTimeleft
                         ]
@@ -140,7 +145,7 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
                     Server.PrintToChatAll(
                         Match.Plugin.Localizer[
                             "match.match_waiting_players",
-                            Match.GetChatPrefix(),
+                            Match.GetChatPrefix(stripColors: true),
                             formattedTimeleft
                         ]
                     );

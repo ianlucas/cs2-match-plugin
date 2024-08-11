@@ -84,9 +84,11 @@ public class Match
             ServerX.SendJson(EventsUrl, @event);
     }
 
-    public string GetChatPrefix()
+    public string GetChatPrefix(bool stripColors = false)
     {
-        return chat_prefix.Value.ReplaceColorTags();
+        return stripColors
+            ? chat_prefix.Value.StripColorTags()
+            : chat_prefix.Value.ReplaceColorTags();
     }
 
     public void SetState<T>()

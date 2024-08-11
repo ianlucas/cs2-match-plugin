@@ -31,17 +31,13 @@ public partial class MatchPlugin : BasePlugin
         RegisterEventHandler<EventPlayerConnect>(OnPlayerConnect);
         RegisterEventHandler<EventPlayerConnectFull>(OnPlayerConnectFull);
         RegisterEventHandler<EventPlayerDisconnect>(OnPlayerDisconnect);
+        AddCommand("match_load", "Load a match file.", OnMatchLoadCommand);
         AddCommand("match_status", "Print match status.", OnMatchStatusCommand);
         AddCommand("css_start", "Forcefully start match.", OnStartCommand);
         AddCommand("css_restart", "Forcefully restart match.", OnRestartCommand);
         AddCommand("css_map", "Change current map.", OnMapCommand);
 
-        Directory.CreateDirectory(ServerX.GetFullPath("/matches"));
-    }
-
-    public override void Unload(bool hotReload)
-    {
-        ClearAllTimers();
-        _match.State.Unload();
+        RegisterFakeConVars(_match);
+        Directory.CreateDirectory(ServerX.GetFullPath());
     }
 }

@@ -111,8 +111,11 @@ public class State(Match match)
         if (isSeriesOver || result != MapResult.Completed)
         {
             Match.SendEvent(new { type = "matchend", results = maps });
-            Match.Plugin.OnMatchMatchmakingChanged(null, Match.matchmaking.Value);
             Match.Reset();
+            Match.Plugin.OnMatchMatchmakingChanged(null, Match.matchmaking.Value);
+            if (Match.matchmaking.Value)
+                foreach (var controller in Utilities.GetPlayers().Where(p => !p.IsBot))
+                    controller.Kick();
         }
         Match.Cstv.Stop();
         Match.SetState<StateWarmupReady>();

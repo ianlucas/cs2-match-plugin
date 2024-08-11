@@ -49,8 +49,8 @@ public class CSTV
     {
         if (IsRecording())
         {
-            Server.ExecuteCommand("tv_stoprecord");
             _filename = null;
+            Server.ExecuteCommand("tv_stoprecord");
         }
     }
 

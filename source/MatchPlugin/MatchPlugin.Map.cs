@@ -22,20 +22,20 @@ public enum MapResult : int
 public class Map(string mapName)
 {
     [JsonPropertyName("mapName")]
-    public string MapName = mapName;
+    public string MapName { get; set; } = mapName;
 
     [JsonPropertyName("winner")]
-    public int? Winner;
+    public int? Winner { get; set; }
 
     [JsonPropertyName("result")]
-    public MapResult Result = MapResult.None;
+    public MapResult Result { get; set; } = MapResult.None;
 
     [JsonPropertyName("stats")]
-    public object? Stats;
+    public object? Stats { get; set; }
 
     [JsonPropertyName("demoPath")]
-    public string? DemoPath;
+    public string? DemoPath { get; set; }
 
     [JsonPropertyName("knifeRoundWinner")]
-    public int? KnifeRoundWinner;
+    public int? KnifeRoundWinner { get; set; }
 }

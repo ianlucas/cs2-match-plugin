@@ -19,9 +19,11 @@ public partial class MatchPlugin
         if (caller != null && !AdminManager.PlayerHasPermissions(caller, "@css/config"))
             return;
         var message = "[MatchPlugin Status]\n\n";
-        message += "[State]\n";
-        message += _match.State.GetType().Name;
-        message += "\n\n";
+        message += $"State: {_match.State.GetType().Name}\n";
+        message += $"Id: {_match.Id ?? "(No ID)"}\n";
+        message += $"Loaded from file?: {_match.IsLoadedFromFile}\n";
+        message += $"Is matchmaking?: {_match.IsMatchmaking()}\n";
+        message += "\n";
         foreach (var team in _match.Teams)
         {
             message += $"[Team {team.Index}]\n";
@@ -57,28 +59,31 @@ public partial class MatchPlugin
     {
         if (!AdminManager.PlayerHasPermissions(caller, "@css/config"))
             return;
-        _match.Id = ServerX.Now().ToString();
-        _match.CreateMatchFolder();
-        foreach (var controller in UtilitiesX.GetPlayersInTeams().Where(p => !p.IsBot))
+        if (!_match.IsLoadedFromFile)
         {
-            controller.SetClan("");
-            var player = _match.GetPlayerFromSteamID(controller.SteamID);
-            if (player == null)
+            _match.Id = ServerX.Now().ToString();
+            _match.CreateMatchFolder();
+            foreach (var controller in UtilitiesX.GetPlayersInTeams().Where(p => !p.IsBot))
             {
-                var team = _match.GetTeamFromCsTeam(controller.Team);
-                if (team == null)
-                    controller.ChangeTeam(CsTeam.Spectator);
-                else
+                controller.SetClan("");
+                var player = _match.GetPlayerFromSteamID(controller.SteamID);
+                if (player == null)
                 {
-                    player = new(controller.SteamID, controller.PlayerName, team, controller);
-                    team.AddPlayer(player);
+                    var team = _match.GetTeamFromCsTeam(controller.Team);
+                    if (team == null)
+                        controller.ChangeTeam(CsTeam.Spectator);
+                    else
+                    {
+                        player = new(controller.SteamID, controller.PlayerName, team, controller);
+                        team.AddPlayer(player);
+                    }
                 }
+                if (player != null)
+                    player.IsReady = true;
             }
-            if (player != null)
-                player.IsReady = true;
+            foreach (var team in _match.Teams)
+                ServerX.SetTeamName(team.StartingTeam, team.ServerName);
         }
-        foreach (var team in _match.Teams)
-            ServerX.SetTeamName(team.StartingTeam, team.ServerName);
         _match.SetState<StateKnifeRound>();
     }
 
@@ -101,5 +106,67 @@ public partial class MatchPlugin
             return;
         _match.Reset();
         _match.SetState<StateWarmupReady>();
+    }
+
+    public void OnMatchLoadCommand(CCSPlayerController? caller, CommandInfo command)
+    {
+        if (!AdminManager.PlayerHasPermissions(caller, "@css/config"))
+            return;
+        if (command.ArgCount != 2)
+            return;
+        var name = command.ArgByIndex(1).Trim();
+        if (_match.State is StateWarmupReady)
+        {
+            var matchSchema = MatchFile.Read(name);
+            if (matchSchema == null)
+                return;
+            var terrorists = _match.Teams.FirstOrDefault();
+            var cts = _match.Teams.LastOrDefault();
+            if (terrorists == null || cts == null)
+                return;
+            _match.Reset();
+            _match.IsLoadedFromFile = true;
+            _match.Id = matchSchema.MatchId;
+            _match.EventsUrl = matchSchema.EventsUrl;
+            foreach (var mapName in matchSchema.Maps)
+                _match.Maps.Add(new(mapName));
+            terrorists.StartingTeam = CsTeam.Terrorist;
+            cts.StartingTeam = CsTeam.CounterTerrorist;
+            for (var index = 0; index < _match.Teams.Count; index++)
+            {
+                var team = _match.Teams[index];
+                var teamSchema = matchSchema.Teams[index];
+                team.Name = teamSchema.Name ?? "";
+                foreach (var playerSchema in teamSchema.Players)
+                {
+                    var steamId = ulong.Parse(playerSchema.SteamID);
+                    var player = new Player(
+                        steamId,
+                        playerSchema.Name,
+                        team,
+                        Utilities.GetPlayerFromSteamId(steamId)
+                    );
+                    team.AddPlayer(player);
+                    if (playerSchema.IsInGameLeader)
+                        team.InGameLeader = player;
+                }
+            }
+            if (matchSchema.IsMatchmaking != null)
+                _match.matchmaking.Value = matchSchema.IsMatchmaking.Value;
+            if (matchSchema.IsTvRecord != null)
+                _match.tv_record.Value = matchSchema.IsTvRecord.Value;
+            matchSchema.Commands?.ForEach(Server.ExecuteCommand);
+            foreach (var controller in Utilities.GetPlayers().Where(p => !p.IsBot))
+                if (_match.GetPlayerFromSteamID(controller.SteamID) == null)
+                    if (
+                        _match.matchmaking.Value
+                        || AdminManager.PlayerHasPermissions(controller, "@css/config")
+                    )
+                        controller.ChangeTeam(CsTeam.Spectator);
+                    else
+                        controller.Kick();
+            _match.CreateMatchFolder();
+            _match.SetState<StateWarmupReady>();
+        }
     }
 }

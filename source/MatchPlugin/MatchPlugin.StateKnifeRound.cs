@@ -5,6 +5,9 @@
 
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Entities.Constants;
+using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
+using CounterStrikeSharp.API.Modules.Utils;
 
 namespace MatchPlugin;
 
@@ -14,7 +17,8 @@ public class StateKnifeRound(Match match) : State(match)
     {
         Match.KnifeRoundWinner = null;
         Match.Plugin.RegisterEventHandler<EventRoundStart>(OnRoundStart);
-        Match.Plugin.RegisterEventHandler<EventRoundMvp>(OnRoundMvpPre, HookMode.Pre);
+        Extensions.IncrementNumMVPsFunc.Hook(OnIncrementNumMVPs, HookMode.Pre);
+        Extensions.TerminateRoundFunc.Hook(OnTerminateRound, HookMode.Pre);
         Match.Plugin.RegisterEventHandler<EventRoundEnd>(OnRoundEndPre, HookMode.Pre);
 
         Config.ExecKnife();
@@ -25,7 +29,8 @@ public class StateKnifeRound(Match match) : State(match)
     public override void Unload()
     {
         Match.Plugin.DeregisterEventHandler<EventRoundStart>(OnRoundStart);
-        Match.Plugin.DeregisterEventHandler<EventRoundMvp>(OnRoundMvpPre, HookMode.Pre);
+        Extensions.IncrementNumMVPsFunc.Unhook(OnIncrementNumMVPs, HookMode.Pre);
+        Extensions.TerminateRoundFunc.Unhook(OnTerminateRound, HookMode.Pre);
         Match.Plugin.DeregisterEventHandler<EventRoundEnd>(OnRoundEndPre, HookMode.Pre);
     }
 
@@ -42,24 +47,28 @@ public class StateKnifeRound(Match match) : State(match)
         return HookResult.Continue;
     }
 
-    public HookResult OnRoundMvpPre(EventRoundMvp @event, GameEventInfo _)
+    public HookResult OnIncrementNumMVPs(DynamicHook h) => HookResult.Stop;
+
+    public HookResult OnTerminateRound(DynamicHook h)
     {
-        // @todo: Don't work sometimes, need to research other ways.
-        foreach (var player in UtilitiesX.GetUnfilteredPlayers())
-            player.MVPs = 0;
-        return HookResult.Stop;
+        h.SetParam(
+            2,
+            (uint)(
+                UtilitiesX.GetGameRules()?.GetKnifeRoundWinner() == CsTeam.Terrorist
+                    ? RoundEndReason.TerroristsWin
+                    : RoundEndReason.CTsWin
+            )
+        );
+        return HookResult.Continue;
     }
 
     public HookResult OnRoundEndPre(EventRoundEnd @event, GameEventInfo _)
     {
         var gameRules = UtilitiesX.GetGameRules();
-        var winner = gameRules?.GetKnifeRoundWinner();
-        var team = Match.GetTeamFromCsTeam(winner);
-        if (team != null)
+        if (gameRules != null)
         {
-            // @todo: Hook TerminateRound and change team there. SFUI_Notice_Target_Saved
-            gameRules?.SetRoundEndWinner(team.StartingTeam);
-            Match.KnifeRoundWinner = team;
+            // gameRules?.SetRoundEndWinner(team.StartingTeam);
+            Match.KnifeRoundWinner = Match.GetTeamFromCsTeam(gameRules.GetKnifeRoundWinner());
         }
         return HookResult.Continue;
     }

@@ -3,8 +3,10 @@
 *  Licensed under the MIT License. See License.txt in the project root for license information.
 *--------------------------------------------------------------------------------------------*/
 
+using System.Xml.Linq;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Events;
 using CounterStrikeSharp.API.Modules.Utils;
 
 namespace MatchPlugin;
@@ -43,4 +45,17 @@ public class UtilitiesX
             )?.IsValid == true
                 ? GameRulesProxy?.GameRules
                 : null;
+
+    public static void SetPlayerName(CCSPlayerController? controller, string name)
+    {
+        try
+        {
+            if (controller != null && controller.PlayerName != name)
+            {
+                controller.PlayerName = name;
+                new GameEvent("nextlevel_changed", false).FireEvent(false);
+            }
+        }
+        catch { }
+    }
 }

@@ -4,6 +4,7 @@
 *--------------------------------------------------------------------------------------------*/
 
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
@@ -13,7 +14,7 @@ using CounterStrikeSharp.API.Modules.Utils;
 
 namespace MatchPlugin;
 
-public static class Extensions
+public static partial class Extensions
 {
     public static MemoryFunctionVoid<IntPtr, float, RoundEndReason, int, uint> TerminateRoundFunc =
         new(GameData.GetSignature("TerminateRound"));
@@ -25,6 +26,9 @@ public static class Extensions
         new(GameData.GetSignature("ChangeTeam"));
 
     public static readonly Action<IntPtr, int> ChangeTeam = ChangeTeamFunc.Invoke;
+
+    public static readonly MemoryFunctionWithReturn<IntPtr, int, int> IncrementNumMVPsFunc =
+        new(GameData.GetSignature("IncrementNumMVPs"));
 
     public static void SetClan(this CCSPlayerController controller, string clan)
     {
@@ -40,22 +44,18 @@ public static class Extensions
         catch { }
     }
 
-    public static int GetHealth(this CCSPlayerController controller)
-    {
-        return Math.Max(
+    public static int GetHealth(this CCSPlayerController controller) =>
+        Math.Max(
             (
                 controller.IsBot == true ? controller.Pawn?.Value : controller.PlayerPawn?.Value
             )?.Health ?? 0,
             0
         );
-    }
 
     public static void Kick(this CCSPlayerController controller)
     {
         if (controller.UserId.HasValue)
-        {
             Server.ExecuteCommand($"kickid {(ushort)controller.UserId}");
-        }
     }
 
     public static void TerminateRoundX(
@@ -98,26 +98,11 @@ public static class Extensions
         static int SumHealth(CCSPlayerController player) => player.GetHealth();
     }
 
-    public static void SetRoundEndWinner(this CCSGameRules gameRules, CsTeam team)
+    public static string StripColorTags(this string str)
     {
-        var reason = 10;
-        var message = "";
-        switch (team)
-        {
-            case CsTeam.CounterTerrorist:
-                reason = 8;
-                message = "#SFUI_Notice_CTs_Win";
-                break;
-            case CsTeam.Terrorist:
-                reason = 9;
-                message = "#SFUI_Notice_Terrorists_Win";
-                break;
-        }
-        gameRules.RoundEndReason = reason;
-        gameRules.RoundEndFunFactToken = "";
-        gameRules.RoundEndMessage = message;
-        gameRules.RoundEndWinnerTeam = (int)team;
-        gameRules.RoundEndFunFactData1 = 0;
-        gameRules.RoundEndFunFactPlayerSlot = 0;
+        return ColorTag().Replace(str, "");
     }
+
+    [GeneratedRegex(@"\{.*?\}")]
+    private static partial Regex ColorTag();
 }

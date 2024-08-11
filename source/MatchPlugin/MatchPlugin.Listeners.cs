@@ -27,9 +27,9 @@ public partial class MatchPlugin
             OnConfigsExecuted();
         }
         if (_match.bots.Value)
-        {
             OnBotsTick();
-        }
+        if (_match.AreTeamsLocked())
+            OnTeamsLocked();
     }
 
     public void OnConfigsExecuted()
@@ -84,5 +84,11 @@ public partial class MatchPlugin
             if (botCount + humanCount > neededPerTeam && botToKick != null)
                 Server.ExecuteCommand($"kickid {botToKick}");
         }
+    }
+
+    public void OnTeamsLocked()
+    {
+        foreach (var player in _match.Teams.SelectMany(t => t.Players))
+            UtilitiesX.SetPlayerName(player.Controller, player.Name);
     }
 }
