@@ -66,20 +66,27 @@ public class CSTV
         return IsEnabled() && Utilities.GetPlayers().Any(p => p.IsHLTV);
     }
 
-    public void Set(bool value)
+    public bool Set(bool value)
     {
         if (value)
         {
             if (!IsEnabled())
+            {
                 ConVar.Find("tv_enable")?.SetValue(true);
+                ConVar.Find("tv_delay")?.SetValue(_match.tv_delay.Value);
+            }
             if (!IsEnabled() || !IsActive())
+            {
                 Server.ExecuteCommand($"changelevel {Server.MapName}");
-            Server.ExecuteCommand($"tv_delay {_match.tv_delay.Value}");
+                return true;
+            }
         }
         else if (IsEnabled() || IsActive())
         {
             ConVar.Find("tv_enable")?.SetValue(false);
             Server.ExecuteCommand($"changelevel {Server.MapName}");
+            return true;
         }
+        return false;
     }
 }

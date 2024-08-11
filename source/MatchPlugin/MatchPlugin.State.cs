@@ -33,7 +33,7 @@ public class State(Match match)
                 result = MapResult.Forfeited;
                 winner = team.Oppositon.Index;
                 Server.PrintToConsole(
-                    $"StateLive::OnCsWinPanelMatch forfeited, result={result}, winner={winner}"
+                    $"State::OnCsWinPanelMatch forfeited, result={result}, winner={winner}"
                 );
                 break;
             }
@@ -42,7 +42,7 @@ public class State(Match match)
                 result = MapResult.Completed;
                 winner = team.Index;
                 Server.PrintToConsole(
-                    $"StateLive::OnCsWinPanelMatch completed, result={result}, winner={winner}"
+                    $"State::OnCsWinPanelMatch completed, result={result}, winner={winner}"
                 );
             }
         }
@@ -110,10 +110,7 @@ public class State(Match match)
         var isSeriesOver = Match.GetCurrentMap() == null;
         if (isSeriesOver || result != MapResult.Completed)
         {
-            if (Match.IsLoadedFromFile && Match.EventsUrl != null)
-            {
-                Match.SendEvent(new { type = "matchend", results = maps });
-            }
+            Match.SendEvent(new { type = "matchend", results = maps });
             Match.Plugin.OnMatchMatchmakingChanged(null, Match.matchmaking.Value);
             Match.Reset();
         }

@@ -21,8 +21,12 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
 
     public override void Load()
     {
-        Match.CheckCurrentMap();
-        Match.Cstv.Set(Match.tv_record.Value);
+        if (Match.CheckCurrentMap())
+            return /* Map will be changed. */
+            ;
+        if (Match.Cstv.Set(Match.tv_record.Value))
+            return /* CSTV will be enabled or disabled. */
+            ;
 
         base.Load();
 

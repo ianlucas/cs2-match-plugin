@@ -163,13 +163,14 @@ public class Match
         return AreTeamsPlayingSwitchedSides() != AreTeamsPlayingSwitchedSides(CurrentRound + 1);
     }
 
-    public void CheckCurrentMap()
+    public bool CheckCurrentMap()
     {
         var currentMap = GetCurrentMap();
         if (currentMap != null && Server.MapName != currentMap.MapName)
         {
             Server.ExecuteCommand($"changelevel {currentMap.MapName}");
-            return;
+            return true;
         }
+        return false;
     }
 }
