@@ -18,6 +18,10 @@ public class Match
         new("match_chat_prefix", "Prefix for chat messages.", "[{red}Match{default}]");
     public readonly FakeConVar<bool> bots =
         new("match_bots", "Bots join the game to fill slots.", true);
+    public readonly FakeConVar<bool> tv_record =
+        new("match_tv_record", "Are we recording demos?", true);
+    public readonly FakeConVar<int> tv_delay =
+        new("match_tv_delay", "CSTV's broadcast delay.", 105);
     public readonly FakeConVar<int> players_needed =
         new("match_players_needed", "Number of players needed for a match.", 10);
     public readonly FakeConVar<int> players_needed_per_team =
@@ -40,6 +44,7 @@ public class Match
         new("match_surrender_timeout", "Time to vote surrender.", 30);
 
     public string? Id = null;
+    public string? EventsUrl = null;
     public State State;
     public readonly MatchPlugin Plugin;
     public readonly List<Team> Teams = [];
@@ -47,6 +52,7 @@ public class Match
     public bool IsLoadedFromFile = false;
     public Team? KnifeRoundWinner;
     public int CurrentRound = 0;
+    public CSTV Cstv;
 
     public Match(MatchPlugin plugin)
     {
@@ -57,17 +63,25 @@ public class Match
         Teams = [terrorists, cts];
         Plugin = plugin;
         State = new(this);
+        Cstv = new(this);
     }
 
     public void Reset()
     {
         Id = null;
+        EventsUrl = null;
         IsLoadedFromFile = false;
         CurrentRound = 0;
         KnifeRoundWinner = null;
         Maps.Clear();
         foreach (var team in Teams)
             team.Reset();
+    }
+
+    public void SendEvent(object @event)
+    {
+        if (EventsUrl != null)
+            ServerX.SendJson(EventsUrl, @event);
     }
 
     public string GetChatPrefix()
@@ -123,7 +137,7 @@ public class Match
     public string? GetBackupPrefix() =>
         Id != null ? ServerX.GetConVarPath($"{GetMatchFolder()}/{Server.MapName}") : null;
 
-    public string? GetDemoFilePath() =>
+    public string? GetDemoFilename() =>
         Id != null ? ServerX.GetConVarPath($"{GetMatchFolder()}/{Server.MapName}.dem") : null;
 
     public bool AreTeamsPlayingSwitchedSides(int? round = null)
@@ -147,5 +161,15 @@ public class Match
         if (State is not StateLive)
             return false;
         return AreTeamsPlayingSwitchedSides() != AreTeamsPlayingSwitchedSides(CurrentRound + 1);
+    }
+
+    public void CheckCurrentMap()
+    {
+        var currentMap = GetCurrentMap();
+        if (currentMap != null && Server.MapName != currentMap.MapName)
+        {
+            Server.ExecuteCommand($"changelevel {currentMap.MapName}");
+            return;
+        }
     }
 }

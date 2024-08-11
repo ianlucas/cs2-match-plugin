@@ -21,12 +21,8 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
 
     public override void Load()
     {
-        var currentMap = Match.GetCurrentMap();
-        if (currentMap != null && Server.MapName != currentMap.MapName)
-        {
-            Server.ExecuteCommand($"changelevel {currentMap.MapName}");
-            return;
-        }
+        Match.CheckCurrentMap();
+        Match.Cstv.Set(Match.tv_record.Value);
 
         base.Load();
 

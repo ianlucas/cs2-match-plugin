@@ -80,7 +80,8 @@ public class Config
     public static void ExecLive(
         int max_rounds = 30,
         int ot_max_rounds = 6,
-        string? backupPath = null
+        string? backupPath = null,
+        int restartDelay = 25
     ) =>
         ServerX.ExecuteCommand(
             [
@@ -210,7 +211,7 @@ public class Config
                 "mp_technical_timeout_duration_s 120",
                 "mp_team_timeout_time 30",
                 // Demo settings
-                "mp_match_restart_delay 105",
+                $"mp_match_restart_delay {restartDelay}",
                 // ...then end warmup.
                 "mp_warmup_end",
                 "mp_warmup_pausetimer 0"

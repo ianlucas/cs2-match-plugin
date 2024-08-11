@@ -33,7 +33,8 @@ public partial class StateLive(Match match) : State(match)
         Config.ExecLive(
             max_rounds: Match.max_rounds.Value,
             ot_max_rounds: Match.ot_max_rounds.Value,
-            backupPath: Match.GetBackupPrefix()
+            backupPath: Match.GetBackupPrefix(),
+            restartDelay: Match.Cstv.IsRecording() ? Match.tv_delay.Value + 5 : 25
         );
 
         var localize = Match.Plugin.Localizer;

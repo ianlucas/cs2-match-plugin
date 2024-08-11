@@ -18,6 +18,8 @@ public class StateKnifeRound(Match match) : State(match)
         Match.Plugin.RegisterEventHandler<EventRoundEnd>(OnRoundEndPre, HookMode.Pre);
 
         Config.ExecKnife();
+
+        Match.Cstv.Record(Match.GetDemoFilename());
     }
 
     public override void Unload()

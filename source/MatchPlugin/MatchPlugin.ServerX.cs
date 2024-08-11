@@ -3,6 +3,8 @@
 *  Licensed under the MIT License. See License.txt in the project root for license information.
 *--------------------------------------------------------------------------------------------*/
 
+using System.Text;
+using System.Text.Json;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Utils;
@@ -48,5 +50,35 @@ public class ServerX
         {
             return null;
         }
+    }
+
+    public static void WriteJson(string filename, object contents)
+    {
+        if (File.Exists(filename))
+        {
+            int version = 1;
+            string backupPath;
+            do
+            {
+                backupPath = $"{filename}.{version}";
+                version++;
+            } while (File.Exists(backupPath));
+
+            File.Copy(filename, backupPath);
+        }
+        string jsonString = JsonSerializer.Serialize(contents);
+        File.WriteAllText(filename, jsonString);
+    }
+
+    public static async void SendJson(string url, object data)
+    {
+        try
+        {
+            var json = JsonSerializer.Serialize(data);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            using HttpClient client = new();
+            await client.PostAsync(url, content);
+        }
+        catch { }
     }
 }

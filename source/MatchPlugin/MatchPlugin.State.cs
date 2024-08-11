@@ -46,11 +46,10 @@ public class State(Match match)
                 );
             }
         }
-        var mp_match_restart_delay = ConVar
-            .Find("mp_match_restart_delay")
-            ?.GetPrimitiveValue<int>();
-        var interval = mp_match_restart_delay != null ? mp_match_restart_delay - 2 : 1;
-        Match.Plugin.CreateTimer("matchend", (float)interval, () => OnMapEnd(result, winner));
+        var mp_match_restart_delay =
+            ConVar.Find("mp_match_restart_delay")?.GetPrimitiveValue<int>() ?? 25;
+        var interval = mp_match_restart_delay - 2;
+        Match.Plugin.CreateTimer("matchend", interval, () => OnMapEnd(result, winner));
         return HookResult.Continue;
     }
 
@@ -83,23 +82,42 @@ public class State(Match match)
     public void OnMapEnd(MapResult result = MapResult.None, int? winner = null)
     {
         var map = Match.GetCurrentMap();
+        var stats = ServerX.GetLastRoundSaveContents();
         if (map != null)
         {
+            map.DemoPath = Match.Cstv.GetFullPath();
+            map.KnifeRoundWinner = Match.KnifeRoundWinner?.Index;
             map.Result = result;
+            map.Stats = stats;
             map.Winner = winner;
-            map.Stats = ServerX.GetLastRoundSaveContents();
         }
-        var isLastMap = Match.GetCurrentMap() == null;
-        if (isLastMap || result != MapResult.Completed)
+        var maps = (
+            Match.Maps.Count > 0
+                ? Match.Maps
+                :
+                [
+                    new(Server.MapName)
+                    {
+                        DemoPath = Match.Cstv.GetFullPath(),
+                        KnifeRoundWinner = Match.KnifeRoundWinner?.Index,
+                        Result = result,
+                        Stats = stats,
+                        Winner = winner
+                    }
+                ]
+        ).Where(m => m.Result != MapResult.None);
+        ServerX.WriteJson(ServerX.GetFullPath($"{Match.GetMatchFolder()}/results.json"), maps);
+        var isSeriesOver = Match.GetCurrentMap() == null;
+        if (isSeriesOver || result != MapResult.Completed)
         {
-            if (Match.IsLoadedFromFile)
+            if (Match.IsLoadedFromFile && Match.EventsUrl != null)
             {
-                Match.IsLoadedFromFile = false;
-                // @todo: Send match notification for API.
+                Match.SendEvent(new { type = "matchend", results = maps });
             }
             Match.Plugin.OnMatchMatchmakingChanged(null, Match.matchmaking.Value);
             Match.Reset();
         }
+        Match.Cstv.Stop();
         Match.SetState<StateWarmupReady>();
     }
 }
