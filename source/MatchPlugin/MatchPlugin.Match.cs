@@ -3,20 +3,14 @@
 *  Licensed under the MIT License. See License.txt in the project root for license information.
 *--------------------------------------------------------------------------------------------*/
 
+using System.IO;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Translations;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Utils;
 
 namespace MatchPlugin;
-
-public enum MapResult : int
-{
-    None,
-    Completed,
-    Cancelled,
-    Forfeited
-}
 
 public class Match
 {
@@ -49,6 +43,7 @@ public class Match
     public State State;
     public readonly MatchPlugin Plugin;
     public readonly List<Team> Teams = [];
+    public readonly List<Map> Maps = [];
     public bool IsLoadedFromFile = false;
     public Team? KnifeRoundWinner;
     public int CurrentRound = 0;
@@ -70,6 +65,7 @@ public class Match
         IsLoadedFromFile = false;
         CurrentRound = 0;
         KnifeRoundWinner = null;
+        Maps.Clear();
         foreach (var team in Teams)
             team.Reset();
     }
@@ -111,10 +107,24 @@ public class Match
         return IsLoadedFromFile && matchmaking.Value;
     }
 
+    public Map? GetCurrentMap() => Maps.Where(m => m.Result == MapResult.None).FirstOrDefault();
+
     public bool AreTeamsLocked()
     {
         return IsLoadedFromFile || State is not StateWarmupReady;
     }
+
+    public string GetMatchFolder() =>
+        Id != null ? $"/{(IsLoadedFromFile ? "match-" : "scrim-")}{Id}" : "";
+
+    public DirectoryInfo CreateMatchFolder() =>
+        Directory.CreateDirectory(ServerX.GetFullPath(GetMatchFolder()));
+
+    public string? GetBackupPrefix() =>
+        Id != null ? ServerX.GetConVarPath($"{GetMatchFolder()}/{Server.MapName}") : null;
+
+    public string? GetDemoFilePath() =>
+        Id != null ? ServerX.GetConVarPath($"{GetMatchFolder()}/{Server.MapName}.dem") : null;
 
     public bool AreTeamsPlayingSwitchedSides(int? round = null)
     {

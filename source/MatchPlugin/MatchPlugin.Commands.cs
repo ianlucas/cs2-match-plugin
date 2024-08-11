@@ -14,9 +14,9 @@ namespace MatchPlugin;
 
 public partial class MatchPlugin
 {
-    public void OnMatchStatusCommand(CCSPlayerController? controller, CommandInfo _)
+    public void OnMatchStatusCommand(CCSPlayerController? caller, CommandInfo _)
     {
-        if (controller != null && !AdminManager.PlayerHasPermissions(controller, "@css/config"))
+        if (caller != null && !AdminManager.PlayerHasPermissions(caller, "@css/config"))
             return;
         var message = "[MatchPlugin Status]\n\n";
         message += "[State]\n";
@@ -48,15 +48,17 @@ public partial class MatchPlugin
                 message += "\n";
             }
         }
-        if (controller != null)
-            controller.PrintToConsole(message);
+        if (caller != null)
+            caller.PrintToConsole(message);
         Server.PrintToConsole(message);
     }
 
     public void OnStartCommand(CCSPlayerController? caller, CommandInfo _)
     {
-        if (caller != null && !AdminManager.PlayerHasPermissions(caller, "@css/config"))
+        if (!AdminManager.PlayerHasPermissions(caller, "@css/config"))
             return;
+        _match.Id = ServerX.Now().ToString();
+        _match.CreateMatchFolder();
         foreach (var controller in UtilitiesX.GetPlayersInTeams().Where(p => !p.IsBot))
         {
             controller.SetClan("");
@@ -78,5 +80,26 @@ public partial class MatchPlugin
         foreach (var team in _match.Teams)
             ServerX.SetTeamName(team.StartingTeam, team.ServerName);
         _match.SetState<StateKnifeRound>();
+    }
+
+    public void OnMapCommand(CCSPlayerController? caller, CommandInfo command)
+    {
+        if (!AdminManager.PlayerHasPermissions(caller, "@css/config"))
+            return;
+        if (command.ArgCount != 2)
+            return;
+        var mapname = command.ArgByIndex(1).ToLower().Trim();
+        if (!mapname.StartsWith("de_"))
+            return;
+        if (!_match.AreTeamsLocked())
+            Server.ExecuteCommand($"changelevel {mapname}");
+    }
+
+    public void OnRestartCommand(CCSPlayerController? caller, CommandInfo command)
+    {
+        if (!AdminManager.PlayerHasPermissions(caller, "@css/config"))
+            return;
+        _match.Reset();
+        _match.SetState<StateWarmupReady>();
     }
 }

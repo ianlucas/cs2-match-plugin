@@ -51,7 +51,6 @@ public class State(Match match)
             ?.GetPrimitiveValue<int>();
         var interval = mp_match_restart_delay != null ? mp_match_restart_delay - 2 : 1;
         Match.Plugin.CreateTimer("matchend", (float)interval, () => OnMapEnd(result, winner));
-        // @todo: Kick players if matchmaking.
         return HookResult.Continue;
     }
 
@@ -83,8 +82,24 @@ public class State(Match match)
 
     public void OnMapEnd(MapResult result = MapResult.None, int? winner = null)
     {
-        if (!Match.IsLoadedFromFile)
+        var map = Match.GetCurrentMap();
+        if (map != null)
+        {
+            map.Result = result;
+            map.Winner = winner;
+            map.Stats = ServerX.GetLastRoundSaveContents();
+        }
+        var isLastMap = Match.GetCurrentMap() == null;
+        if (isLastMap || result != MapResult.Completed)
+        {
+            if (Match.IsLoadedFromFile)
+            {
+                Match.IsLoadedFromFile = false;
+                // @todo: Send match notification for API.
+            }
+            Match.Plugin.OnMatchMatchmakingChanged(null, Match.matchmaking.Value);
             Match.Reset();
+        }
         Match.SetState<StateWarmupReady>();
     }
 }

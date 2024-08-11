@@ -5,6 +5,7 @@
 
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Utils;
 
 namespace MatchPlugin;
@@ -28,6 +29,14 @@ public partial class MatchPlugin
         var player = _match.GetPlayerFromSteamID(controller?.SteamID);
         if (player != null)
             player.Controller = controller;
+        else if (
+            controller?.IsBot == false
+            && _match.matchmaking.Value
+            && !AdminManager.PlayerHasPermissions(controller, "@css/root")
+        )
+        {
+            controller.Kick();
+        }
     }
 
     public HookResult OnPlayerDisconnect(EventPlayerDisconnect @event, GameEventInfo _)

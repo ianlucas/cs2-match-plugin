@@ -7,7 +7,11 @@ namespace MatchPlugin;
 
 public class Config
 {
-    public static void ExecWarmup(int warmupTime = -1, bool lockTeams = false) =>
+    public static void ExecWarmup(
+        int warmupTime = -1,
+        bool lockTeams = false,
+        string? backupPath = null
+    ) =>
         ServerX.ExecuteCommand(
             [
                 "bot_chatter off",
@@ -37,7 +41,7 @@ public class Config
                 $"mp_force_pick_time {(lockTeams ? 0 : 15)}",
                 $"sv_disable_teamselect_menu {(lockTeams ? 1 : 0)}",
                 // Backup convars
-                //$"mp_backup_round_file {(_match.IsTeamLocked() ? _match.GetMatchBackupPrefix() : "\"\"")}",
+                $"mp_backup_round_file \"\"",
                 // ...then run these
                 warmupTime > -1
                     ? $"mp_warmup_pausetimer 0;mp_warmuptime {warmupTime}"
@@ -66,17 +70,21 @@ public class Config
                 "mp_force_pick_time 0",
                 "sv_disable_teamselect_menu 0",
                 // Backup convars
-                //$"mp_backup_round_file {(_match.IsTeamLocked() ? _match.GetMatchBackupPrefix() : "\"\"")}",
+                $"mp_backup_round_file \"\"",
                 // ...then run these
                 "mp_warmup_end",
                 "mp_warmup_pausetimer 0"
             ]
         );
 
-    public static void ExecLive(int max_rounds = 30, int ot_max_rounds = 6) =>
+    public static void ExecLive(
+        int max_rounds = 30,
+        int ot_max_rounds = 6,
+        string? backupPath = null
+    ) =>
         ServerX.ExecuteCommand(
             [
-                //$"mp_backup_round_file {_match.GetMatchBackupPrefix()}",
+                $"mp_backup_round_file {backupPath ?? "\"\""}",
                 "ammo_grenade_limit_default 1",
                 "ammo_grenade_limit_flashbang 2",
                 "ammo_grenade_limit_total 4",

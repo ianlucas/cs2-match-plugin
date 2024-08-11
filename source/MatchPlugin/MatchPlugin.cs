@@ -20,16 +20,22 @@ public partial class MatchPlugin : BasePlugin
     {
         _match = new(this);
         _match.bots.ValueChanged += OnMatchBotsChanged;
+        _match.matchmaking.ValueChanged += OnMatchMatchmakingChanged;
     }
 
     public override void Load(bool hotReload)
     {
         RegisterListener<Listeners.OnTick>(OnTick);
+        RegisterListener<Listeners.OnMapStart>(OnMapStart);
         Extensions.ChangeTeamFunc.Hook(OnChangeTeam, HookMode.Pre);
         RegisterEventHandler<EventPlayerConnect>(OnPlayerConnect);
         RegisterEventHandler<EventPlayerConnectFull>(OnPlayerConnectFull);
         RegisterEventHandler<EventPlayerDisconnect>(OnPlayerDisconnect);
         AddCommand("match_status", "Print match status.", OnMatchStatusCommand);
         AddCommand("css_start", "Forcefully start match.", OnStartCommand);
+        AddCommand("css_restart", "Forcefully restart match.", OnRestartCommand);
+        AddCommand("css_map", "Change current map.", OnMapCommand);
+
+        Directory.CreateDirectory(ServerX.GetFullPath("/matches"));
     }
 }

@@ -5,6 +5,7 @@
 
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Utils;
 
 namespace MatchPlugin;
@@ -27,13 +28,14 @@ public partial class MatchPlugin
         }
         if (_match.bots.Value)
         {
-            OnCheckBotOverflowing();
+            OnBotsTick();
         }
     }
 
     public void OnConfigsExecuted()
     {
         OnMatchBotsChanged(null, _match.bots.Value);
+        OnMatchMatchmakingChanged(null, _match.matchmaking.Value);
         _match.SetState<StateWarmupReady>();
     }
 
@@ -44,7 +46,18 @@ public partial class MatchPlugin
         );
     }
 
-    public void OnCheckBotOverflowing()
+    public void OnMatchMatchmakingChanged(object? sender, bool value)
+    {
+        if (value)
+            foreach (var controller in Utilities.GetPlayers().Where(p => !p.IsBot))
+                if (_match.GetPlayerFromSteamID(controller.SteamID) == null)
+                    if (AdminManager.PlayerHasPermissions(controller, "@css/root"))
+                        controller.ChangeTeam(CsTeam.Spectator);
+                    else
+                        controller.Kick();
+    }
+
+    public void OnBotsTick()
     {
         var neededPerTeam = _match.players_needed_per_team.Value;
         List<IEnumerable<CCSPlayerController>> teams =

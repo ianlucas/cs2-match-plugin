@@ -26,6 +26,7 @@ public partial class StateLive(Match match) : State(match)
         SurrenderCmds.ForEach(c => Match.Plugin.AddCommand(c, "Surrender", OnSurrenderCommand));
         PauseCmds.ForEach(c => Match.Plugin.AddCommand(c, "Pause the match", OnPauseCommand));
         UnpauseCmds.ForEach(c => Match.Plugin.AddCommand(c, "Unpause the match", OnUnpauseCommand));
+        Match.Plugin.AddCommand("css_restore", "Restore a round.", OnRestoreCommand);
         Match.Plugin.RegisterEventHandler<EventPlayerConnect>(OnPlayerConnect);
         Match.Plugin.RegisterEventHandler<EventPlayerConnectFull>(OnPlayerConnectFull);
         Match.Plugin.RegisterEventHandler<EventRoundStart>(OnRoundStart);
@@ -36,7 +37,8 @@ public partial class StateLive(Match match) : State(match)
 
         Config.ExecLive(
             max_rounds: Match.max_rounds.Value,
-            ot_max_rounds: Match.ot_max_rounds.Value
+            ot_max_rounds: Match.ot_max_rounds.Value,
+            backupPath: Match.GetBackupPrefix()
         );
 
         var localize = Match.Plugin.Localizer;
@@ -55,6 +57,7 @@ public partial class StateLive(Match match) : State(match)
         SurrenderCmds.ForEach(c => Match.Plugin.RemoveCommand(c, OnSurrenderCommand));
         PauseCmds.ForEach(c => Match.Plugin.RemoveCommand(c, OnPauseCommand));
         UnpauseCmds.ForEach(c => Match.Plugin.RemoveCommand(c, OnUnpauseCommand));
+        Match.Plugin.RemoveCommand("css_restore", OnRestoreCommand);
         Match.Plugin.RegisterEventHandler<EventRoundStart>(OnRoundStart);
         Match.Plugin.DeregisterEventHandler<EventPlayerHurt>(OnPlayerHurt);
         Match.Plugin.DeregisterEventHandler<EventRoundEnd>(OnRoundEndPre, HookMode.Pre);

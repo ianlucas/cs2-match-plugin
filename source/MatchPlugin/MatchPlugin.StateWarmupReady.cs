@@ -21,6 +21,13 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
 
     public override void Load()
     {
+        var currentMap = Match.GetCurrentMap();
+        if (currentMap != null && Server.MapName != currentMap.MapName)
+        {
+            Server.ExecuteCommand($"changelevel {currentMap.MapName}");
+            return;
+        }
+
         base.Load();
 
         Match.Plugin.RegisterListener<Listeners.OnTick>(OnTick);
@@ -182,6 +189,11 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
         var players = Match.Teams.SelectMany(t => t.Players);
         if (players.Count() == Match.players_needed.Value && players.All(p => p.IsReady))
         {
+            if (!Match.IsLoadedFromFile)
+            {
+                Match.Id = ServerX.Now().ToString();
+                Match.CreateMatchFolder();
+            }
             var idsInMatch = players.Select(p => p.SteamID);
             foreach (var controller in UtilitiesX.GetPlayersInTeams())
                 if (idsInMatch.Contains(controller.SteamID))

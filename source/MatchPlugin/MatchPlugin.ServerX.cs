@@ -4,6 +4,7 @@
 *--------------------------------------------------------------------------------------------*/
 
 using CounterStrikeSharp.API;
+using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Utils;
 
 namespace MatchPlugin;
@@ -11,6 +12,12 @@ namespace MatchPlugin;
 public class ServerX
 {
     public static long Now() => DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+    public static string GetConVarPath(string path = "") =>
+        $"addons/counterstrikesharp/configs/plugins/MatchPlugin{path}";
+
+    public static string GetFullPath(string path = "") =>
+        Path.Combine(Server.GameDirectory, "csgo", GetConVarPath(path));
 
     public static void ExecuteCommand(List<string> commands) =>
         commands.ForEach(Server.ExecuteCommand);
@@ -25,5 +32,14 @@ public class ServerX
     {
         var index = team == CsTeam.CounterTerrorist ? 1 : 2;
         Server.ExecuteCommand($"mp_teamname_{index} {name}");
+    }
+
+    public static string? GetLastRoundSaveContents()
+    {
+        var file = ConVar.Find("mp_backup_round_file_last")?.StringValue;
+        if (file == null)
+            return null;
+        var path = Path.Combine(Server.GameDirectory, "csgo", file);
+        return File.Exists(path) ? File.ReadAllText(path) : null;
     }
 }
