@@ -31,9 +31,9 @@ public class Match
     public readonly FakeConVar<int> matchmaking_ready_timeout =
         new("match_matchmaking_ready_timeout", "Time to players ready up.", 300);
     public readonly FakeConVar<int> max_rounds =
-        new("match_max_rounds", "Max number of rounds to play.", 6);
+        new("match_max_rounds", "Max number of rounds to play.", 24);
     public readonly FakeConVar<int> ot_max_rounds =
-        new("match_ot_max_rounds", "Additional rounds to determine winner.", 4);
+        new("match_ot_max_rounds", "Additional rounds to determine winner.", 6);
     public readonly FakeConVar<bool> friendly_pause =
         new("match_friendly_pause", "Teams can pause at any time.", false);
     public readonly FakeConVar<int> knife_vote_timeout =
