@@ -68,13 +68,10 @@ public class CSTV
 
     public bool Set(bool value)
     {
-        if (value)
+        if (value && !IsEnabled())
         {
-            if (!IsEnabled())
-            {
-                ConVar.Find("tv_enable")?.SetValue(true);
-                ConVar.Find("tv_delay")?.SetValue(_match.tv_delay.Value);
-            }
+            ConVar.Find("tv_enable")?.SetValue(true);
+            ConVar.Find("tv_delay")?.SetValue(_match.tv_delay.Value);
         }
         else if (IsEnabled() || IsActive())
         {
