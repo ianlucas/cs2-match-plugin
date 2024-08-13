@@ -17,7 +17,7 @@ public class Match
     public readonly FakeConVar<string> chat_prefix =
         new("match_chat_prefix", "Prefix for chat messages.", "[{red}Match{default}]");
     public readonly FakeConVar<bool> bots =
-        new("match_bots", "Bots join the game to fill slots.", true);
+        new("match_bots", "Bots join the game to fill slots.", false);
     public readonly FakeConVar<bool> tv_record =
         new("match_tv_record", "Are we recording demos?", true);
     public readonly FakeConVar<int> tv_delay =
