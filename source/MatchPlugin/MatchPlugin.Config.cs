@@ -212,6 +212,7 @@ public class Config
                 "mp_team_timeout_time 30",
                 // Demo settings
                 $"mp_match_restart_delay {restartDelay}",
+                "tv_enable_dynamic 1",
                 // ...then end warmup.
                 "mp_warmup_end",
                 "mp_warmup_pausetimer 0"

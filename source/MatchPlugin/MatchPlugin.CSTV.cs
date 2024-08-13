@@ -75,17 +75,10 @@ public class CSTV
                 ConVar.Find("tv_enable")?.SetValue(true);
                 ConVar.Find("tv_delay")?.SetValue(_match.tv_delay.Value);
             }
-            if (!IsEnabled() || !IsActive())
-            {
-                Server.ExecuteCommand($"changelevel {Server.MapName}");
-                return true;
-            }
         }
         else if (IsEnabled() || IsActive())
         {
             ConVar.Find("tv_enable")?.SetValue(false);
-            Server.ExecuteCommand($"changelevel {Server.MapName}");
-            return true;
         }
         return false;
     }
