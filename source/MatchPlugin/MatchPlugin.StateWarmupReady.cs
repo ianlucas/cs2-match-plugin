@@ -37,7 +37,7 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
         Match.Plugin.RegisterEventHandler<EventPlayerTeam>(OnPlayerTeam);
         Match.Plugin.RegisterEventHandler<EventPlayerDisconnect>(OnPlayerDisconnect);
         Match.Plugin.RegisterEventHandler<EventCsWinPanelMatch>(OnCsWinPanelMatch);
-        Match.Plugin.CreateChatTimer("PrintWarmupCommands", OnPrintWarmupCommands);
+
         ReadyCmds.ForEach(c => Match.Plugin.AddCommand(c, "Mark as ready.", OnReadyCommand));
         UnreadyCmds.ForEach(c => Match.Plugin.AddCommand(c, "Mark as unready.", OnUnreadyCommand));
 
@@ -57,6 +57,8 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
                 () => OnMatchCancelled()
             );
         }
+
+        Match.Plugin.CreateChatTimer("PrintWarmupCommands", OnPrintWarmupCommands);
 
         Config.ExecWarmup(
             warmupTime: Match.IsMatchmaking() ? Match.matchmaking_ready_timeout.Value : -1,
