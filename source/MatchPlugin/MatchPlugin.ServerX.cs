@@ -21,6 +21,9 @@ public class ServerX
     public static string GetFullPath(string path = "") =>
         Path.Combine(Server.GameDirectory, "csgo", GetConVarPath(path));
 
+    public static string GetCSGOPath(string path = "") =>
+        Path.Combine(Server.GameDirectory, "csgo", path);
+
     public static void ExecuteCommand(List<string> commands) =>
         commands.ForEach(Server.ExecuteCommand);
 

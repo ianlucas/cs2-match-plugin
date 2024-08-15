@@ -15,7 +15,6 @@ public class StateKnifeRound(Match match) : State(match)
 {
     public override void Load()
     {
-        Match.KnifeRoundWinner = null;
         Match.Plugin.RegisterEventHandler<EventRoundStart>(OnRoundStart);
         Extensions.IncrementNumMVPsFunc.Hook(OnIncrementNumMVPs, HookMode.Pre);
         Extensions.TerminateRoundFunc.Hook(OnTerminateRound, HookMode.Pre);
@@ -23,6 +22,7 @@ public class StateKnifeRound(Match match) : State(match)
 
         Config.ExecKnife();
 
+        Match.KnifeRoundWinner = null;
         Match.Cstv.Record(Match.GetDemoFilename());
     }
 
@@ -51,12 +51,12 @@ public class StateKnifeRound(Match match) : State(match)
 
     public HookResult OnTerminateRound(DynamicHook h)
     {
+        var winner = UtilitiesX.GetGameRules()?.GetKnifeRoundWinner() ?? CsTeam.Terrorist;
+        Match.KnifeRoundWinner = Match.GetTeamFromCsTeam(winner);
         h.SetParam(
             2,
             (uint)(
-                UtilitiesX.GetGameRules()?.GetKnifeRoundWinner() == CsTeam.Terrorist
-                    ? RoundEndReason.TerroristsWin
-                    : RoundEndReason.CTsWin
+                winner == CsTeam.Terrorist ? RoundEndReason.TerroristsWin : RoundEndReason.CTsWin
             )
         );
         return HookResult.Continue;
@@ -65,9 +65,8 @@ public class StateKnifeRound(Match match) : State(match)
     public HookResult OnRoundEndPre(EventRoundEnd @event, GameEventInfo _)
     {
         var gameRules = UtilitiesX.GetGameRules();
-        if (gameRules != null)
+        if (gameRules != null && Match.KnifeRoundWinner == null)
         {
-            // gameRules?.SetRoundEndWinner(team.StartingTeam);
             Match.KnifeRoundWinner = Match.GetTeamFromCsTeam(gameRules.GetKnifeRoundWinner());
         }
         return HookResult.Continue;

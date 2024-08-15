@@ -59,6 +59,8 @@ public partial class MatchPlugin
     {
         if (!AdminManager.PlayerHasPermissions(caller, "@css/config"))
             return;
+        if (_match.State is not StateWarmupReady)
+            return;
         if (!_match.IsLoadedFromFile)
         {
             _match.Id = ServerX.Now().ToString();
@@ -112,61 +114,60 @@ public partial class MatchPlugin
     {
         if (!AdminManager.PlayerHasPermissions(caller, "@css/config"))
             return;
+        if (_match.State is not StateWarmupReady)
+            return;
         if (command.ArgCount != 2)
             return;
         var name = command.ArgByIndex(1).Trim();
-        if (_match.State is StateWarmupReady)
+        var matchSchema = MatchFile.Read(name);
+        if (matchSchema == null)
+            return;
+        var terrorists = _match.Teams.FirstOrDefault();
+        var cts = _match.Teams.LastOrDefault();
+        if (terrorists == null || cts == null)
+            return;
+        _match.Reset();
+        _match.IsLoadedFromFile = true;
+        _match.Id = matchSchema.MatchId;
+        _match.EventsUrl = matchSchema.EventsUrl;
+        foreach (var mapName in matchSchema.Maps)
+            _match.Maps.Add(new(mapName));
+        terrorists.StartingTeam = CsTeam.Terrorist;
+        cts.StartingTeam = CsTeam.CounterTerrorist;
+        for (var index = 0; index < _match.Teams.Count; index++)
         {
-            var matchSchema = MatchFile.Read(name);
-            if (matchSchema == null)
-                return;
-            var terrorists = _match.Teams.FirstOrDefault();
-            var cts = _match.Teams.LastOrDefault();
-            if (terrorists == null || cts == null)
-                return;
-            _match.Reset();
-            _match.IsLoadedFromFile = true;
-            _match.Id = matchSchema.MatchId;
-            _match.EventsUrl = matchSchema.EventsUrl;
-            foreach (var mapName in matchSchema.Maps)
-                _match.Maps.Add(new(mapName));
-            terrorists.StartingTeam = CsTeam.Terrorist;
-            cts.StartingTeam = CsTeam.CounterTerrorist;
-            for (var index = 0; index < _match.Teams.Count; index++)
+            var team = _match.Teams[index];
+            var teamSchema = matchSchema.Teams[index];
+            team.Name = teamSchema.Name ?? "";
+            foreach (var playerSchema in teamSchema.Players)
             {
-                var team = _match.Teams[index];
-                var teamSchema = matchSchema.Teams[index];
-                team.Name = teamSchema.Name ?? "";
-                foreach (var playerSchema in teamSchema.Players)
-                {
-                    var steamId = ulong.Parse(playerSchema.SteamID);
-                    var player = new Player(
-                        steamId,
-                        playerSchema.Name,
-                        team,
-                        Utilities.GetPlayerFromSteamId(steamId)
-                    );
-                    team.AddPlayer(player);
-                    if (playerSchema.IsInGameLeader)
-                        team.InGameLeader = player;
-                }
+                var steamId = ulong.Parse(playerSchema.SteamID);
+                var player = new Player(
+                    steamId,
+                    playerSchema.Name,
+                    team,
+                    Utilities.GetPlayerFromSteamId(steamId)
+                );
+                team.AddPlayer(player);
+                if (playerSchema.IsInGameLeader)
+                    team.InGameLeader = player;
             }
-            if (matchSchema.IsMatchmaking != null)
-                _match.matchmaking.Value = matchSchema.IsMatchmaking.Value;
-            if (matchSchema.IsTvRecord != null)
-                _match.tv_record.Value = matchSchema.IsTvRecord.Value;
-            matchSchema.Commands?.ForEach(Server.ExecuteCommand);
-            foreach (var controller in Utilities.GetPlayers().Where(p => !p.IsBot))
-                if (_match.GetPlayerFromSteamID(controller.SteamID) == null)
-                    if (
-                        _match.matchmaking.Value
-                        || AdminManager.PlayerHasPermissions(controller, "@css/config")
-                    )
-                        controller.ChangeTeam(CsTeam.Spectator);
-                    else
-                        controller.Kick();
-            _match.CreateMatchFolder();
-            _match.SetState<StateWarmupReady>();
         }
+        if (matchSchema.IsMatchmaking != null)
+            _match.matchmaking.Value = matchSchema.IsMatchmaking.Value;
+        if (matchSchema.IsTvRecord != null)
+            _match.tv_record.Value = matchSchema.IsTvRecord.Value;
+        matchSchema.Commands?.ForEach(Server.ExecuteCommand);
+        foreach (var controller in Utilities.GetPlayers().Where(p => !p.IsBot))
+            if (_match.GetPlayerFromSteamID(controller.SteamID) == null)
+                if (
+                    _match.matchmaking.Value
+                    || AdminManager.PlayerHasPermissions(controller, "@css/config")
+                )
+                    controller.ChangeTeam(CsTeam.Spectator);
+                else
+                    controller.Kick();
+        _match.CreateMatchFolder();
+        _match.SetState<StateWarmupReady>();
     }
 }

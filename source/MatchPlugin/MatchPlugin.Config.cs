@@ -28,6 +28,7 @@ public class Config
                 "sv_hibernate_when_empty 0",
                 "mp_technical_timeout_per_team 0",
                 "mp_team_timeout_max 0",
+                "mp_buy_allow_grenades 0",
                 // Voting convars
                 "sv_allow_votes 0",
                 "sv_vote_allow_spectators 0",
@@ -125,6 +126,7 @@ public class Config
                 "mp_backup_round_auto 1",
                 "mp_buy_anywhere 0",
                 "mp_buy_during_immunity 0",
+                "mp_buy_allow_grenades 1",
                 "mp_buytime 20",
                 "mp_c4timer 40",
                 "mp_ct_default_melee weapon_knife",
