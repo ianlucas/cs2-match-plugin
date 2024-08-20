@@ -79,7 +79,8 @@ public partial class StateLive
                     Match.Plugin.Localizer[
                         "match.pause_unpause1",
                         Match.GetChatPrefix(),
-                        player.Team.FormattedName
+                        player.Team.FormattedName,
+                        player.Team.Oppositon.FormattedName
                     ]
                 );
                 return;

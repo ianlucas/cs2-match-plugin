@@ -17,7 +17,7 @@
   "match.live": "{0} LIVE!",
   "match.live_disclaimer": "{0} Por favor, esteja ciente de que esta partida tem prorrogação ativada, não há empate.",
   "match.pause_start": "{0} {1} solicitou uma pausa.",
-  "match.pause_unpause1": "{0} {1} quer despausar, aguardando {2} digitar !unpause.",
+  "match.pause_unpause1": "{0} {1} quer despausar, aguardando {2} digitar {green}!unpause{default}.",
   "match.pause_unpause2": "{0} {1} despausou a partida.",
   "match.round_end_score": "{0} {1} [{2} - {3}] {4}",
   "match.round_end_damage": "{0} Tirou: [{1} / {2} acertos] Recebeu: [{3} / {4} acertos] - {5} ({6} hp)",
