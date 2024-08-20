@@ -101,8 +101,7 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
     public void OnPrintWarmupCommands()
     {
         var needed =
-            Match.players_needed.Value
-            - Match.Teams.SelectMany(t => t.Players).Count(p => p.IsReady);
+            Match.GetNeededPlayers() - Match.Teams.SelectMany(t => t.Players).Count(p => p.IsReady);
         foreach (var controller in UtilitiesX.GetPlayersInTeams())
         {
             var localize = Match.Plugin.Localizer;
@@ -194,7 +193,7 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
     public void CheckIfPlayersAreReady()
     {
         var players = Match.Teams.SelectMany(t => t.Players);
-        if (players.Count() == Match.players_needed.Value && players.All(p => p.IsReady))
+        if (players.Count() == Match.GetNeededPlayers() && players.All(p => p.IsReady))
         {
             if (!Match.IsLoadedFromFile)
             {

@@ -125,6 +125,9 @@ public class Match
 
     public Map? GetCurrentMap() => Maps.Where(m => m.Result == MapResult.None).FirstOrDefault();
 
+    public int GetNeededPlayers() =>
+        IsLoadedFromFile ? Teams.SelectMany(t => t.Players).Count() : players_needed.Value;
+
     public bool AreTeamsLocked()
     {
         return IsLoadedFromFile || State is not StateWarmupReady;
