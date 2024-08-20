@@ -44,6 +44,9 @@ public partial class StateLive(Match match) : State(match)
         foreach (var team in Match.Teams)
             team.IsSurrended = false;
 
+        foreach (var player in Utilities.GetPlayers())
+            player.SetClan("");
+
         Match.CurrentRound = 0;
     }
 

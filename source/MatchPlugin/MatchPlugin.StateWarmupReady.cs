@@ -203,9 +203,7 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
             }
             var idsInMatch = players.Select(p => p.SteamID);
             foreach (var controller in UtilitiesX.GetPlayersInTeams())
-                if (idsInMatch.Contains(controller.SteamID))
-                    controller.SetClan("");
-                else
+                if (!idsInMatch.Contains(controller.SteamID))
                     controller.ChangeTeam(CsTeam.Spectator);
             foreach (var team in Match.Teams)
                 ServerX.SetTeamName(team.StartingTeam, team.ServerName);

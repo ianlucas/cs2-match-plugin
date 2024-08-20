@@ -67,7 +67,6 @@ public partial class MatchPlugin
             _match.CreateMatchFolder();
             foreach (var controller in UtilitiesX.GetPlayersInTeams().Where(p => !p.IsBot))
             {
-                controller.SetClan("");
                 var player = _match.GetPlayerFromSteamID(controller.SteamID);
                 if (player == null)
                 {
