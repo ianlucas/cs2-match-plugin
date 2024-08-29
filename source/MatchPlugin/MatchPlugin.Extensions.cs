@@ -16,19 +16,30 @@ namespace MatchPlugin;
 
 public static partial class Extensions
 {
-    public static MemoryFunctionVoid<IntPtr, float, RoundEndReason, int, uint> TerminateRoundFunc =
-        new(GameData.GetSignature("TerminateRound"));
+    public static readonly MemoryFunctionVoid<
+        IntPtr,
+        float,
+        RoundEndReason,
+        int,
+        uint
+    > TerminateRoundFunc = new(GameData.GetSignature("TerminateRound"));
 
-    public static Action<IntPtr, float, RoundEndReason, int, uint> TerminateRound =
+    public static readonly Action<IntPtr, float, RoundEndReason, int, uint> TerminateRound =
         TerminateRoundFunc.Invoke;
 
     public static readonly MemoryFunctionVoid<IntPtr, int> ChangeTeamFunc =
         new(GameData.GetSignature("ChangeTeam"));
 
-    public static readonly Action<IntPtr, int> ChangeTeam = ChangeTeamFunc.Invoke;
-
     public static readonly MemoryFunctionWithReturn<IntPtr, int, int> IncrementNumMVPsFunc =
         new(GameData.GetSignature("IncrementNumMVPs"));
+
+    public static readonly MemoryFunctionVoid<IntPtr> HandleSwapTeamsFunc =
+        new(GameData.GetSignature("HandleSwapTeams"));
+
+    public static void HandleSwapTeams(this CCSGameRules gameRules)
+    {
+        HandleSwapTeamsFunc.Invoke(gameRules.Handle);
+    }
 
     public static void SetClan(this CCSPlayerController controller, string clan)
     {
