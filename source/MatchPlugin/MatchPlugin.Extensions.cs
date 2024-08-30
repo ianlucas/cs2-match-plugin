@@ -41,20 +41,6 @@ public static partial class Extensions
         HandleSwapTeamsFunc.Invoke(gameRules.Handle);
     }
 
-    public static void SetClan(this CCSPlayerController controller, string clan)
-    {
-        try
-        {
-            if (controller.Clan != clan)
-            {
-                controller.Clan = clan;
-                Utilities.SetStateChanged(controller, "CCSPlayerController", "m_szClan");
-                new GameEvent("nextlevel_changed", false).FireEvent(false);
-            }
-        }
-        catch { }
-    }
-
     public static int GetHealth(this CCSPlayerController controller) =>
         Math.Max(
             (

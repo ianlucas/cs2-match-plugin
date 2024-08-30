@@ -46,16 +46,35 @@ public class UtilitiesX
                 ? GameRulesProxy?.GameRules
                 : null;
 
-    public static void SetPlayerName(CCSPlayerController? controller, string name)
+    public static bool SetPlayerName(CCSPlayerController? controller, string name)
     {
-        try
+        if (controller != null && controller.PlayerName != name)
         {
-            if (controller != null && controller.PlayerName != name)
-            {
-                controller.PlayerName = name;
-                new GameEvent("nextlevel_changed", false).FireEvent(false);
-            }
+            controller.PlayerName = name;
+            Utilities.SetStateChanged(controller, "CBasePlayerController", "m_iszPlayerName");
+            return true;
         }
-        catch { }
+        return false;
+    }
+
+    public static bool SetPlayerClan(CCSPlayerController? controller, string clan)
+    {
+        if (controller != null && controller.Clan != clan)
+        {
+            controller.Clan = clan;
+            Utilities.SetStateChanged(controller, "CCSPlayerController", "m_szClan");
+            return true;
+        }
+        return false;
+    }
+
+    public static void RemovePlayerClans()
+    {
+        bool didUpdateControllers = false;
+        foreach (var player in Utilities.GetPlayers())
+            if (SetPlayerClan(player, ""))
+                didUpdateControllers = true;
+        if (didUpdateControllers)
+            ServerX.UpdatePlayersScoreboard();
     }
 }

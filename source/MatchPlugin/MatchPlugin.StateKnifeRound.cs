@@ -25,8 +25,7 @@ public class StateKnifeRound(Match match) : State(match)
         Match.KnifeRoundWinner = null;
         Match.Cstv.Record(Match.GetDemoFilename());
 
-        foreach (var player in Utilities.GetPlayers())
-            player.SetClan("");
+        UtilitiesX.RemovePlayerClans();
     }
 
     public override void Unload()

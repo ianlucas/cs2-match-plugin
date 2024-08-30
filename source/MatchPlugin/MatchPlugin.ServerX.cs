@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.Json;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Modules.Cvars;
+using CounterStrikeSharp.API.Modules.Events;
 using CounterStrikeSharp.API.Modules.Utils;
 
 namespace MatchPlugin;
@@ -37,6 +38,15 @@ public class ServerX
     {
         var index = team == CsTeam.CounterTerrorist ? 1 : 2;
         Server.ExecuteCommand($"mp_teamname_{index} {name}");
+    }
+
+    public static void UpdatePlayersScoreboard()
+    {
+        try
+        {
+            new GameEvent("nextlevel_changed", false).FireEvent(false);
+        }
+        catch { }
     }
 
     public static object? GetLastRoundSaveContents()

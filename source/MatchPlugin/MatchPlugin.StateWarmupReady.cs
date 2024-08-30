@@ -87,15 +87,22 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
     {
         if (Match.State is not StateWarmupReady)
             return;
+        bool didUpdateControllers = false;
         foreach (var controller in UtilitiesX.GetPlayersInTeams())
-            if (!controller.IsBot)
-                controller.SetClan(
+            if (
+                !controller.IsBot
+                && UtilitiesX.SetPlayerClan(
+                    controller,
                     Match.Plugin.Localizer[
                         Match.GetPlayerFromSteamID(controller.SteamID)?.IsReady == true
                             ? "match.ready"
                             : "match.not_ready"
                     ]
-                );
+                )
+            )
+                didUpdateControllers = true;
+        if (didUpdateControllers)
+            ServerX.UpdatePlayersScoreboard();
     }
 
     public void OnPrintWarmupCommands()
