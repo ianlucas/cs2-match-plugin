@@ -4,10 +4,6 @@
 *--------------------------------------------------------------------------------------------*/
 
 using System.Text.Json.Serialization;
-using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Core.Translations;
-using CounterStrikeSharp.API.Modules.Cvars;
-using CounterStrikeSharp.API.Modules.Utils;
 
 namespace MatchPlugin;
 
