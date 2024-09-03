@@ -117,6 +117,7 @@ public class StateWarmupKnifeVote(Match match) : StateWarmup(match)
 
     public void ProcessKnifeVote(KnifeRoundVote decision)
     {
+        Server.PrintToConsole($"[ProcessKnifeVote] decision={decision}");
         var winnerTeam = Match.KnifeRoundWinner;
         if (winnerTeam == null)
             return;
@@ -143,6 +144,6 @@ public class StateWarmupKnifeVote(Match match) : StateWarmup(match)
                 team.StartingTeam = UtilitiesX.ToggleCsTeam(team.StartingTeam);
             UtilitiesX.GetGameRules()?.HandleSwapTeams();
         }
-        Server.NextFrame(Match.SetState<StateLive>);
+        Match.SetState<StateLive>();
     }
 }
