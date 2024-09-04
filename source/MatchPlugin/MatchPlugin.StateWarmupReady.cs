@@ -58,6 +58,7 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
 
         Match.Plugin.CreateChatTimer("PrintWarmupCommands", OnPrintWarmupCommands);
 
+        Server.PrintToConsole("StateWarmupReady::Load Execing warmup...");
         Config.ExecWarmup(
             warmupTime: Match.IsMatchmaking() ? Match.matchmaking_ready_timeout.Value : -1,
             lockTeams: Match.AreTeamsLocked()

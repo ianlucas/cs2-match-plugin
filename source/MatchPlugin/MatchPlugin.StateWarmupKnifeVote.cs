@@ -32,6 +32,7 @@ public class StateWarmupKnifeVote(Match match) : StateWarmup(match)
         foreach (var player in Match.Teams.SelectMany(t => t.Players))
             player.KnifeRoundVote = KnifeRoundVote.None;
 
+        Server.PrintToConsole("StateWarmupKnifeVote::Load Executing warmup...");
         Config.ExecWarmup(warmupTime: Match.knife_vote_timeout.Value, lockTeams: true);
     }
 
@@ -44,6 +45,8 @@ public class StateWarmupKnifeVote(Match match) : StateWarmup(match)
         SwitchCmds.ForEach(c => Match.Plugin.RemoveCommand(c, OnSwitchCommand));
         Match.Plugin.ClearTimer("PrintKnifeVoteCommands");
         Match.Plugin.ClearTimer("KnifeVoteTimeout");
+
+        Server.PrintToConsole("StateWarmupKnifeVote::Unload Unloading knife vote...");
     }
 
     public HookResult OnPlayerTeamPre(EventPlayerTeam @event, GameEventInfo _)
@@ -112,12 +115,13 @@ public class StateWarmupKnifeVote(Match match) : StateWarmup(match)
 
     public void OnTimeOut()
     {
+        Server.PrintToConsole("StateWarmupKnifeVote::OnTimeOut Knive vote has timed out");
         ProcessKnifeVote(KnifeRoundVote.None);
     }
 
     public void ProcessKnifeVote(KnifeRoundVote decision)
     {
-        Server.PrintToConsole($"[ProcessKnifeVote] decision={decision}");
+        Server.PrintToConsole($"StateWarmupKnifeVote::ProcessKnifeVote decision={decision}");
         var winnerTeam = Match.KnifeRoundWinner;
         if (winnerTeam == null)
             return;
