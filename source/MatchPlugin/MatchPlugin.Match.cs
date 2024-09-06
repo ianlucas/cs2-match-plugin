@@ -60,7 +60,7 @@ public class Match
         cts.Oppositon = terrorists;
         Teams = [terrorists, cts];
         Plugin = plugin;
-        State = new(this);
+        State = new StateWarmupReady(this);
         Cstv = new(this);
     }
 
@@ -92,7 +92,6 @@ public class Match
     public void SetState<T>()
         where T : State
     {
-        Server.PrintToConsole($"{State.GetType().Name} == {typeof(T).Name}");
         if (State.GetType().Name == typeof(T).Name)
             return;
         State.Unload();
