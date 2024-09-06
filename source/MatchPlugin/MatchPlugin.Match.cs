@@ -92,7 +92,7 @@ public class Match
     public void SetState<T>()
         where T : State
     {
-        if (State.GetType().Name == typeof(T).Name)
+        if (State.GetType() == typeof(T))
             return;
         State.Unload();
         State =
