@@ -92,6 +92,8 @@ public class Match
     public void SetState<T>()
         where T : State
     {
+        if (State is T)
+            return;
         State.Unload();
         State =
             (T?)Activator.CreateInstance(typeof(T), this)

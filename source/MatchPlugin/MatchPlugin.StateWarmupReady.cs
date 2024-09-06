@@ -172,6 +172,9 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
     {
         if (controller != null && !_matchCancelled)
         {
+            Server.PrintToConsole(
+                $"StateWarmupReady::OnReadyCommand {controller.PlayerName} sent !ready."
+            );
             var player = Match.GetPlayerFromSteamID(controller.SteamID);
             if (player == null && !Match.IsLoadedFromFile)
             {
@@ -192,6 +195,9 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
 
     public void OnUnreadyCommand(CCSPlayerController? controller, CommandInfo _)
     {
+        Server.PrintToConsole(
+            $"StateWarmupReady::OnUnreadyCommand {controller?.PlayerName} sent !unready."
+        );
         var player = Match.GetPlayerFromSteamID(controller?.SteamID);
         if (player != null)
             player.IsReady = false;
@@ -199,11 +205,15 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
 
     public void CheckIfPlayersAreReady()
     {
-        if (_didMatchStart)
-            return;
         var players = Match.Teams.SelectMany(t => t.Players);
         if (players.Count() == Match.GetNeededPlayers() && players.All(p => p.IsReady))
         {
+            if (_didMatchStart)
+                return;
+            Server.PrintToConsole(
+                "StateWarmupReady::CheckIfPlayersAreReady Starting knife round from ready."
+            );
+            _didMatchStart = true;
             if (!Match.IsLoadedFromFile)
             {
                 Match.Id = ServerX.Now().ToString();
@@ -215,10 +225,6 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
                     controller.ChangeTeam(CsTeam.Spectator);
             foreach (var team in Match.Teams)
                 ServerX.SetTeamName(team.StartingTeam, team.ServerName);
-            Server.PrintToConsole(
-                "StateWarmupReady::CheckIfPlayersAreReady Starting knife round from ready."
-            );
-            _didMatchStart = true;
             Match.SetState<StateKnifeRound>();
         }
     }
