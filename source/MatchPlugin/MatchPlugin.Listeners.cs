@@ -16,6 +16,7 @@ public partial class MatchPlugin
 
     public void OnMapStart(string _)
     {
+        Server.ExecuteCommand("sv_hibernate_when_empty 0");
         _pendingInternalPush = true;
     }
 
