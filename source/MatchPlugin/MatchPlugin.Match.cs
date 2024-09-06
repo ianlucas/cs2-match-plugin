@@ -92,7 +92,8 @@ public class Match
     public void SetState<T>()
         where T : State
     {
-        if (State.GetType() == typeof(T))
+        Server.PrintToConsole($"{State.GetType().Name} == {typeof(T).Name}");
+        if (State.GetType().Name == typeof(T).Name)
             return;
         State.Unload();
         State =
