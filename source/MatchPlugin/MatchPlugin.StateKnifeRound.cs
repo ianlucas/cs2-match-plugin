@@ -13,6 +13,8 @@ namespace MatchPlugin;
 
 public class StateKnifeRound(Match match) : State(match)
 {
+    private bool _didKnifeVoteStart = false;
+
     public override void Load()
     {
         Match.Plugin.RegisterEventHandler<EventRoundStart>(OnRoundStart);
@@ -41,7 +43,11 @@ public class StateKnifeRound(Match match) : State(match)
     {
         if (Match.KnifeRoundWinner != null)
         {
-            Match.SetState<StateWarmupKnifeVote>();
+            if (!_didKnifeVoteStart)
+            {
+                _didKnifeVoteStart = true;
+                Match.SetState<StateWarmupKnifeVote>();
+            }
         }
         else
             ServerX.PrintToChatAllRepeat(

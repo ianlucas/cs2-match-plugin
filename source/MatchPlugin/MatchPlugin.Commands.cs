@@ -84,6 +84,7 @@ public partial class MatchPlugin
             foreach (var team in _match.Teams)
                 ServerX.SetTeamName(team.StartingTeam, team.ServerName);
         }
+        Server.PrintToConsole("MatchPlugin::OnStartCommand Starting knife round.");
         _match.SetState<StateKnifeRound>();
     }
 
@@ -104,6 +105,7 @@ public partial class MatchPlugin
     {
         if (!AdminManager.PlayerHasPermissions(caller, "@css/config"))
             return;
+        Server.PrintToConsole("MatchPlugin::OnRestartCommand");
         _match.Reset();
         _match.SetState<StateWarmupReady>();
     }

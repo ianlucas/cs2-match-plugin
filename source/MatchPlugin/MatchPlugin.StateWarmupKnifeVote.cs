@@ -19,6 +19,8 @@ public class StateWarmupKnifeVote(Match match) : StateWarmup(match)
         KnifeRoundVote.Switch
     ];
 
+    private bool _didLiveStart = false;
+
     public override void Load()
     {
         base.Load();
@@ -76,6 +78,9 @@ public class StateWarmupKnifeVote(Match match) : StateWarmup(match)
             var player = Match.GetPlayerFromSteamID(controller.SteamID);
             if (player != null)
             {
+                Server.PrintToConsole(
+                    $"StateWarmupKnifeVote::OnStayCommand {controller?.PlayerName} voted !stay."
+                );
                 player.KnifeRoundVote = KnifeRoundVote.Stay;
                 CheckIfPlayersVoted();
             }
@@ -89,6 +94,9 @@ public class StateWarmupKnifeVote(Match match) : StateWarmup(match)
             var player = Match.GetPlayerFromSteamID(controller.SteamID);
             if (player != null)
             {
+                Server.PrintToConsole(
+                    $"StateWarmupKnifeVote::OnSwitchCommand {controller?.PlayerName} voted !switch."
+                );
                 player.KnifeRoundVote = KnifeRoundVote.Switch;
                 CheckIfPlayersVoted();
             }
@@ -108,6 +116,9 @@ public class StateWarmupKnifeVote(Match match) : StateWarmup(match)
                         .Any()
                 )
                 {
+                    Server.PrintToConsole(
+                        "StateWarmupKnifeVote::CheckIfPlayersVoted Leader has decided a side."
+                    );
                     ProcessKnifeVote(vote);
                     return;
                 }
@@ -121,6 +132,8 @@ public class StateWarmupKnifeVote(Match match) : StateWarmup(match)
 
     public void ProcessKnifeVote(KnifeRoundVote decision)
     {
+        if (_didLiveStart)
+            return;
         Server.PrintToConsole($"StateWarmupKnifeVote::ProcessKnifeVote decision={decision}");
         var winnerTeam = Match.KnifeRoundWinner;
         if (winnerTeam == null)
@@ -152,6 +165,7 @@ public class StateWarmupKnifeVote(Match match) : StateWarmup(match)
                     player.Controller?.ChangeTeam(team.StartingTeam);
             }
         }
+        _didLiveStart = true;
         Match.SetState<StateLive>();
     }
 }
