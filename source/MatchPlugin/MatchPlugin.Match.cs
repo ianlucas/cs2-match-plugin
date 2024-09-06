@@ -60,7 +60,7 @@ public class Match
         cts.Oppositon = terrorists;
         Teams = [terrorists, cts];
         Plugin = plugin;
-        State = new StateWarmupReady(this);
+        State = new(this);
         Cstv = new(this);
     }
 
