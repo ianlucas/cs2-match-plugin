@@ -7,11 +7,7 @@ namespace MatchPlugin;
 
 public class Config
 {
-    public static void ExecWarmup(
-        int warmupTime = -1,
-        bool lockTeams = false,
-        string? backupPath = null
-    ) =>
+    public static void ExecWarmup(int warmupTime = -1, bool lockTeams = false) =>
         ServerX.ExecuteCommand(
             [
                 "bot_chatter off",
@@ -58,7 +54,7 @@ public class Config
                 "mp_ct_default_secondary \"\"",
                 "mp_free_armor 1",
                 "mp_freezetime 15",
-                "mp_friendlyfire 0",
+                "mp_friendlyfire 1",
                 "mp_give_player_c4 0",
                 "mp_playercashawards 0",
                 "mp_round_restart_delay 5",
