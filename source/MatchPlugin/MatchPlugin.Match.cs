@@ -92,7 +92,7 @@ public class Match
     public void SetState<T>()
         where T : State
     {
-        if (State.GetType() == typeof(T))
+        if (typeof(T) != typeof(StateWarmupReady) && State.GetType() == typeof(T))
             return;
         State.Unload();
         State =
