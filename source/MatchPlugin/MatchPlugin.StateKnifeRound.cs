@@ -22,7 +22,7 @@ public class StateKnifeRound(Match match) : State(match)
         Extensions.TerminateRoundFunc.Hook(OnTerminateRound, HookMode.Pre);
         Match.Plugin.RegisterEventHandler<EventRoundEnd>(OnRoundEndPre, HookMode.Pre);
 
-        Server.PrintToConsole("StateKnifeRound::Load Execing knife round...");
+        Match.Log("Execing knife round...");
         Config.ExecKnife();
 
         Match.KnifeRoundWinner = null;

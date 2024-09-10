@@ -27,7 +27,7 @@ public partial class StateLive
         var player = Match.GetPlayerFromSteamID(controller?.SteamID);
         if (player != null && Match.Teams.All(t => t.Players.Any(p => p.Controller != null)))
         {
-            Server.PrintToConsole("State::OnMatchCancelled We are no longer forfeiting the match.");
+            Match.Log("We are no longer forfeiting the match.");
             _isForfeiting = false;
             Match.Plugin.ClearTimer("ForfeitMatch");
         }
@@ -40,9 +40,7 @@ public partial class StateLive
             foreach (var team in Match.Teams)
                 if (team.Players.All(p => p.SteamID == player.SteamID || p.Controller == null))
                 {
-                    Server.PrintToConsole(
-                        "StateLive::OnPlayerDisconnect A team is forfeiting the match."
-                    );
+                    Match.Log("A team is forfeiting the match.");
                     _isForfeiting = true;
                     Match.Plugin.CreateTimer(
                         "ForfeitMatch",

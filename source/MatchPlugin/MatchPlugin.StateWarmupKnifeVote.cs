@@ -34,7 +34,7 @@ public class StateWarmupKnifeVote(Match match) : StateWarmup(match)
         foreach (var player in Match.Teams.SelectMany(t => t.Players))
             player.KnifeRoundVote = KnifeRoundVote.None;
 
-        Server.PrintToConsole("StateWarmupKnifeVote::Load Executing warmup...");
+        Match.Log("Executing knife vote warmup...");
         Config.ExecWarmup(warmupTime: Match.knife_vote_timeout.Value, lockTeams: true);
     }
 
@@ -48,7 +48,7 @@ public class StateWarmupKnifeVote(Match match) : StateWarmup(match)
         Match.Plugin.ClearTimer("PrintKnifeVoteCommands");
         Match.Plugin.ClearTimer("KnifeVoteTimeout");
 
-        Server.PrintToConsole("StateWarmupKnifeVote::Unload Unloading knife vote...");
+        Match.Log("Unloading knife vote...");
     }
 
     public HookResult OnPlayerTeamPre(EventPlayerTeam @event, GameEventInfo _)
@@ -78,9 +78,7 @@ public class StateWarmupKnifeVote(Match match) : StateWarmup(match)
             var player = Match.GetPlayerFromSteamID(controller.SteamID);
             if (player != null)
             {
-                Server.PrintToConsole(
-                    $"StateWarmupKnifeVote::OnStayCommand {controller?.PlayerName} voted !stay."
-                );
+                Match.Log($"{controller?.PlayerName} voted !stay.");
                 player.KnifeRoundVote = KnifeRoundVote.Stay;
                 CheckIfPlayersVoted();
             }
@@ -94,9 +92,7 @@ public class StateWarmupKnifeVote(Match match) : StateWarmup(match)
             var player = Match.GetPlayerFromSteamID(controller.SteamID);
             if (player != null)
             {
-                Server.PrintToConsole(
-                    $"StateWarmupKnifeVote::OnSwitchCommand {controller?.PlayerName} voted !switch."
-                );
+                Match.Log($"{controller?.PlayerName} voted !switch.");
                 player.KnifeRoundVote = KnifeRoundVote.Switch;
                 CheckIfPlayersVoted();
             }
@@ -116,9 +112,7 @@ public class StateWarmupKnifeVote(Match match) : StateWarmup(match)
                         .Any()
                 )
                 {
-                    Server.PrintToConsole(
-                        "StateWarmupKnifeVote::CheckIfPlayersVoted Leader has decided a side."
-                    );
+                    Match.Log("Leader has decided a side.");
                     ProcessKnifeVote(vote);
                     return;
                 }
@@ -126,7 +120,7 @@ public class StateWarmupKnifeVote(Match match) : StateWarmup(match)
 
     public void OnTimeOut()
     {
-        Server.PrintToConsole("StateWarmupKnifeVote::OnTimeOut Knive vote has timed out");
+        Match.Log("Knive vote has timed out");
         ProcessKnifeVote(KnifeRoundVote.None);
     }
 
@@ -134,7 +128,7 @@ public class StateWarmupKnifeVote(Match match) : StateWarmup(match)
     {
         if (_didLiveStart)
             return;
-        Server.PrintToConsole($"StateWarmupKnifeVote::ProcessKnifeVote decision={decision}");
+        Match.Log($"decision={decision}");
         var winnerTeam = Match.KnifeRoundWinner;
         if (winnerTeam == null)
             return;

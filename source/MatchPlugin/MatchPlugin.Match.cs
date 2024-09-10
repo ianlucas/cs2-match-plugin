@@ -3,10 +3,12 @@
 *  Licensed under the MIT License. See License.txt in the project root for license information.
 *--------------------------------------------------------------------------------------------*/
 
+using System.Diagnostics;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core.Translations;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Utils;
+using Microsoft.Extensions.Logging;
 
 namespace MatchPlugin;
 
@@ -40,6 +42,8 @@ public class Match
         new("match_forfeit_timeout", "Time to forfeit a team.", 60);
     public readonly FakeConVar<int> surrender_timeout =
         new("match_surrender_timeout", "Time to vote surrender.", 30);
+    public readonly FakeConVar<bool> verbose =
+        new("match_verbose", "Are we debugging the plugin?", true);
 
     public string? Id = null;
     public string? EventsUrl = null;
@@ -177,5 +181,21 @@ public class Match
             return true;
         }
         return false;
+    }
+
+    public void Log(string message)
+    {
+        if (!verbose.Value)
+            return;
+        var stackTrace = new StackTrace();
+        var frame = stackTrace.GetFrame(1);
+        var method = frame?.GetMethod();
+        var className = method?.DeclaringType?.Name;
+        var methodName = method?.Name;
+        var prefix =
+            className != null && methodName != null ? $"{className}::{methodName}" : "MatchPlugin";
+        var output = $"{prefix} {message}";
+        Plugin.Logger.LogInformation(output);
+        Server.PrintToConsole(output);
     }
 }

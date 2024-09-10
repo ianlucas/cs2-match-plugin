@@ -30,7 +30,7 @@ public partial class StateLive(Match match) : State(match)
         Match.Plugin.RegisterEventHandler<EventCsWinPanelMatch>(OnCsWinPanelMatch);
         Match.Plugin.RegisterEventHandler<EventPlayerDisconnect>(OnPlayerDisconnect);
 
-        Server.PrintToConsole("StateLive::Load Execing live...");
+        Match.Log("Execing live...");
         Config.ExecLive(
             max_rounds: Match.max_rounds.Value,
             ot_max_rounds: Match.ot_max_rounds.Value,

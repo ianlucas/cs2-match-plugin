@@ -32,18 +32,14 @@ public class State(Match match)
             {
                 result = MapResult.Forfeited;
                 winner = team.Oppositon.Index;
-                Server.PrintToConsole(
-                    $"State::OnCsWinPanelMatch forfeited, result={result}, winner={winner}"
-                );
+                Match.Log($"forfeited, result={result}, winner={winner}");
                 break;
             }
             if (team.Score > team.Oppositon.Score)
             {
                 result = MapResult.Completed;
                 winner = team.Index;
-                Server.PrintToConsole(
-                    $"State::OnCsWinPanelMatch completed, result={result}, winner={winner}"
-                );
+                Match.Log($"completed, result={result}, winner={winner}");
             }
         }
         var mp_match_restart_delay =
@@ -55,7 +51,7 @@ public class State(Match match)
 
     public void OnMatchCancelled()
     {
-        Server.PrintToConsole("State::OnMatchCancelled Match was cancelled.");
+        Match.Log("Match was cancelled.");
         _matchCancelled = true;
         Match.Plugin.ClearAllTimers();
         var winners = Match.Teams.Where(t => t.Players.Any(p => p.Controller != null));
@@ -82,7 +78,7 @@ public class State(Match match)
 
     public void OnMapEnd(MapResult result = MapResult.None, int? winner = null)
     {
-        Server.PrintToConsole("State::OnMapEnd Map has ended.");
+        Match.Log("State::OnMapEnd Map has ended.");
         var map = Match.GetCurrentMap();
         var stats = ServerX.GetLastRoundSaveContents();
         var demoFilename = Match.Cstv.GetFilename();

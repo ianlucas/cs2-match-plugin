@@ -20,7 +20,7 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
 
     public override void Load()
     {
-        Server.PrintToConsole($"StateWarmupReady::Load matchmaking={Match.IsMatchmaking()}");
+        Match.Log($"matchmaking={Match.IsMatchmaking()}");
         Match.Cstv.Stop();
 
         if (Match.CheckCurrentMap())
@@ -59,7 +59,7 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
 
         Match.Plugin.CreateChatTimer("PrintWarmupCommands", OnPrintWarmupCommands);
 
-        Server.PrintToConsole("StateWarmupReady::Load Execing warmup...");
+        Match.Log("Execing ready warmup...");
         Config.ExecWarmup(
             warmupTime: Match.IsMatchmaking() ? Match.matchmaking_ready_timeout.Value : -1,
             lockTeams: Match.AreTeamsLocked()
@@ -172,9 +172,7 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
     {
         if (controller != null && !_matchCancelled)
         {
-            Server.PrintToConsole(
-                $"StateWarmupReady::OnReadyCommand {controller.PlayerName} sent !ready."
-            );
+            Match.Log($"{controller.PlayerName} sent !ready.");
             var player = Match.GetPlayerFromSteamID(controller.SteamID);
             if (player == null && !Match.IsLoadedFromFile)
             {
@@ -195,9 +193,7 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
 
     public void OnUnreadyCommand(CCSPlayerController? controller, CommandInfo _)
     {
-        Server.PrintToConsole(
-            $"StateWarmupReady::OnUnreadyCommand {controller?.PlayerName} sent !unready."
-        );
+        Match.Log($"{controller?.PlayerName} sent !unready.");
         var player = Match.GetPlayerFromSteamID(controller?.SteamID);
         if (player != null)
             player.IsReady = false;
@@ -210,9 +206,7 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
         {
             if (_didMatchStart)
                 return;
-            Server.PrintToConsole(
-                "StateWarmupReady::CheckIfPlayersAreReady Starting knife round from ready."
-            );
+            Match.Log("Starting knife round from ready.");
             _didMatchStart = true;
             if (!Match.IsLoadedFromFile)
             {
