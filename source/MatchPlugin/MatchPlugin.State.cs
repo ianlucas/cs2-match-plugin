@@ -5,6 +5,8 @@
 
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Core.Commands;
+using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Utils;
@@ -16,10 +18,25 @@ public class State(Match match)
     public readonly Match Match = match;
 
     protected bool _matchCancelled = false;
+    private List<CommandDefinition> _commands = [];
 
     public virtual void Load() { }
 
     public virtual void Unload() { }
+
+    public void AddCommand(string name, string description, CommandInfo.CommandCallback handler)
+    {
+        var definition = new CommandDefinition(name, description, handler);
+        Match.Plugin.CommandManager.RegisterCommand(definition);
+        _commands.Add(definition);
+    }
+
+    public void RemoveAllCommands()
+    {
+        foreach (var definition in _commands)
+            Match.Plugin.CommandManager.RemoveCommand(definition);
+        _commands.Clear();
+    }
 
     public HookResult OnCsWinPanelMatch(EventCsWinPanelMatch @event, GameEventInfo _)
     {

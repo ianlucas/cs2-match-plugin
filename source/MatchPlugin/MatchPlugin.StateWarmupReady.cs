@@ -37,8 +37,8 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
         Match.Plugin.RegisterEventHandler<EventPlayerDisconnect>(OnPlayerDisconnect);
         Match.Plugin.RegisterEventHandler<EventCsWinPanelMatch>(OnCsWinPanelMatch);
 
-        ReadyCmds.ForEach(c => Match.Plugin.AddCommand(c, "Mark as ready.", OnReadyCommand));
-        UnreadyCmds.ForEach(c => Match.Plugin.AddCommand(c, "Mark as unready.", OnUnreadyCommand));
+        ReadyCmds.ForEach(c => AddCommand(c, "Mark as ready.", OnReadyCommand));
+        UnreadyCmds.ForEach(c => AddCommand(c, "Mark as unready.", OnUnreadyCommand));
 
         foreach (var player in Match.Teams.SelectMany(t => t.Players))
             player.IsReady = false;
@@ -71,6 +71,7 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
     public override void Unload()
     {
         base.Unload();
+        RemoveAllCommands();
 
         Match.Plugin.RemoveListener<Listeners.OnTick>(OnTick);
         Match.Plugin.DeregisterEventHandler<EventPlayerTeam>(OnPlayerTeam);
@@ -79,8 +80,6 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
         Match.Plugin.ClearTimer("PrintWarmupCommands");
         Match.Plugin.ClearTimer("PrintWaitingPlayersReady");
         Match.Plugin.ClearTimer("MatchmakingReadyTimeout");
-        ReadyCmds.ForEach(c => Match.Plugin.RemoveCommand(c, OnReadyCommand));
-        UnreadyCmds.ForEach(c => Match.Plugin.RemoveCommand(c, OnUnreadyCommand));
     }
 
     public void OnTick()

@@ -26,8 +26,8 @@ public class StateWarmupKnifeVote(Match match) : StateWarmup(match)
         base.Load();
 
         Match.Plugin.RegisterEventHandler<EventPlayerTeam>(OnPlayerTeamPre, HookMode.Pre);
-        StayCmds.ForEach(c => Match.Plugin.AddCommand(c, "Stay in current team.", OnStayCommand));
-        SwitchCmds.ForEach(c => Match.Plugin.AddCommand(c, "Switch current team", OnSwitchCommand));
+        StayCmds.ForEach(c => AddCommand(c, "Stay in current team.", OnStayCommand));
+        SwitchCmds.ForEach(c => AddCommand(c, "Switch current team", OnSwitchCommand));
         Match.Plugin.CreateChatTimer("PrintKnifeVoteCommands", OnPrintKnifeVoteCommands);
         Match.Plugin.CreateTimer("KnifeVoteTimeout", Match.knife_vote_timeout.Value - 1, OnTimeOut);
 
@@ -41,10 +41,9 @@ public class StateWarmupKnifeVote(Match match) : StateWarmup(match)
     public override void Unload()
     {
         base.Unload();
+        RemoveAllCommands();
 
         Match.Plugin.DeregisterEventHandler<EventPlayerTeam>(OnPlayerTeamPre, HookMode.Pre);
-        StayCmds.ForEach(c => Match.Plugin.RemoveCommand(c, OnStayCommand));
-        SwitchCmds.ForEach(c => Match.Plugin.RemoveCommand(c, OnSwitchCommand));
         Match.Plugin.ClearTimer("PrintKnifeVoteCommands");
         Match.Plugin.ClearTimer("KnifeVoteTimeout");
 

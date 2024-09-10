@@ -18,10 +18,10 @@ public partial class StateLive(Match match) : State(match)
 
     public override void Load()
     {
-        SurrenderCmds.ForEach(c => Match.Plugin.AddCommand(c, "Surrender", OnSurrenderCommand));
-        PauseCmds.ForEach(c => Match.Plugin.AddCommand(c, "Pause the match", OnPauseCommand));
-        UnpauseCmds.ForEach(c => Match.Plugin.AddCommand(c, "Unpause the match", OnUnpauseCommand));
-        Match.Plugin.AddCommand("css_restore", "Restore a round.", OnRestoreCommand);
+        SurrenderCmds.ForEach(c => AddCommand(c, "Surrender", OnSurrenderCommand));
+        PauseCmds.ForEach(c => AddCommand(c, "Pause the match", OnPauseCommand));
+        UnpauseCmds.ForEach(c => AddCommand(c, "Unpause the match", OnUnpauseCommand));
+        AddCommand("css_restore", "Restore a round.", OnRestoreCommand);
         Match.Plugin.RegisterEventHandler<EventPlayerConnect>(OnPlayerConnect);
         Match.Plugin.RegisterEventHandler<EventPlayerConnectFull>(OnPlayerConnectFull);
         Match.Plugin.RegisterEventHandler<EventRoundStart>(OnRoundStart);
@@ -52,10 +52,9 @@ public partial class StateLive(Match match) : State(match)
 
     public override void Unload()
     {
+        RemoveAllCommands();
+
         Match.Plugin.ClearAllTimers();
-        SurrenderCmds.ForEach(c => Match.Plugin.RemoveCommand(c, OnSurrenderCommand));
-        PauseCmds.ForEach(c => Match.Plugin.RemoveCommand(c, OnPauseCommand));
-        UnpauseCmds.ForEach(c => Match.Plugin.RemoveCommand(c, OnUnpauseCommand));
         Match.Plugin.RemoveCommand("css_restore", OnRestoreCommand);
         Match.Plugin.DeregisterEventHandler<EventPlayerConnect>(OnPlayerConnect);
         Match.Plugin.DeregisterEventHandler<EventPlayerConnectFull>(OnPlayerConnectFull);
