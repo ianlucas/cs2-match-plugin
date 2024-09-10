@@ -93,16 +93,12 @@ public class Match
             : chat_prefix.Value.ReplaceColorTags();
     }
 
-    public void SetState<T>()
-        where T : State
+    public void SetState(State newState)
     {
-        if (typeof(T) != typeof(StateWarmupReady) && State.GetType() == typeof(T))
+        if (newState.GetType() != typeof(StateWarmupReady) && State.GetType() == newState.GetType())
             return;
         State.Unload();
-        State =
-            (T?)Activator.CreateInstance(typeof(T), this)
-            ?? throw new InvalidOperationException("Failed to create instance of state.");
-        ;
+        State = newState;
         State.Load();
     }
 

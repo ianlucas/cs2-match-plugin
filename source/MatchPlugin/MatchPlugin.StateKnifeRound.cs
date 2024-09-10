@@ -46,7 +46,7 @@ public class StateKnifeRound(Match match) : State(match)
             if (!_didKnifeVoteStart)
             {
                 _didKnifeVoteStart = true;
-                Match.SetState<StateWarmupKnifeVote>();
+                Match.SetState(new StateWarmupKnifeVote(Match));
             }
         }
         else

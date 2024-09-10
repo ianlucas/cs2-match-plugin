@@ -64,6 +64,8 @@ public partial class StateLive(Match match) : State(match)
         Match.Plugin.DeregisterEventHandler<EventRoundEnd>(OnRoundEndPre, HookMode.Pre);
         Match.Plugin.DeregisterEventHandler<EventCsWinPanelMatch>(OnCsWinPanelMatch);
         Match.Plugin.DeregisterEventHandler<EventPlayerDisconnect>(OnPlayerDisconnect);
+
+        Match.Log("Unloading");
     }
 
     public HookResult OnRoundStart(EventRoundStart @event, GameEventInfo _)

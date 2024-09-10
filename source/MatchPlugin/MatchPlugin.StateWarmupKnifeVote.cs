@@ -160,6 +160,6 @@ public class StateWarmupKnifeVote(Match match) : StateWarmup(match)
             }
         }
         _didLiveStart = true;
-        Match.SetState<StateLive>();
+        Match.SetState(new StateLive(Match));
     }
 }

@@ -72,7 +72,7 @@ public class State(Match match)
         {
             OnMapEnd(MapResult.Cancelled);
             Match.Reset();
-            Match.SetState<StateWarmupReady>();
+            Match.SetState(new StateWarmupReady(Match));
         }
     }
 
@@ -117,6 +117,6 @@ public class State(Match match)
                     controller.Kick();
         }
         Match.Cstv.Stop();
-        Match.SetState<StateWarmupReady>();
+        Match.SetState(new StateWarmupReady(Match));
     }
 }
