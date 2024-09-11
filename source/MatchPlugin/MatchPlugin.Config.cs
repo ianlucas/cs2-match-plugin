@@ -23,6 +23,7 @@ public class Config
                 "mp_weapons_allow_typecount -1",
                 "sv_hibernate_when_empty 0",
                 "mp_technical_timeout_per_team 0",
+                "mp_warmuptime_all_players_connected 0",
                 "mp_team_timeout_max 0",
                 "mp_buy_allow_grenades 0",
                 // Voting convars
@@ -63,6 +64,7 @@ public class Config
                 "mp_t_default_secondary \"\"",
                 "mp_team_intro_time 0",
                 "mp_teamcashawards 0",
+                "mp_warmuptime_all_players_connected 0",
                 // Team lock convars
                 "mp_force_pick_time 0",
                 "sv_disable_teamselect_menu 0",
@@ -200,6 +202,7 @@ public class Config
                 "sv_voiceenable 1",
                 "sv_vote_command_delay 0",
                 "tv_relayvoice 1",
+                "mp_warmuptime_all_players_connected 0",
                 // Pause settings
                 "mp_technical_timeout_per_team 1",
                 "mp_team_timeout_max 4",
