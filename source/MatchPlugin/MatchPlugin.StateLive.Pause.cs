@@ -72,17 +72,19 @@ public partial class StateLive
             )
         )
         {
+            var askedForUnpause = player.Team.IsUnpauseMatch;
             player.Team.IsUnpauseMatch = true;
             if (!Match.Teams.All(team => team.IsUnpauseMatch))
             {
-                Server.PrintToChatAll(
-                    Match.Plugin.Localizer[
-                        "match.pause_unpause1",
-                        Match.GetChatPrefix(),
-                        player.Team.FormattedName,
-                        player.Team.Oppositon.FormattedName
-                    ]
-                );
+                if (!askedForUnpause)
+                    Server.PrintToChatAll(
+                        Match.Plugin.Localizer[
+                            "match.pause_unpause1",
+                            Match.GetChatPrefix(),
+                            player.Team.FormattedName,
+                            player.Team.Oppositon.FormattedName
+                        ]
+                    );
                 return;
             }
             else
