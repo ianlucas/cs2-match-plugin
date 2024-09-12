@@ -217,7 +217,12 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
                 if (!idsInMatch.Contains(controller.SteamID))
                     controller.ChangeTeam(CsTeam.Spectator);
             foreach (var team in Match.Teams)
+            {
                 ServerX.SetTeamName(team.StartingTeam, team.ServerName);
+                foreach (var player in team.Players)
+                foreach (var opponent in team.Oppositon.Players)
+                    player.DamageReport.Add(opponent.SteamID, new(opponent));
+            }
             Match.SetState(new StateKnifeRound(Match));
         }
     }

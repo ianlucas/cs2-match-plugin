@@ -167,6 +167,10 @@ public partial class MatchPlugin
                     controller.ChangeTeam(CsTeam.Spectator);
                 else
                     controller.Kick();
+        foreach (var team in _match.Teams)
+        foreach (var player in team.Players)
+        foreach (var opponent in team.Oppositon.Players)
+            player.DamageReport.Add(opponent.SteamID, new(opponent));
         _match.CreateMatchFolder();
         _match.SetState(new StateWarmupReady(_match));
     }
