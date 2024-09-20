@@ -133,7 +133,6 @@ public class State(Match match)
                 foreach (var controller in Utilities.GetPlayers().Where(p => !p.IsBot))
                     controller.Kick();
         }
-        Match.Cstv.Stop();
         Match.SetState(new StateWarmupReady(Match));
     }
 }

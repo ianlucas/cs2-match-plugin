@@ -41,6 +41,7 @@ public class CSTV
             return;
         _filename = filename;
         Server.ExecuteCommand($"tv_record {filename}");
+        _match.Log($"Demo is being recorded at {filename}.");
     }
 
     public void Stop()
@@ -61,7 +62,7 @@ public class CSTV
 
     public bool IsActive()
     {
-        return IsEnabled() && Utilities.GetPlayers().Any(p => p.IsHLTV);
+        return IsEnabled();
     }
 
     public bool Set(bool value)
