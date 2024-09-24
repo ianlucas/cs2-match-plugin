@@ -78,7 +78,7 @@ public class State(Match match)
             forfeitedTeam.IsSurrended = true;
             UtilitiesX
                 .GetGameRules()
-                ?.TerminateRoundX(
+                .TerminateRoundX(
                     0,
                     forfeitedTeam.CurrentTeam == CsTeam.Terrorist
                         ? RoundEndReason.TerroristsSurrender

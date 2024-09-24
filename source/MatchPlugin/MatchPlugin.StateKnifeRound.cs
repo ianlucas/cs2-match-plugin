@@ -60,7 +60,7 @@ public class StateKnifeRound(Match match) : State(match)
 
     public HookResult OnTerminateRound(DynamicHook h)
     {
-        var winner = UtilitiesX.GetGameRules()?.GetKnifeRoundWinner() ?? CsTeam.Terrorist;
+        var winner = UtilitiesX.GetGameRules().GetKnifeRoundWinner();
         Match.KnifeRoundWinner = Match.GetTeamFromCsTeam(winner);
         h.SetParam(
             2,
@@ -73,11 +73,9 @@ public class StateKnifeRound(Match match) : State(match)
 
     public HookResult OnRoundEndPre(EventRoundEnd @event, GameEventInfo _)
     {
-        var gameRules = UtilitiesX.GetGameRules();
-        if (gameRules != null && Match.KnifeRoundWinner == null)
-        {
-            Match.KnifeRoundWinner = Match.GetTeamFromCsTeam(gameRules.GetKnifeRoundWinner());
-        }
+        Match.KnifeRoundWinner ??= Match.GetTeamFromCsTeam(
+            UtilitiesX.GetGameRules().GetKnifeRoundWinner()
+        );
         return HookResult.Continue;
     }
 }

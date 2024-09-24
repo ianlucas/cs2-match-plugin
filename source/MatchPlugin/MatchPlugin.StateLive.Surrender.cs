@@ -47,7 +47,7 @@ public partial class StateLive
                 player.Team.Oppositon.Score = 1;
                 UtilitiesX
                     .GetGameRules()
-                    ?.TerminateRoundX(
+                    .TerminateRoundX(
                         0,
                         player.Team.CurrentTeam == CsTeam.Terrorist
                             ? RoundEndReason.TerroristsSurrender

@@ -36,13 +36,13 @@ public partial class StateLive
             var gameRules = UtilitiesX.GetGameRules();
             var timeouts =
                 currentTeam == CsTeam.Terrorist
-                    ? gameRules?.TerroristTimeOuts
-                    : gameRules?.CTTimeOuts;
+                    ? gameRules.TerroristTimeOuts
+                    : gameRules.CTTimeOuts;
             var timeoutActive =
                 currentTeam == CsTeam.Terrorist
-                    ? gameRules?.TerroristTimeOutActive
-                    : gameRules?.CTTimeOutActive;
-            if (timeouts != null && timeouts > 0 && timeoutActive == false)
+                    ? gameRules.TerroristTimeOutActive
+                    : gameRules.CTTimeOutActive;
+            if (timeouts > 0 && timeoutActive == false)
             {
                 Server.PrintToChatAll(
                     Match.Plugin.Localizer[

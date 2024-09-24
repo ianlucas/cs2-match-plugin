@@ -33,16 +33,18 @@ public class UtilitiesX
     public static CsTeam ToggleCsTeam(CsTeam team) =>
         team == CsTeam.Terrorist ? CsTeam.CounterTerrorist : CsTeam.Terrorist;
 
-    public static CCSGameRules? GetGameRules() =>
-        GameRulesProxy?.IsValid == true
-            ? GameRulesProxy.GameRules
-            : (
-                GameRulesProxy = Utilities
-                    .FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules")
-                    .First()
-            )?.IsValid == true
-                ? GameRulesProxy?.GameRules
-                : null;
+    public static CCSGameRules GetGameRules() =>
+        (
+            GameRulesProxy?.IsValid == true
+                ? GameRulesProxy.GameRules
+                : (
+                    GameRulesProxy = Utilities
+                        .FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules")
+                        .First()
+                )?.IsValid == true
+                    ? GameRulesProxy?.GameRules
+                    : null
+        ) ?? throw new Exception("Game rules not found.");
 
     public static bool SetPlayerName(CCSPlayerController? controller, string name)
     {
