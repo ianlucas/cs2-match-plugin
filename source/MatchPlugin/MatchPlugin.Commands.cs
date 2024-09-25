@@ -85,7 +85,7 @@ public partial class MatchPlugin
                 ServerX.SetTeamName(team.StartingTeam, team.ServerName);
         }
         _match.Log("Starting knife round.");
-        _match.SetState(new StateKnifeRound(_match));
+        _match.SetState(new StateKnifeRound());
     }
 
     public void OnMapCommand(CCSPlayerController? caller, CommandInfo command)
@@ -107,7 +107,7 @@ public partial class MatchPlugin
             return;
         _match.Log("Admin restarted the game.");
         _match.Reset();
-        _match.SetState(new StateWarmupReady(_match));
+        _match.SetState(new StateWarmupReady());
     }
 
     public void OnMatchLoadCommand(CCSPlayerController? caller, CommandInfo command)
@@ -172,6 +172,6 @@ public partial class MatchPlugin
         foreach (var opponent in team.Oppositon.Players)
             player.DamageReport.Add(opponent.SteamID, new(opponent));
         _match.CreateMatchFolder();
-        _match.SetState(new StateWarmupReady(_match));
+        _match.SetState(new StateWarmupReady());
     }
 }

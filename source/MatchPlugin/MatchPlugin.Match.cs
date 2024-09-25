@@ -47,7 +47,7 @@ public class Match
 
     public string? Id = null;
     public string? EventsUrl = null;
-    public State State;
+    public State State = new();
     public readonly MatchPlugin Plugin;
     public readonly List<Team> Teams = [];
     public readonly List<Map> Maps = [];
@@ -64,7 +64,6 @@ public class Match
         cts.Oppositon = terrorists;
         Teams = [terrorists, cts];
         Plugin = plugin;
-        State = new(this);
         Cstv = new(this);
     }
 
@@ -99,6 +98,7 @@ public class Match
             return;
         State.Unload();
         State = newState;
+        State.Match = this;
         State.Load();
     }
 

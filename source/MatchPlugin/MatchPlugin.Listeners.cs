@@ -37,7 +37,7 @@ public partial class MatchPlugin
     {
         OnMatchBotsChanged(null, _match.bots.Value);
         OnMatchMatchmakingChanged(null, _match.matchmaking.Value);
-        _match.SetState(new StateWarmupReady(_match));
+        _match.SetState(new StateWarmupReady());
     }
 
     public void OnMatchBotsChanged(object? sender, bool value)

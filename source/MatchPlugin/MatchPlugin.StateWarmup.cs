@@ -8,7 +8,7 @@ using CounterStrikeSharp.API.Core;
 
 namespace MatchPlugin;
 
-public class StateWarmup(Match match) : State(match)
+public class StateWarmup : State
 {
     public override void Load()
     {

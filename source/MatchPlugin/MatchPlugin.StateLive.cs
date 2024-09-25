@@ -8,7 +8,7 @@ using CounterStrikeSharp.API.Core;
 
 namespace MatchPlugin;
 
-public partial class StateLive(Match match) : State(match)
+public partial class StateLive : State
 {
     public static readonly List<string> PauseCmds = ["css_pause", "css_p", "css_pausar"];
     public static readonly List<string> UnpauseCmds = ["css_unpause", "css_up", "css_despausar"];

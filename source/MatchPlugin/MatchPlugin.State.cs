@@ -13,12 +13,24 @@ using CounterStrikeSharp.API.Modules.Utils;
 
 namespace MatchPlugin;
 
-public class State(Match match)
+public class State
 {
-    public readonly Match Match = match;
+    private Match? _match = null;
 
     protected bool _matchCancelled = false;
+
     private readonly List<CommandDefinition> _commands = [];
+
+    public Match Match
+    {
+        get
+        {
+            if (_match == null)
+                throw new Exception("No match assigned.");
+            return _match;
+        }
+        set { _match = value; }
+    }
 
     public virtual void Load() { }
 
@@ -89,7 +101,7 @@ public class State(Match match)
         {
             OnMapEnd(MapResult.Cancelled);
             Match.Reset();
-            Match.SetState(new StateWarmupReady(Match));
+            Match.SetState(new StateWarmupReady());
         }
     }
 
@@ -133,6 +145,6 @@ public class State(Match match)
                 foreach (var controller in Utilities.GetPlayers().Where(p => !p.IsBot))
                     controller.Kick();
         }
-        Match.SetState(new StateWarmupReady(Match));
+        Match.SetState(new StateWarmupReady());
     }
 }

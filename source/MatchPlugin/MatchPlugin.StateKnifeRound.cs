@@ -10,7 +10,7 @@ using CounterStrikeSharp.API.Modules.Utils;
 
 namespace MatchPlugin;
 
-public class StateKnifeRound(Match match) : State(match)
+public class StateKnifeRound : State
 {
     public override void Load()
     {
@@ -40,7 +40,7 @@ public class StateKnifeRound(Match match) : State(match)
     {
         if (Match.KnifeRoundWinner != null)
         {
-            Match.SetState(new StateWarmupKnifeVote(Match));
+            Match.SetState(new StateWarmupKnifeVote());
         }
         else
             ServerX.PrintToChatAllRepeat(

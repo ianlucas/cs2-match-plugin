@@ -10,7 +10,7 @@ using CounterStrikeSharp.API.Modules.Utils;
 
 namespace MatchPlugin;
 
-public class StateWarmupReady(Match match) : StateWarmup(match)
+public class StateWarmupReady : StateWarmup
 {
     public static readonly List<string> ReadyCmds = ["css_ready", "css_r", "css_pronto"];
     public static readonly List<string> UnreadyCmds = ["css_unready", "css_ur", "css_naopronto"];
@@ -217,7 +217,7 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
                 foreach (var opponent in team.Oppositon.Players)
                     player.DamageReport.Add(opponent.SteamID, new(opponent));
             }
-            Match.SetState(new StateKnifeRound(Match));
+            Match.SetState(new StateKnifeRound());
         }
     }
 

@@ -9,7 +9,7 @@ using CounterStrikeSharp.API.Modules.Commands;
 
 namespace MatchPlugin;
 
-public class StateWarmupKnifeVote(Match match) : StateWarmup(match)
+public class StateWarmupKnifeVote : StateWarmup
 {
     public static readonly List<string> StayCmds = ["css_stay", "css_ficar"];
     public static readonly List<string> SwitchCmds = ["css_switch", "css_trocar"];
@@ -154,6 +154,6 @@ public class StateWarmupKnifeVote(Match match) : StateWarmup(match)
                 team.StartingTeam = UtilitiesX.ToggleCsTeam(team.StartingTeam);
             UtilitiesX.GetGameRules().HandleSwapTeams();
         }
-        Match.SetState(new StateLive(Match));
+        Match.SetState(new StateLive());
     }
 }
