@@ -37,7 +37,7 @@ public class CSTV
 
     public void Record(string? filename)
     {
-        if (!IsActive() || IsRecording() || filename == null)
+        if (!IsEnabled() || IsRecording() || filename == null)
             return;
         _filename = filename;
         Server.ExecuteCommand($"tv_record {filename}");
@@ -55,27 +55,16 @@ public class CSTV
 
     public string? GetFilename() => _filename;
 
-    public bool IsEnabled()
-    {
-        return ConVar.Find("tv_enable")?.GetPrimitiveValue<bool>() == true;
-    }
+    public bool IsEnabled() => ConVar.Find("tv_enable")?.GetPrimitiveValue<bool>() == true;
 
-    public bool IsActive()
+    public void Set(bool value)
     {
-        return IsEnabled();
-    }
-
-    public bool Set(bool value)
-    {
-        if (value && !IsEnabled())
+        if (value)
         {
             ConVar.Find("tv_enable")?.SetValue(true);
             ConVar.Find("tv_delay")?.SetValue(_match.tv_delay.Value);
         }
-        else if (IsEnabled() || IsActive())
-        {
+        else
             ConVar.Find("tv_enable")?.SetValue(false);
-        }
-        return false;
     }
 }

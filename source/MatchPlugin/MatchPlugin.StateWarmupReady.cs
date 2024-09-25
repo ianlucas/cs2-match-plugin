@@ -22,12 +22,10 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
     {
         Match.Log($"matchmaking={Match.IsMatchmaking()}");
         Match.Cstv.Stop();
+        Match.Cstv.Set(Match.tv_record.Value);
 
         if (Match.CheckCurrentMap())
             return /* Map will be changed. */
-            ;
-        if (Match.Cstv.Set(Match.tv_record.Value))
-            return /* CSTV will be enabled or disabled. */
             ;
 
         base.Load();
