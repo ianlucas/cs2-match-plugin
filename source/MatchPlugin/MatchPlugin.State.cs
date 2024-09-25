@@ -95,7 +95,7 @@ public class State(Match match)
 
     public void OnMapEnd(MapResult result = MapResult.None, int? winner = null)
     {
-        Match.Log("State::OnMapEnd Map has ended.");
+        Match.Log("Map has ended.");
         var map = Match.GetCurrentMap();
         var stats = ServerX.GetLastRoundSaveContents();
         var demoFilename = Match.Cstv.GetFilename();
