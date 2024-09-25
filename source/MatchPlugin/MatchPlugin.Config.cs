@@ -26,6 +26,7 @@ public class Config
                 "mp_warmuptime_all_players_connected 0",
                 "mp_team_timeout_max 0",
                 "mp_buy_allow_grenades 0",
+                "tv_enable_dynamic 1",
                 // Voting convars
                 "sv_allow_votes 0",
                 "sv_vote_allow_spectators 0",
@@ -213,7 +214,6 @@ public class Config
                 "mp_team_timeout_time 30",
                 // Demo settings
                 $"mp_match_restart_delay {restartDelay}",
-                "tv_enable_dynamic 1",
                 // ...then end warmup.
                 "mp_warmup_end",
                 "mp_warmup_pausetimer 0"
