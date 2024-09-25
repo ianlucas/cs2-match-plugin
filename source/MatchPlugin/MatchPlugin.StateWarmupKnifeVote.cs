@@ -151,12 +151,8 @@ public class StateWarmupKnifeVote : StateWarmup
         if (decision == KnifeRoundVote.Switch)
         {
             foreach (var team in Match.Teams)
-            {
                 team.StartingTeam = UtilitiesX.ToggleCsTeam(team.StartingTeam);
-                ServerX.SetTeamName(team.StartingTeam, team.ServerName);
-                foreach (var player in team.Players)
-                    player.Controller?.ChangeTeam(team.StartingTeam);
-            }
+            UtilitiesX.GetGameRules().HandleSwapTeams();
         }
         Match.SetState(new StateLive());
     }
