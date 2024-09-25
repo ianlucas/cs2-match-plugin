@@ -18,7 +18,7 @@ public class State(Match match)
     public readonly Match Match = match;
 
     protected bool _matchCancelled = false;
-    private List<CommandDefinition> _commands = [];
+    private readonly List<CommandDefinition> _commands = [];
 
     public virtual void Load() { }
 

@@ -3,7 +3,6 @@
 *  Licensed under the MIT License. See License.txt in the project root for license information.
 *--------------------------------------------------------------------------------------------*/
 
-using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
@@ -13,8 +12,6 @@ namespace MatchPlugin;
 
 public class StateKnifeRound(Match match) : State(match)
 {
-    private bool _didKnifeVoteStart = false;
-
     public override void Load()
     {
         Match.Plugin.RegisterEventHandler<EventRoundStart>(OnRoundStart);
@@ -43,11 +40,7 @@ public class StateKnifeRound(Match match) : State(match)
     {
         if (Match.KnifeRoundWinner != null)
         {
-            if (!_didKnifeVoteStart)
-            {
-                _didKnifeVoteStart = true;
-                Match.SetState(new StateWarmupKnifeVote(Match));
-            }
+            Match.SetState(new StateWarmupKnifeVote(Match));
         }
         else
             ServerX.PrintToChatAllRepeat(

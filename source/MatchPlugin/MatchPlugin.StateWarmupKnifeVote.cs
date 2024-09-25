@@ -19,8 +19,6 @@ public class StateWarmupKnifeVote(Match match) : StateWarmup(match)
         KnifeRoundVote.Switch
     ];
 
-    private bool _didLiveStart = false;
-
     public override void Load()
     {
         base.Load();
@@ -29,7 +27,11 @@ public class StateWarmupKnifeVote(Match match) : StateWarmup(match)
         StayCmds.ForEach(c => AddCommand(c, "Stay in current team.", OnStayCommand));
         SwitchCmds.ForEach(c => AddCommand(c, "Switch current team", OnSwitchCommand));
         Match.Plugin.CreateChatTimer("PrintKnifeVoteCommands", OnPrintKnifeVoteCommands);
-        Match.Plugin.CreateTimer("KnifeVoteTimeout", Match.knife_vote_timeout.Value - 1, OnTimeOut);
+        Match.Plugin.CreateTimer(
+            "KnifeVoteTimeout",
+            Match.knife_vote_timeout.Value - 1,
+            OnKnifeVoteTimeout
+        );
 
         foreach (var player in Match.Teams.SelectMany(t => t.Players))
             player.KnifeRoundVote = KnifeRoundVote.None;
@@ -117,7 +119,7 @@ public class StateWarmupKnifeVote(Match match) : StateWarmup(match)
                 }
     }
 
-    public void OnTimeOut()
+    public void OnKnifeVoteTimeout()
     {
         Match.Log("Knive vote has timed out");
         ProcessKnifeVote(KnifeRoundVote.None);
@@ -125,8 +127,6 @@ public class StateWarmupKnifeVote(Match match) : StateWarmup(match)
 
     public void ProcessKnifeVote(KnifeRoundVote decision)
     {
-        if (_didLiveStart)
-            return;
         Match.Log($"decision={decision}");
         var winnerTeam = Match.KnifeRoundWinner;
         if (winnerTeam == null)
@@ -154,7 +154,6 @@ public class StateWarmupKnifeVote(Match match) : StateWarmup(match)
                 team.StartingTeam = UtilitiesX.ToggleCsTeam(team.StartingTeam);
             UtilitiesX.GetGameRules().HandleSwapTeams();
         }
-        _didLiveStart = true;
         Match.SetState(new StateLive(Match));
     }
 }

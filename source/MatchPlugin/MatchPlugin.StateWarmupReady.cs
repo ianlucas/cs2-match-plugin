@@ -16,7 +16,6 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
     public static readonly List<string> UnreadyCmds = ["css_unready", "css_ur", "css_naopronto"];
 
     private long _warmupStart = 0;
-    private bool _didMatchStart = false;
 
     public override void Load()
     {
@@ -183,7 +182,7 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
             if (player != null)
             {
                 player.IsReady = true;
-                CheckIfPlayersAreReady();
+                TryStartKnifeRound();
             }
         }
     }
@@ -196,15 +195,12 @@ public class StateWarmupReady(Match match) : StateWarmup(match)
             player.IsReady = false;
     }
 
-    public void CheckIfPlayersAreReady()
+    public void TryStartKnifeRound()
     {
         var players = Match.Teams.SelectMany(t => t.Players);
         if (players.Count() == Match.GetNeededPlayers() && players.All(p => p.IsReady))
         {
-            if (_didMatchStart)
-                return;
             Match.Log("Starting knife round from ready.");
-            _didMatchStart = true;
             if (!Match.IsLoadedFromFile)
             {
                 Match.Id = ServerX.Now().ToString();
