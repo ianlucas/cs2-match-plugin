@@ -55,7 +55,6 @@ public partial class StateLive : State
         RemoveAllCommands();
 
         Match.Plugin.ClearAllTimers();
-        Match.Plugin.RemoveCommand("css_restore", OnRestoreCommand);
         Match.Plugin.DeregisterEventHandler<EventPlayerConnect>(OnPlayerConnect);
         Match.Plugin.DeregisterEventHandler<EventPlayerConnectFull>(OnPlayerConnectFull);
         Match.Plugin.DeregisterEventHandler<EventRoundStart>(OnRoundStart);
