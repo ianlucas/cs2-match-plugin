@@ -6,7 +6,6 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Commands;
-using CounterStrikeSharp.API.Modules.Utils;
 
 namespace MatchPlugin;
 
@@ -56,7 +55,7 @@ public class StateWarmupReady : StateWarmup
 
         Match.Plugin.CreateChatTimer("PrintWarmupCommands", OnPrintWarmupCommands);
 
-        Match.Log("Execing ready warmup...");
+        Match.Log("Execing Warmup Ready");
         Config.ExecWarmup(
             warmupTime: Match.IsMatchmaking() ? Match.matchmaking_ready_timeout.Value : -1,
             lockTeams: Match.AreTeamsLocked()
@@ -200,23 +199,8 @@ public class StateWarmupReady : StateWarmup
         var players = Match.Teams.SelectMany(t => t.Players);
         if (players.Count() == Match.GetNeededPlayers() && players.All(p => p.IsReady))
         {
+            Match.Setup();
             Match.Log("Starting knife round from ready.");
-            if (!Match.IsLoadedFromFile)
-            {
-                Match.Id = ServerX.Now().ToString();
-                Match.CreateMatchFolder();
-            }
-            var idsInMatch = players.Select(p => p.SteamID);
-            foreach (var controller in UtilitiesX.GetPlayersInTeams())
-                if (!idsInMatch.Contains(controller.SteamID))
-                    controller.ChangeTeam(CsTeam.Spectator);
-            foreach (var team in Match.Teams)
-            {
-                ServerX.SetTeamName(team.StartingTeam, team.ServerName);
-                foreach (var player in team.Players)
-                foreach (var opponent in team.Oppositon.Players)
-                    player.DamageReport.Add(opponent.SteamID, new(opponent));
-            }
             Match.SetState(new StateKnifeRound());
         }
     }

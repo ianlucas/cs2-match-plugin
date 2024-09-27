@@ -97,9 +97,11 @@ public class Match
         if (newState.GetType() != typeof(StateWarmupReady) && State.GetType() == newState.GetType())
             return;
         State.Unload();
+        Log($"Unloaded {State.GetType().FullName}");
         State = newState;
         State.Match = this;
         State.Load();
+        Log($"Loaded {State.GetType().FullName}");
     }
 
     public Team? GetTeamFromCsTeam(CsTeam? csTeam)
@@ -159,6 +161,29 @@ public class Match
         return cycle % 2 == 0
             ? overtimeRound > overtimeRoundsPerSide
             : overtimeRound <= overtimeRoundsPerSide;
+    }
+
+    public void Setup()
+    {
+        if (!IsLoadedFromFile)
+        {
+            Id = ServerX.Now().ToString();
+            CreateMatchFolder();
+        }
+        var idsInMatch = Teams.SelectMany(t => t.Players).Select(p => p.SteamID);
+        foreach (var controller in UtilitiesX.GetPlayersInTeams())
+            if (!idsInMatch.Contains(controller.SteamID))
+                controller.ChangeTeam(CsTeam.Spectator);
+        foreach (var team in Teams)
+        {
+            ServerX.SetTeamName(team.StartingTeam, team.ServerName);
+            foreach (var player in team.Players)
+            {
+                player.DamageReport.Clear();
+                foreach (var opponent in team.Oppositon.Players)
+                    player.DamageReport.Add(opponent.SteamID, new(opponent));
+            }
+        }
     }
 
     public bool AreTeamsSwitchingSidesNextRound()

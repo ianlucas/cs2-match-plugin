@@ -36,7 +36,7 @@ public class StateWarmupKnifeVote : StateWarmup
         foreach (var player in Match.Teams.SelectMany(t => t.Players))
             player.KnifeRoundVote = KnifeRoundVote.None;
 
-        Match.Log("Executing knife vote warmup...");
+        Match.Log("Execing Knife Vote");
         Config.ExecWarmup(warmupTime: Match.knife_vote_timeout.Value, lockTeams: true);
     }
 
@@ -48,8 +48,6 @@ public class StateWarmupKnifeVote : StateWarmup
         Match.Plugin.DeregisterEventHandler<EventPlayerTeam>(OnPlayerTeamPre, HookMode.Pre);
         Match.Plugin.ClearTimer("PrintKnifeVoteCommands");
         Match.Plugin.ClearTimer("KnifeVoteTimeout");
-
-        Match.Log("Unloading knife vote...");
     }
 
     public HookResult OnPlayerTeamPre(EventPlayerTeam @event, GameEventInfo _)

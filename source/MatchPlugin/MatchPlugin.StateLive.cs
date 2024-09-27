@@ -30,7 +30,7 @@ public partial class StateLive : State
         Match.Plugin.RegisterEventHandler<EventCsWinPanelMatch>(OnCsWinPanelMatch);
         Match.Plugin.RegisterEventHandler<EventPlayerDisconnect>(OnPlayerDisconnect);
 
-        Match.Log("Execing live...");
+        Match.Log("Execing Live");
         Config.ExecLive(
             max_rounds: Match.max_rounds.Value,
             ot_max_rounds: Match.ot_max_rounds.Value,
@@ -62,8 +62,6 @@ public partial class StateLive : State
         Match.Plugin.DeregisterEventHandler<EventRoundEnd>(OnRoundEndPre, HookMode.Pre);
         Match.Plugin.DeregisterEventHandler<EventCsWinPanelMatch>(OnCsWinPanelMatch);
         Match.Plugin.DeregisterEventHandler<EventPlayerDisconnect>(OnPlayerDisconnect);
-
-        Match.Log("Unloading");
     }
 
     public HookResult OnRoundStart(EventRoundStart @event, GameEventInfo _)

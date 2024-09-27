@@ -88,6 +88,7 @@ public class State
         {
             var forfeitedTeam = winners.First().Oppositon;
             forfeitedTeam.IsSurrended = true;
+            Match.Log("Terminating by Cancelled");
             UtilitiesX
                 .GetGameRules()
                 .TerminateRoundX(

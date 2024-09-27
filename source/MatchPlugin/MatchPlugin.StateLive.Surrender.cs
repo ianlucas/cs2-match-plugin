@@ -45,6 +45,7 @@ public partial class StateLive
                 player.Team.IsSurrended = true;
                 player.Team.Score = 0;
                 player.Team.Oppositon.Score = 1;
+                Match.Log("Terminating by Surrender");
                 UtilitiesX
                     .GetGameRules()
                     .TerminateRoundX(

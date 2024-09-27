@@ -19,7 +19,9 @@ public class UtilitiesX
         Utilities.GetPlayers().Where(p => p.Team == team);
 
     public static IEnumerable<CCSPlayerController> GetPlayersInTeams() =>
-        Utilities.GetPlayers().Where(p => p.Team is CsTeam.Terrorist or CsTeam.CounterTerrorist);
+        Utilities
+            .GetPlayers()
+            .Where(p => p.Team is CsTeam.Terrorist or CsTeam.CounterTerrorist && !p.IsBot);
 
     public static IEnumerable<CCSPlayerController> GetUnfilteredPlayers() =>
         Utilities.FindAllEntitiesByDesignerName<CCSPlayerController>("cs_player_controller");

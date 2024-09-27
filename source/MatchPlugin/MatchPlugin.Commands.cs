@@ -61,10 +61,7 @@ public partial class MatchPlugin
         if (_match.State is not StateWarmupReady)
             return;
         if (!_match.IsLoadedFromFile)
-        {
-            _match.Id = ServerX.Now().ToString();
-            _match.CreateMatchFolder();
-            foreach (var controller in UtilitiesX.GetPlayersInTeams().Where(p => !p.IsBot))
+            foreach (var controller in UtilitiesX.GetPlayersInTeams())
             {
                 var player = _match.GetPlayerFromSteamID(controller.SteamID);
                 if (player == null)
@@ -81,10 +78,8 @@ public partial class MatchPlugin
                 if (player != null)
                     player.IsReady = true;
             }
-            foreach (var team in _match.Teams)
-                ServerX.SetTeamName(team.StartingTeam, team.ServerName);
-        }
-        _match.Log("Starting knife round.");
+        _match.Setup();
+        _match.Log("Starting knife round from force start.");
         _match.SetState(new StateKnifeRound());
     }
 
@@ -167,10 +162,6 @@ public partial class MatchPlugin
                     controller.ChangeTeam(CsTeam.Spectator);
                 else
                     controller.Kick();
-        foreach (var team in _match.Teams)
-        foreach (var player in team.Players)
-        foreach (var opponent in team.Oppositon.Players)
-            player.DamageReport.Add(opponent.SteamID, new(opponent));
         _match.CreateMatchFolder();
         _match.SetState(new StateWarmupReady());
     }
