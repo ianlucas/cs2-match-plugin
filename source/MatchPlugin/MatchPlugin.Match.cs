@@ -3,7 +3,9 @@
 *  Licensed under the MIT License. See License.txt in the project root for license information.
 *--------------------------------------------------------------------------------------------*/
 
+using System;
 using System.Diagnostics;
+using System.Reflection;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core.Translations;
 using CounterStrikeSharp.API.Modules.Cvars;
@@ -81,6 +83,8 @@ public class Match
 
     public void SendEvent(object @event)
     {
+        PropertyInfo? propertyInfo = @event.GetType().GetProperty("event");
+        Log($"type={propertyInfo?.GetValue(@event)}");
         if (EventsUrl != null)
             ServerX.SendJson(EventsUrl, @event);
     }
