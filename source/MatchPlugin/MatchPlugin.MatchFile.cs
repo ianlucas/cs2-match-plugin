@@ -51,7 +51,7 @@ public class MatchPlayerData
     public required string Name { get; set; }
 
     [JsonPropertyName("isInGameLeader")]
-    public required bool IsInGameLeader { get; set; }
+    public bool? IsInGameLeader { get; set; }
 }
 
 public class MatchFile

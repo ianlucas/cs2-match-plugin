@@ -144,7 +144,7 @@ public partial class MatchPlugin
                     Utilities.GetPlayerFromSteamId(steamId)
                 );
                 team.AddPlayer(player);
-                if (playerSchema.IsInGameLeader)
+                if (playerSchema.IsInGameLeader == true)
                     team.InGameLeader = player;
             }
         }
