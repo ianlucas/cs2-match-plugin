@@ -141,6 +141,7 @@ public class State
         {
             Match.SendEvent(new { type = "matchend", results = maps });
             Match.Reset();
+            Match.Log($"Match is over, kicking players={Match.matchmaking.Value}");
             Match.Plugin.OnMatchMatchmakingChanged(null, Match.matchmaking.Value);
             if (Match.matchmaking.Value)
                 foreach (var controller in Utilities.GetPlayers().Where(p => !p.IsBot))
