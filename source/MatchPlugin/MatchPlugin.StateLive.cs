@@ -25,8 +25,16 @@ public partial class StateLive : State
         Match.Plugin.RegisterEventHandler<EventPlayerConnect>(OnPlayerConnect);
         Match.Plugin.RegisterEventHandler<EventPlayerConnectFull>(OnPlayerConnectFull);
         Match.Plugin.RegisterEventHandler<EventRoundStart>(OnRoundStart);
+        Match.Plugin.RegisterEventHandler<EventRoundStart>(Stats_OnRoundStart);
+        Match.Plugin.RegisterEventHandler<EventPlayerBlind>(Stats_OnPlayerBlind);
         Match.Plugin.RegisterEventHandler<EventPlayerHurt>(OnPlayerHurt);
+        Match.Plugin.RegisterEventHandler<EventPlayerHurt>(Stats_OnPlayerHurt);
+        Match.Plugin.RegisterEventHandler<EventPlayerDeath>(Stats_OnPlayerDeath);
+        Match.Plugin.RegisterEventHandler<EventBombPlanted>(Stats_OnBombPlanted);
+        Match.Plugin.RegisterEventHandler<EventBombDefused>(Stats_OnBombDefused);
+        Match.Plugin.RegisterEventHandler<EventRoundMvp>(Stats_OnRoundMvp);
         Match.Plugin.RegisterEventHandler<EventRoundEnd>(OnRoundEndPre, HookMode.Pre);
+        Match.Plugin.RegisterEventHandler<EventRoundEnd>(Stats_OnRoundEnd);
         Match.Plugin.RegisterEventHandler<EventCsWinPanelMatch>(OnCsWinPanelMatch);
         Match.Plugin.RegisterEventHandler<EventPlayerDisconnect>(OnPlayerDisconnect);
 
@@ -58,8 +66,16 @@ public partial class StateLive : State
         Match.Plugin.DeregisterEventHandler<EventPlayerConnect>(OnPlayerConnect);
         Match.Plugin.DeregisterEventHandler<EventPlayerConnectFull>(OnPlayerConnectFull);
         Match.Plugin.DeregisterEventHandler<EventRoundStart>(OnRoundStart);
+        Match.Plugin.DeregisterEventHandler<EventRoundStart>(Stats_OnRoundStart);
+        Match.Plugin.DeregisterEventHandler<EventPlayerBlind>(Stats_OnPlayerBlind);
         Match.Plugin.DeregisterEventHandler<EventPlayerHurt>(OnPlayerHurt);
+        Match.Plugin.DeregisterEventHandler<EventPlayerHurt>(Stats_OnPlayerHurt);
+        Match.Plugin.DeregisterEventHandler<EventPlayerDeath>(Stats_OnPlayerDeath);
+        Match.Plugin.DeregisterEventHandler<EventBombPlanted>(Stats_OnBombPlanted);
+        Match.Plugin.DeregisterEventHandler<EventBombDefused>(Stats_OnBombDefused);
+        Match.Plugin.DeregisterEventHandler<EventRoundMvp>(Stats_OnRoundMvp);
         Match.Plugin.DeregisterEventHandler<EventRoundEnd>(OnRoundEndPre, HookMode.Pre);
+        Match.Plugin.DeregisterEventHandler<EventRoundEnd>(Stats_OnRoundEnd);
         Match.Plugin.DeregisterEventHandler<EventCsWinPanelMatch>(OnCsWinPanelMatch);
         Match.Plugin.DeregisterEventHandler<EventPlayerDisconnect>(OnPlayerDisconnect);
     }

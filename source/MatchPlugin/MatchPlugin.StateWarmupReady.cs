@@ -37,7 +37,10 @@ public class StateWarmupReady : StateWarmup
         UnreadyCmds.ForEach(c => AddCommand(c, "Mark as unready.", OnUnreadyCommand));
 
         foreach (var player in Match.Teams.SelectMany(t => t.Players))
+        {
             player.IsReady = false;
+            player.Stats = new();
+        }
 
         if (Match.IsMatchmaking())
         {

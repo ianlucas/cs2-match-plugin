@@ -23,11 +23,14 @@ public class Map(string mapName)
     [JsonPropertyName("winner")]
     public int? Winner { get; set; }
 
+    [JsonPropertyName("scores")]
+    public List<int> Scores { get; set; } = [];
+
     [JsonPropertyName("result")]
     public MapResult Result { get; set; } = MapResult.None;
 
     [JsonPropertyName("stats")]
-    public object? Stats { get; set; }
+    public List<List<PlayerStats>> Stats { get; set; } = [];
 
     [JsonPropertyName("demoFilename")]
     public string? DemoFilename { get; set; }

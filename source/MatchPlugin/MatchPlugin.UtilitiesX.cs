@@ -11,6 +11,15 @@ namespace MatchPlugin;
 
 public class UtilitiesX
 {
+    static readonly List<string> UtilityClassnames =
+    [
+        "incgrenade",
+        "inferno",
+        "hegrenade",
+        "flashbang",
+        "decoy",
+        "smokegrenade"
+    ];
     static CCSGameRulesProxy? GameRulesProxy;
 
     public static string FormatTimeString(long seconds) => $"{seconds / 60}:{seconds % 60:D2}";
@@ -79,4 +88,13 @@ public class UtilitiesX
         if (didUpdateControllers)
             ServerX.UpdatePlayersScoreboard();
     }
+
+    public static int CountAlivePlayersInTeam(CsTeam team) =>
+        GetPlayersFromTeam(team).Count(player => player.GetHealth() > 0);
+
+    public static bool IsKnifeClassname(string designerName) =>
+        designerName.Contains("bayonet") || designerName.Contains("knife");
+
+    public static bool IsUtilityClassname(string designerName) =>
+        UtilityClassnames.Any(classname => classname.Contains(designerName));
 }

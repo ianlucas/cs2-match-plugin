@@ -54,20 +54,20 @@ public class State
     {
         Match.Plugin.ClearAllTimers();
         var result = MapResult.None;
-        int? winner = null;
+        Team? winner = null;
         foreach (var team in Match.Teams)
         {
             if (team.IsSurrended)
             {
                 result = MapResult.Forfeited;
-                winner = team.Oppositon.Index;
+                winner = team.Oppositon;
                 Match.Log($"forfeited, result={result}, winner={winner}");
                 break;
             }
             if (team.Score > team.Oppositon.Score)
             {
                 result = MapResult.Completed;
-                winner = team.Index;
+                winner = team;
                 Match.Log($"completed, result={result}, winner={winner}");
             }
         }
@@ -106,35 +106,25 @@ public class State
         }
     }
 
-    public void OnMapEnd(MapResult result = MapResult.None, int? winner = null)
+    public void OnMapEnd(MapResult result = MapResult.None, Team? winner = null)
     {
         Match.Log("Map has ended.");
-        var map = Match.GetCurrentMap();
-        var stats = ServerX.GetLastRoundSaveContents();
+        var map = Match.GetCurrentMap() ?? new(Server.MapName);
+        var stats = Match.Teams.Select(t => t.Players.Select(p => p.Stats).ToList()).ToList();
         var demoFilename = Match.Cstv.GetFilename();
-        if (map != null)
-        {
-            map.DemoFilename = demoFilename;
-            map.KnifeRoundWinner = Match.KnifeRoundWinner?.Index;
-            map.Result = result;
-            map.Stats = stats;
-            map.Winner = winner;
-        }
-        var maps = (
-            Match.Maps.Count > 0
-                ? Match.Maps
-                :
-                [
-                    new(Server.MapName)
-                    {
-                        DemoFilename = demoFilename,
-                        KnifeRoundWinner = Match.KnifeRoundWinner?.Index,
-                        Result = result,
-                        Stats = stats,
-                        Winner = winner
-                    }
-                ]
-        ).Where(m => m.Result != MapResult.None);
+        var scores = Match.Teams.Select(t => t.Score).ToList();
+
+        map.DemoFilename = demoFilename;
+        map.KnifeRoundWinner = Match.KnifeRoundWinner?.Index;
+        map.Result = result;
+        map.Stats = stats;
+        map.Winner = winner?.Index;
+        map.Scores = scores;
+
+        var maps = (Match.Maps.Count > 0 ? Match.Maps : [map]).Where(m =>
+            m.Result != MapResult.None
+        );
+
         ServerX.WriteJson(ServerX.GetFullPath($"{Match.GetMatchFolder()}/results.json"), maps);
         var isSeriesOver = Match.GetCurrentMap() == null;
         if (isSeriesOver || result != MapResult.Completed)
