@@ -89,8 +89,10 @@ public class UtilitiesX
             ServerX.UpdatePlayersScoreboard();
     }
 
-    public static int CountAlivePlayersInTeam(CsTeam team) =>
-        GetPlayersFromTeam(team).Count(player => player.GetHealth() > 0);
+    public static IEnumerable<CCSPlayerController> GetAlivePlayersInTeam(CsTeam team) =>
+        GetPlayersFromTeam(team).Where(player => player.GetHealth() > 0);
+
+    public static int CountAlivePlayersInTeam(CsTeam team) => GetAlivePlayersInTeam(team).Count();
 
     public static bool IsKnifeClassname(string designerName) =>
         designerName.Contains("bayonet") || designerName.Contains("knife");

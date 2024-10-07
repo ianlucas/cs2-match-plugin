@@ -11,7 +11,7 @@ namespace MatchPlugin;
 public partial class StateLive
 {
     private readonly Dictionary<CsTeam, bool> _isTeamClutching = [];
-    private readonly Dictionary<CsTeam, int> _roundClutchingCount = [];
+    private readonly Dictionary<ulong, int> _roundClutchingCount = [];
     private readonly Dictionary<ulong, int> _roundKills = [];
     private readonly Dictionary<ulong, (ulong, CsTeam, long)> _playerKilledBy = [];
     private bool _hadFirstDeath = false;
@@ -19,7 +19,7 @@ public partial class StateLive
 
     // KAST
     private readonly Dictionary<ulong, bool> _playerSurvived = [];
-    private readonly Dictionary<ulong, bool> _playerKilledOrAssistedOrTradedkill = [];
+    private readonly Dictionary<ulong, bool> _playerKilledOrAssistedOrTradedKill = [];
 
     public HookResult Stats_OnRoundStart(EventRoundStart @event, GameEventInfo _)
     {
@@ -28,6 +28,9 @@ public partial class StateLive
         _playerKilledBy.Clear();
         _hadFirstDeath = false;
         _hadFirstKill = false;
+
+        _playerSurvived.Clear();
+        _playerKilledOrAssistedOrTradedKill.Clear();
 
         foreach (var player in Match.Teams.SelectMany(t => t.Players))
         {
@@ -89,9 +92,11 @@ public partial class StateLive
         )
         {
             _isTeamClutching[victimTeam] = true;
-            _roundClutchingCount[victimTeam] = UtilitiesX.CountAlivePlayersInTeam(
-                UtilitiesX.ToggleCsTeam(victimTeam)
-            );
+            var clutcher = UtilitiesX.GetAlivePlayersInTeam(victimTeam).FirstOrDefault();
+            if (clutcher != null)
+                _roundClutchingCount[clutcher.SteamID] = UtilitiesX.CountAlivePlayersInTeam(
+                    UtilitiesX.ToggleCsTeam(victimTeam)
+                );
         }
 
         var killedByBomb = @event.Weapon == "planted_c4";
@@ -140,13 +145,13 @@ public partial class StateLive
                         if (delta < 2)
                         {
                             attacker.Stats.TradeKills += 1;
-                            _playerKilledOrAssistedOrTradedkill[aVictim] = true;
+                            _playerKilledOrAssistedOrTradedKill[aVictim] = true;
                         }
                     }
                 }
 
                 attacker.Stats.Kills += 1;
-                _playerKilledOrAssistedOrTradedkill[attacker.SteamID] = true;
+                _playerKilledOrAssistedOrTradedKill[attacker.SteamID] = true;
 
                 if (headshot)
                     attacker.Stats.HeadshotKills += 1;
@@ -165,7 +170,7 @@ public partial class StateLive
                         else
                         {
                             assister.Stats.Assists += 1;
-                            _playerKilledOrAssistedOrTradedkill[assister.SteamID] = true;
+                            _playerKilledOrAssistedOrTradedKill[assister.SteamID] = true;
                         }
                 }
             }
@@ -225,8 +230,12 @@ public partial class StateLive
                         player.Stats.K5 += 1;
                         break;
                 }
-            if (player.Team.CurrentTeam == winner)
-                switch (_roundClutchingCount[winner])
+
+            if (
+                player.Team.CurrentTeam == winner
+                && _roundClutchingCount.TryGetValue(player.SteamID, out var opponents)
+            )
+                switch (opponents)
                 {
                     case 1:
                         player.Stats.V1 += 1;
@@ -244,8 +253,9 @@ public partial class StateLive
                         player.Stats.V5 += 1;
                         break;
                 }
+
             if (
-                _playerKilledOrAssistedOrTradedkill.ContainsKey(player.SteamID)
+                _playerKilledOrAssistedOrTradedKill.ContainsKey(player.SteamID)
                 || _playerSurvived.ContainsKey(player.SteamID)
             )
                 player.Stats.KAST += 1;
