@@ -39,7 +39,7 @@ public class StateWarmupReady : StateWarmup
         foreach (var player in Match.Teams.SelectMany(t => t.Players))
         {
             player.IsReady = false;
-            player.Stats = new();
+            player.Stats = new(player.SteamID);
         }
 
         if (Match.IsMatchmaking())

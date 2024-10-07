@@ -23,5 +23,5 @@ public class Player(ulong steamId, string name, Team team, CCSPlayerController? 
     public Team Team = team;
     public ulong SteamID = steamId;
     public KnifeRoundVote KnifeRoundVote = KnifeRoundVote.None;
-    public PlayerStats Stats = new();
+    public PlayerStats Stats = new(steamId);
 }

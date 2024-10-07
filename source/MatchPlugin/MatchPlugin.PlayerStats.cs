@@ -7,8 +7,11 @@ using System.Text.Json.Serialization;
 
 namespace MatchPlugin;
 
-public class PlayerStats
+public class PlayerStats(ulong steamId)
 {
+    [JsonPropertyName("steamId")]
+    public string SteamID = steamId.ToString();
+
     [JsonPropertyName("kills")]
     public int Kills = 0;
 
