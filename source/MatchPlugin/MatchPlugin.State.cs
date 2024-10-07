@@ -54,20 +54,20 @@ public class State
     {
         Match.Plugin.ClearAllTimers();
         var result = MapResult.None;
-        Team? winner = null;
+        int? winner = null;
         foreach (var team in Match.Teams)
         {
             if (team.IsSurrended)
             {
                 result = MapResult.Forfeited;
-                winner = team.Oppositon;
+                winner = team.Oppositon.Index;
                 Match.Log($"forfeited, result={result}, winner={winner}");
                 break;
             }
             if (team.Score > team.Oppositon.Score)
             {
                 result = MapResult.Completed;
-                winner = team;
+                winner = team.Index;
                 Match.Log($"completed, result={result}, winner={winner}");
             }
         }
@@ -106,7 +106,7 @@ public class State
         }
     }
 
-    public void OnMapEnd(MapResult result = MapResult.None, Team? winner = null)
+    public void OnMapEnd(MapResult result = MapResult.None, int? winner = null)
     {
         Match.Log("Map has ended.");
         var map = Match.GetCurrentMap() ?? new(Server.MapName);
@@ -118,7 +118,7 @@ public class State
         map.KnifeRoundWinner = Match.KnifeRoundWinner?.Index;
         map.Result = result;
         map.Stats = stats;
-        map.Winner = winner?.Index;
+        map.Winner = winner;
         map.Scores = scores;
 
         var maps = (Match.Maps.Count > 0 ? Match.Maps : [map]).Where(m =>
