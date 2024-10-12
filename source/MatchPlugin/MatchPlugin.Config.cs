@@ -191,8 +191,6 @@ public class Config
                 "spec_replay_enable 0",
                 "sv_allow_votes 1",
                 "sv_auto_full_alltalk_during_warmup_half_end 0",
-                "sv_coaching_enabled 1",
-                "sv_competitive_official_5v5 1",
                 "sv_damage_print_enable 0",
                 "sv_deadtalk 1",
                 "sv_holiday_mode 0",
