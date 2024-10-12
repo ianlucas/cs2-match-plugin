@@ -49,8 +49,7 @@ public partial class MatchPlugin
                 message += "\n";
             }
         }
-        if (caller != null)
-            caller.PrintToConsole(message);
+        caller?.PrintToConsole(message);
         Server.PrintToConsole(message);
     }
 
@@ -78,8 +77,15 @@ public partial class MatchPlugin
                 if (player != null)
                     player.IsReady = true;
             }
+        _match.Log(
+            printToChat: true,
+            message: Localizer[
+                "match.admin_start",
+                _match.GetChatPrefix(true),
+                UtilitiesX.GetPlayerName(caller)
+            ]
+        );
         _match.Setup();
-        _match.Log("Starting knife round from force start.");
         _match.SetState(new StateKnifeRound());
     }
 
@@ -92,15 +98,31 @@ public partial class MatchPlugin
         var mapname = command.ArgByIndex(1).ToLower().Trim();
         if (!mapname.StartsWith("de_"))
             return;
-        if (!_match.AreTeamsLocked())
-            Server.ExecuteCommand($"changelevel {mapname}");
+        if (_match.AreTeamsLocked())
+            return;
+        _match.Log(
+            printToChat: true,
+            message: Localizer[
+                "match.admin_map",
+                _match.GetChatPrefix(true),
+                UtilitiesX.GetPlayerName(caller)
+            ]
+        );
+        Server.ExecuteCommand($"changelevel {mapname}");
     }
 
     public void OnRestartCommand(CCSPlayerController? caller, CommandInfo command)
     {
         if (!AdminManager.PlayerHasPermissions(caller, "@css/config"))
             return;
-        _match.Log("Admin restarted the game.");
+        _match.Log(
+            printToChat: true,
+            message: Localizer[
+                "match.admin_restart",
+                _match.GetChatPrefix(true),
+                UtilitiesX.GetPlayerName(caller)
+            ]
+        );
         _match.Reset();
         _match.SetState(new StateWarmupReady());
     }

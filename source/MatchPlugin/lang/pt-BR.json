@@ -1,4 +1,12 @@
 {
+  "match.admin_restart": "{purple}{0} {1} (Admin) reiniciou a partida.",
+  "match.admin_start": "{purple}{0} {1} (Admin) iniciou a partida.",
+  "match.admin_map": "{purple}{0} {1} (Admin) trocou o mapa.",
+  "match.admin_unpause": "{purple}{0} {1} (Admin) despausou a partida.",
+  "match.admin_restore": "{purple}{0} {1} (Admin) restaurou um round.",
+  "match.admin_restore_syntax": "{red}{0} Uso: !restore <round>",
+  "match.admin_restore_error": "{red}{0} O round {1} não foi encontrado.",
+
   "match.t": "Terroristas",
   "match.ct": "Contra-Terroristas",
   "match.not_ready": "[NOT READY]",

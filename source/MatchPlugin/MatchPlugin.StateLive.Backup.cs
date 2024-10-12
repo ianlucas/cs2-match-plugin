@@ -18,14 +18,32 @@ public partial class StateLive
             return;
         if (command.ArgCount != 2)
         {
-            controller?.PrintToChat($"Usage: !restore <round>");
+            controller?.PrintToChat(
+                Match.Plugin.Localizer["match.admin_restore_syntax", Match.GetChatPrefix(true)]
+            );
             return;
         }
         var round = command.ArgByIndex(1).ToLower().Trim().PadLeft(2, '0');
         round = $"{Match.GetBackupPrefix()}_round{round}.txt";
         if (File.Exists(ServerX.GetCSGOPath(round)))
+        {
+            Match.Log(
+                printToChat: true,
+                message: Match.Plugin.Localizer[
+                    "match.admin_restore",
+                    Match.GetChatPrefix(true),
+                    UtilitiesX.GetPlayerName(controller)
+                ]
+            );
             Server.ExecuteCommand($"mp_backup_restore_load_file {round}");
+        }
         else
-            controller?.PrintToChat($"Restore failed. Unable to find backup file.");
+            controller?.PrintToChat(
+                Match.Plugin.Localizer[
+                    "match.admin_restore_error",
+                    Match.GetChatPrefix(true),
+                    round
+                ]
+            );
     }
 }

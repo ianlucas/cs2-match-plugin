@@ -79,6 +79,9 @@ public class UtilitiesX
         return false;
     }
 
+    public static string GetPlayerName(CCSPlayerController? controller) =>
+        controller?.PlayerName ?? "Console";
+
     public static void RemovePlayerClans()
     {
         bool didUpdateControllers = false;

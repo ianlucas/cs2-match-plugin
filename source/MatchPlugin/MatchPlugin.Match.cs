@@ -208,8 +208,10 @@ public class Match
         return false;
     }
 
-    public void Log(string message)
+    public void Log(string message, bool printToChat = false)
     {
+        if (printToChat)
+            Server.PrintToChatAll(message);
         if (!verbose.Value)
             return;
         var stackTrace = new StackTrace();

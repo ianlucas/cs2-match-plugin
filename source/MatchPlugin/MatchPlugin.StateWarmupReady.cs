@@ -203,7 +203,6 @@ public class StateWarmupReady : StateWarmup
         if (players.Count() == Match.GetNeededPlayers() && players.All(p => p.IsReady))
         {
             Match.Setup();
-            Match.Log("Starting knife round from ready.");
             Match.SetState(new StateKnifeRound());
         }
     }

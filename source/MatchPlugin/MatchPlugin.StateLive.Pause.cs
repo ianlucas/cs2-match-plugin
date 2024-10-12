@@ -63,14 +63,22 @@ public partial class StateLive
 
     public void OnUnpauseCommand(CCSPlayerController? controller, CommandInfo _)
     {
+        if (controller == null || AdminManager.PlayerHasPermissions(controller, "@css/config"))
+        {
+            Match.Log(
+                printToChat: true,
+                message: Match.Plugin.Localizer[
+                    "match.admin_unpause",
+                    Match.GetChatPrefix(true),
+                    UtilitiesX.GetPlayerName(controller)
+                ]
+            );
+            Server.ExecuteCommand("mp_unpause_match");
+            return;
+        }
+
         var player = Match.GetPlayerFromSteamID(controller?.SteamID);
-        if (
-            player != null
-            && (
-                Match.friendly_pause.Value
-                || AdminManager.PlayerHasPermissions(player.Controller, "@css/config")
-            )
-        )
+        if (player != null && Match.friendly_pause.Value)
         {
             var askedForUnpause = player.Team.IsUnpauseMatch;
             player.Team.IsUnpauseMatch = true;
