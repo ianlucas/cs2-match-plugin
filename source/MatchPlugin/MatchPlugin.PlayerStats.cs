@@ -110,4 +110,6 @@ public class PlayerStats(ulong steamId)
 
     [JsonPropertyName("mvps")]
     public int MVPs = 0;
+
+    public PlayerStats Clone() => (PlayerStats)MemberwiseClone();
 }

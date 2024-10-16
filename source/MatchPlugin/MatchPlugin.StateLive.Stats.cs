@@ -10,6 +10,7 @@ namespace MatchPlugin;
 
 public partial class StateLive
 {
+    private readonly Dictionary<int, List<(Player, PlayerStats)>> _statsBackup = [];
     private readonly Dictionary<CsTeam, bool> _isTeamClutching = [];
     private readonly Dictionary<ulong, int> _roundClutchingCount = [];
     private readonly Dictionary<ulong, int> _roundKills = [];
@@ -206,6 +207,10 @@ public partial class StateLive
     public HookResult Stats_OnRoundEnd(EventRoundEnd @event, GameEventInfo _)
     {
         var winner = (CsTeam)@event.Winner;
+
+        var gameRules = UtilitiesX.GetGameRules();
+        _statsBackup[gameRules.TotalRoundsPlayed] = [];
+
         foreach (var player in Match.Teams.SelectMany(t => t.Players))
         {
             if (player.Controller != null)
@@ -259,7 +264,10 @@ public partial class StateLive
                 || _playerSurvived.ContainsKey(player.SteamID)
             )
                 player.Stats.KAST += 1;
+
+            _statsBackup[gameRules.TotalRoundsPlayed].Add((player, player.Stats.Clone()));
         }
+
         return HookResult.Continue;
     }
 }
