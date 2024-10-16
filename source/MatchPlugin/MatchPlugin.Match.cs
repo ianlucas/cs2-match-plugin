@@ -55,7 +55,6 @@ public class Match
     public readonly List<Map> Maps = [];
     public bool IsLoadedFromFile = false;
     public Team? KnifeRoundWinner;
-    public int CurrentRound = 0;
     public CSTV Cstv;
 
     public Match(MatchPlugin plugin)
@@ -74,7 +73,6 @@ public class Match
         Id = null;
         EventsUrl = null;
         IsLoadedFromFile = false;
-        CurrentRound = 0;
         KnifeRoundWinner = null;
         Maps.Clear();
         foreach (var team in Teams)
@@ -151,21 +149,8 @@ public class Match
     public string? GetDemoFilename() =>
         Id != null ? ServerX.GetConVarPath($"{GetMatchFolder()}/{Server.MapName}.dem") : null;
 
-    public bool AreTeamsPlayingSwitchedSides(int? round = null)
-    {
-        if (State is not StateLive)
-            return false;
-        round ??= CurrentRound;
-        var regulationMaxRound = max_rounds.Value;
-        var overtimeRoundsPerSide = ot_max_rounds.Value / 2;
-        if (round <= regulationMaxRound)
-            return round > regulationMaxRound / 2;
-        var overtimeRound = round - regulationMaxRound + (overtimeRoundsPerSide * 5);
-        var cycle = (overtimeRound - 1) / (overtimeRoundsPerSide * 2);
-        return cycle % 2 == 0
-            ? overtimeRound > overtimeRoundsPerSide
-            : overtimeRound <= overtimeRoundsPerSide;
-    }
+    public bool AreTeamsPlayingSwitchedSides() =>
+        State is StateLive && UtilitiesX.GetGameRules().AreTeamsPlayingSwitchedSides();
 
     public void Setup()
     {
@@ -188,13 +173,6 @@ public class Match
                     player.DamageReport.Add(opponent.SteamID, new(opponent));
             }
         }
-    }
-
-    public bool AreTeamsSwitchingSidesNextRound()
-    {
-        if (State is not StateLive)
-            return false;
-        return AreTeamsPlayingSwitchedSides() != AreTeamsPlayingSwitchedSides(CurrentRound + 1);
     }
 
     public bool CheckCurrentMap()

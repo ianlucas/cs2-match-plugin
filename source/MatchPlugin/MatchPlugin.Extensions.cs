@@ -34,10 +34,20 @@ public static partial class Extensions
     public static readonly MemoryFunctionVoid<IntPtr> HandleSwapTeamsFunc =
         new(GameData.GetSignature("HandleSwapTeams"));
 
-    public static void HandleSwapTeams(this CCSGameRules gameRules)
-    {
+    public static readonly MemoryFunctionWithReturn<IntPtr, bool> IsLastRoundBeforeHalfTimeFunc =
+        new(GameData.GetSignature("IsLastRoundBeforeHalfTime"));
+
+    public static readonly MemoryFunctionWithReturn<IntPtr, bool> AreTeamsPlayingSwitchedSidesFunc =
+        new(GameData.GetSignature("AreTeamsPlayingSwitchedSides"));
+
+    public static void HandleSwapTeams(this CCSGameRules gameRules) =>
         HandleSwapTeamsFunc.Invoke(gameRules.Handle);
-    }
+
+    public static bool IsLastRoundBeforeHalfTime(this CCSGameRules gameRules) =>
+        IsLastRoundBeforeHalfTimeFunc.Invoke(gameRules.Handle);
+
+    public static bool AreTeamsPlayingSwitchedSides(this CCSGameRules gameRules) =>
+        AreTeamsPlayingSwitchedSidesFunc.Invoke(gameRules.Handle);
 
     public static int GetHealth(this CCSPlayerController controller) =>
         Math.Max(

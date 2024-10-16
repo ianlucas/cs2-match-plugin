@@ -53,7 +53,7 @@ public partial class StateLive
                 );
                 Server.ExecuteCommand(
                     currentTeam == CsTeam.Terrorist
-                    && (gameRules?.FreezePeriod == true || !Match.AreTeamsSwitchingSidesNextRound())
+                    && (gameRules?.FreezePeriod == true || !_isLastRoundBeforeHalfTime)
                         ? "timeout_terrorist_start"
                         : "timeout_ct_start"
                 );

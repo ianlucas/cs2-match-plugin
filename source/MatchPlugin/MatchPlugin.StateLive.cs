@@ -15,6 +15,7 @@ public partial class StateLive : State
     public static readonly List<string> SurrenderCmds = ["css_gg", "css_desistir"];
 
     private bool _isForfeiting = false;
+    private bool _isLastRoundBeforeHalfTime = false;
 
     public override void Load()
     {
@@ -54,8 +55,6 @@ public partial class StateLive : State
             team.IsSurrended = false;
 
         UtilitiesX.RemovePlayerClans();
-
-        Match.CurrentRound = 0;
     }
 
     public override void Unload()
@@ -83,7 +82,7 @@ public partial class StateLive : State
     public HookResult OnRoundStart(EventRoundStart @event, GameEventInfo _)
     {
         _canSurrender = true;
-        Match.CurrentRound += 1;
+        _isLastRoundBeforeHalfTime = UtilitiesX.GetGameRules().IsLastRoundBeforeHalfTime();
         return HookResult.Continue;
     }
 
