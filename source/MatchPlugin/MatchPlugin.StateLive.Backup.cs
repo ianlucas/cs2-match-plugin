@@ -38,13 +38,13 @@ public partial class StateLive
             // We load the stats before trying to restore the round. Most cases should work as
             // `mp_backup_restore_load_file` can only fail when the file is not found, but we already had a check
             // for that.
-            if (
-                _statsBackup.TryGetValue(
-                    int.TryParse(round, out var roundAsInt) ? roundAsInt : 0,
-                    out var snapshots
-                )
-            )
-                snapshots.ForEach((snapshot) => snapshot.Item1.Stats = snapshot.Item2.Clone());
+            if (int.TryParse(round, out var roundAsInt))
+                if (roundAsInt == 0)
+                    foreach (var p in Match.Teams.SelectMany(t => t.Players))
+                        p.Stats = new(p.SteamID);
+                else if (_statsBackup.TryGetValue(roundAsInt, out var snapshots))
+                    foreach (var (player, snapshot) in snapshots)
+                        player.Stats = snapshot.Clone();
             Server.ExecuteCommand($"mp_backup_restore_load_file {round}");
         }
         else
