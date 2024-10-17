@@ -60,13 +60,12 @@ public partial class StateLive
         return HookResult.Continue;
     }
 
-    public HookResult Stats_OnPlayerHurt(EventPlayerHurt @event, GameEventInfo _)
+    public void Stats_OnPlayerHurt(EventPlayerHurt @event, int damage)
     {
         var attacker = Match.GetPlayerFromSteamID(@event.Attacker?.SteamID);
         var victim = Match.GetPlayerFromSteamID(@event.Userid?.SteamID);
         if (attacker != null && victim != null)
         {
-            var damage = Math.Min(@event.DmgHealth, 100);
             if (attacker != victim)
             {
                 attacker.Stats.Damage += damage;
@@ -74,7 +73,6 @@ public partial class StateLive
                     attacker.Stats.UtilDamage += damage;
             }
         }
-        return HookResult.Continue;
     }
 
     public HookResult Stats_OnPlayerDeath(EventPlayerDeath @event, GameEventInfo _)

@@ -16,6 +16,7 @@ public partial class StateLive : State
 
     private bool _isForfeiting = false;
     private bool _isLastRoundBeforeHalfTime = false;
+    private readonly Dictionary<ulong, int> _playerHealth = [];
 
     public override void Load()
     {
@@ -29,7 +30,6 @@ public partial class StateLive : State
         Match.Plugin.RegisterEventHandler<EventRoundStart>(Stats_OnRoundStart);
         Match.Plugin.RegisterEventHandler<EventPlayerBlind>(Stats_OnPlayerBlind);
         Match.Plugin.RegisterEventHandler<EventPlayerHurt>(OnPlayerHurt);
-        Match.Plugin.RegisterEventHandler<EventPlayerHurt>(Stats_OnPlayerHurt);
         Match.Plugin.RegisterEventHandler<EventPlayerDeath>(Stats_OnPlayerDeath);
         Match.Plugin.RegisterEventHandler<EventBombPlanted>(Stats_OnBombPlanted);
         Match.Plugin.RegisterEventHandler<EventBombDefused>(Stats_OnBombDefused);
@@ -68,7 +68,6 @@ public partial class StateLive : State
         Match.Plugin.DeregisterEventHandler<EventRoundStart>(Stats_OnRoundStart);
         Match.Plugin.DeregisterEventHandler<EventPlayerBlind>(Stats_OnPlayerBlind);
         Match.Plugin.DeregisterEventHandler<EventPlayerHurt>(OnPlayerHurt);
-        Match.Plugin.DeregisterEventHandler<EventPlayerHurt>(Stats_OnPlayerHurt);
         Match.Plugin.DeregisterEventHandler<EventPlayerDeath>(Stats_OnPlayerDeath);
         Match.Plugin.DeregisterEventHandler<EventBombPlanted>(Stats_OnBombPlanted);
         Match.Plugin.DeregisterEventHandler<EventBombDefused>(Stats_OnBombDefused);
@@ -83,6 +82,7 @@ public partial class StateLive : State
     {
         _canSurrender = true;
         _isLastRoundBeforeHalfTime = UtilitiesX.GetGameRules().IsLastRoundBeforeHalfTime();
+        _playerHealth.Clear();
         return HookResult.Continue;
     }
 
@@ -92,18 +92,25 @@ public partial class StateLive : State
         var victim = Match.GetPlayerFromSteamID(@event.Userid?.SteamID);
         if (attacker != null && victim != null)
         {
+            var damage = Math.Max(
+                0,
+                Math.Min(
+                    @event.DmgHealth,
+                    _playerHealth.TryGetValue(victim.SteamID, out var health) ? health : 100
+                )
+            );
             if (victim.DamageReport.TryGetValue(attacker.SteamID, out var attackerDamageReport))
             {
-                attackerDamageReport.From.Value += @event.DmgHealth;
-                attackerDamageReport.From.Value = Math.Min(attackerDamageReport.From.Value, 100);
+                attackerDamageReport.From.Value += damage;
                 attackerDamageReport.From.Hits += 1;
             }
             if (attacker.DamageReport.TryGetValue(victim.SteamID, out var victimDamageReport))
             {
-                victimDamageReport.To.Value += @event.DmgHealth;
-                victimDamageReport.To.Value = Math.Min(victimDamageReport.To.Value, 100);
+                victimDamageReport.To.Value += damage;
                 victimDamageReport.To.Hits += 1;
             }
+            Stats_OnPlayerHurt(@event, damage);
+            _playerHealth[victim.SteamID] = Math.Max(0, @event.Health);
         }
         return HookResult.Continue;
     }
