@@ -81,8 +81,8 @@ public class Match
 
     public void SendEvent(object @event)
     {
-        PropertyInfo? propertyInfo = @event.GetType().GetProperty("event");
-        Log($"type={propertyInfo?.GetValue(@event)}");
+        PropertyInfo? propertyInfo = @event.GetType().GetProperty("type");
+        Log($"EventsUrl={EventsUrl} type={propertyInfo?.GetValue(@event)}");
         if (EventsUrl != null)
             ServerX.SendJson(EventsUrl, @event);
     }
