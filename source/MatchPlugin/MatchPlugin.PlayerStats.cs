@@ -10,106 +10,106 @@ namespace MatchPlugin;
 public class PlayerStats(ulong steamId)
 {
     [JsonPropertyName("steamId")]
-    public string SteamID = steamId.ToString();
+    public string SteamID { get; set; } = steamId.ToString();
 
     [JsonPropertyName("kills")]
-    public int Kills = 0;
+    public int Kills { get; set; } = 0;
 
     [JsonPropertyName("deaths")]
-    public int Deaths = 0;
+    public int Deaths { get; set; } = 0;
 
     [JsonPropertyName("assists")]
-    public int Assists = 0;
+    public int Assists { get; set; } = 0;
 
     [JsonPropertyName("flashbangAssists")]
-    public int FlashbangAssists = 0;
+    public int FlashbangAssists { get; set; } = 0;
 
     [JsonPropertyName("teamKills")]
-    public int Teamkills = 0;
+    public int Teamkills { get; set; } = 0;
 
     [JsonPropertyName("suicides")]
-    public int Suicides = 0;
+    public int Suicides { get; set; } = 0;
 
     [JsonPropertyName("damage")]
-    public int Damage = 0;
+    public int Damage { get; set; } = 0;
 
     [JsonPropertyName("utilDamage")]
-    public int UtilDamage = 0;
+    public int UtilDamage { get; set; } = 0;
 
     [JsonPropertyName("enemiesFlashed")]
-    public int EnemiesFlashed = 0;
+    public int EnemiesFlashed { get; set; } = 0;
 
     [JsonPropertyName("friendliesFlashed")]
-    public int FriendliesFlashed = 0;
+    public int FriendliesFlashed { get; set; } = 0;
 
     [JsonPropertyName("knifeKills")]
-    public int KnifeKills = 0;
+    public int KnifeKills { get; set; } = 0;
 
     [JsonPropertyName("headshotKills")]
-    public int HeadshotKills = 0;
+    public int HeadshotKills { get; set; } = 0;
 
     [JsonPropertyName("roundsPlayed")]
-    public int RoundsPlayed = 0;
+    public int RoundsPlayed { get; set; } = 0;
 
     [JsonPropertyName("bombDefuses")]
-    public int BombDefuses = 0;
+    public int BombDefuses { get; set; } = 0;
 
     [JsonPropertyName("bombPlants")]
-    public int BombPlants = 0;
+    public int BombPlants { get; set; } = 0;
 
     [JsonPropertyName("k1")]
-    public int K1 = 0;
+    public int K1 { get; set; } = 0;
 
     [JsonPropertyName("k2")]
-    public int K2 = 0;
+    public int K2 { get; set; } = 0;
 
     [JsonPropertyName("k3")]
-    public int K3 = 0;
+    public int K3 { get; set; } = 0;
 
     [JsonPropertyName("k4")]
-    public int K4 = 0;
+    public int K4 { get; set; } = 0;
 
     [JsonPropertyName("k5")]
-    public int K5 = 0;
+    public int K5 { get; set; } = 0;
 
     [JsonPropertyName("v1")]
-    public int V1 = 0;
+    public int V1 { get; set; } = 0;
 
     [JsonPropertyName("v2")]
-    public int V2 = 0;
+    public int V2 { get; set; } = 0;
 
     [JsonPropertyName("v3")]
-    public int V3 = 0;
+    public int V3 { get; set; } = 0;
 
     [JsonPropertyName("v4")]
-    public int V4 = 0;
+    public int V4 { get; set; } = 0;
 
     [JsonPropertyName("v5")]
-    public int V5 = 0;
+    public int V5 { get; set; } = 0;
 
     [JsonPropertyName("firstKillsCT")]
-    public int FirstKillsCT = 0;
+    public int FirstKillsCT { get; set; } = 0;
 
     [JsonPropertyName("firstKillsT")]
-    public int FirstKillsT = 0;
+    public int FirstKillsT { get; set; } = 0;
 
     [JsonPropertyName("firstDeathsCT")]
-    public int FirstDeathsCT = 0;
+    public int FirstDeathsCT { get; set; } = 0;
 
     [JsonPropertyName("firstDeathsT")]
-    public int FirstDeathsT = 0;
+    public int FirstDeathsT { get; set; } = 0;
 
     [JsonPropertyName("tradeKills")]
-    public int TradeKills = 0;
+    public int TradeKills { get; set; } = 0;
 
     [JsonPropertyName("kast")]
-    public int KAST = 0;
+    public int KAST { get; set; } = 0;
 
     [JsonPropertyName("score")]
-    public int Score = 0;
+    public int Score { get; set; } = 0;
 
     [JsonPropertyName("mvps")]
-    public int MVPs = 0;
+    public int MVPs { get; set; } = 0;
 
     public PlayerStats Clone() => (PlayerStats)MemberwiseClone();
 }
