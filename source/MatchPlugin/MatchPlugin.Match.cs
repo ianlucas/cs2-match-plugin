@@ -201,6 +201,5 @@ public class Match
             className != null && methodName != null ? $"{className}::{methodName}" : "MatchPlugin";
         var output = $"{prefix} {message}";
         Plugin.Logger.LogInformation(output);
-        Server.PrintToConsole(output);
     }
 }
