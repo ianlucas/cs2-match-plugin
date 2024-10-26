@@ -26,6 +26,7 @@ public partial class StateLive : State
         AddCommand("css_restore", "Restore a round.", OnRestoreCommand);
         Match.Plugin.RegisterEventHandler<EventPlayerConnect>(OnPlayerConnect);
         Match.Plugin.RegisterEventHandler<EventPlayerConnectFull>(OnPlayerConnectFull);
+        Match.Plugin.RegisterEventHandler<EventRoundPrestart>(OnRoundPrestart);
         Match.Plugin.RegisterEventHandler<EventRoundStart>(OnRoundStart);
         Match.Plugin.RegisterEventHandler<EventRoundStart>(Stats_OnRoundStart);
         Match.Plugin.RegisterEventHandler<EventPlayerBlind>(Stats_OnPlayerBlind);
@@ -36,7 +37,6 @@ public partial class StateLive : State
         Match.Plugin.RegisterEventHandler<EventRoundMvp>(Stats_OnRoundMvp);
         Match.Plugin.RegisterEventHandler<EventRoundEnd>(OnRoundEndPre, HookMode.Pre);
         Match.Plugin.RegisterEventHandler<EventRoundEnd>(Stats_OnRoundEnd);
-        Match.Plugin.RegisterEventHandler<EventCsWinPanelMatch>(OnCsWinPanelMatch);
         Match.Plugin.RegisterEventHandler<EventPlayerDisconnect>(OnPlayerDisconnect);
 
         Match.Log("Execing Live");
@@ -64,6 +64,7 @@ public partial class StateLive : State
         Match.Plugin.ClearAllTimers();
         Match.Plugin.DeregisterEventHandler<EventPlayerConnect>(OnPlayerConnect);
         Match.Plugin.DeregisterEventHandler<EventPlayerConnectFull>(OnPlayerConnectFull);
+        Match.Plugin.DeregisterEventHandler<EventRoundPrestart>(OnRoundPrestart);
         Match.Plugin.DeregisterEventHandler<EventRoundStart>(OnRoundStart);
         Match.Plugin.DeregisterEventHandler<EventRoundStart>(Stats_OnRoundStart);
         Match.Plugin.DeregisterEventHandler<EventPlayerBlind>(Stats_OnPlayerBlind);
@@ -74,7 +75,6 @@ public partial class StateLive : State
         Match.Plugin.DeregisterEventHandler<EventRoundMvp>(Stats_OnRoundMvp);
         Match.Plugin.DeregisterEventHandler<EventRoundEnd>(OnRoundEndPre, HookMode.Pre);
         Match.Plugin.DeregisterEventHandler<EventRoundEnd>(Stats_OnRoundEnd);
-        Match.Plugin.DeregisterEventHandler<EventCsWinPanelMatch>(OnCsWinPanelMatch);
         Match.Plugin.DeregisterEventHandler<EventPlayerDisconnect>(OnPlayerDisconnect);
     }
 
