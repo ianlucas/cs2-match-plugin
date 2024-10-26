@@ -55,6 +55,8 @@ public partial class StateLive : State
             team.IsSurrended = false;
 
         UtilitiesX.RemovePlayerClans();
+
+        TryForfeitMatch();
     }
 
     public override void Unload()

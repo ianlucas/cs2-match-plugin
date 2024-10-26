@@ -26,27 +26,38 @@ public partial class StateLive
         var player = Match.GetPlayerFromSteamID(controller?.SteamID);
         if (player != null && Match.Teams.All(t => t.Players.Any(p => p.Controller != null)))
         {
-            Match.Log("We are no longer forfeiting the match.");
             _isForfeiting = false;
             Match.Plugin.ClearTimer("ForfeitMatch");
+            Match.Log("We are no longer forfeiting the match.");
         }
     }
 
     public HookResult OnPlayerDisconnect(EventPlayerDisconnect @event, GameEventInfo _)
     {
         var player = Match.GetPlayerFromSteamID(@event.Userid?.SteamID);
-        if (player != null && !_isForfeiting)
+        if (player != null)
+            TryForfeitMatch(player);
+        return HookResult.Continue;
+    }
+
+    public void TryForfeitMatch(Player? disconnecting = null)
+    {
+        if (!_isForfeiting)
             foreach (var team in Match.Teams)
-                if (team.Players.All(p => p.SteamID == player.SteamID || p.Controller == null))
+                if (
+                    team.Players.All(p =>
+                        p.SteamID == disconnecting?.SteamID || p.Controller == null
+                    )
+                )
                 {
-                    Match.Log("A team is forfeiting the match.");
                     _isForfeiting = true;
                     Match.Plugin.CreateTimer(
                         "ForfeitMatch",
                         Match.forfeit_timeout.Value,
-                        () => OnMatchCancelled()
+                        OnMatchCancelled
                     );
+                    Match.Log("A team is forfeiting the match.");
+                    return;
                 }
-        return HookResult.Continue;
     }
 }

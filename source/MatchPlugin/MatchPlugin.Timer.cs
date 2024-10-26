@@ -27,23 +27,26 @@ public partial class MatchPlugin
         _timers.Remove(name);
     }
 
+    public void SetTimer(string name, float interval, Action callback, TimerFlags? flags = null)
+    {
+        if (_timers.TryGetValue(name, out var timer))
+            timer.Kill();
+        _timers[name] = AddTimer(interval, callback, flags);
+    }
+
     public void CreateChatTimer(string name, Action callback)
     {
         callback();
-        _timers[name] = AddTimer(
-            _chatInterval,
-            callback,
-            TimerFlags.REPEAT | TimerFlags.STOP_ON_MAPCHANGE
-        );
+        SetTimer(name, _chatInterval, callback, TimerFlags.REPEAT | TimerFlags.STOP_ON_MAPCHANGE);
     }
 
     public void CreateTimer(string name, float interval, Action callback)
     {
-        _timers[name] = AddTimer(interval, callback, TimerFlags.STOP_ON_MAPCHANGE);
+        SetTimer(name, interval, callback, TimerFlags.STOP_ON_MAPCHANGE);
     }
 
     public void CreateSecondIntervalTimer(string name, Action callback)
     {
-        _timers[name] = AddTimer(1.0f, callback, TimerFlags.REPEAT | TimerFlags.STOP_ON_MAPCHANGE);
+        SetTimer(name, 1.0f, callback, TimerFlags.REPEAT | TimerFlags.STOP_ON_MAPCHANGE);
     }
 }

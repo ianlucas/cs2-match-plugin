@@ -88,14 +88,15 @@ public class State
         var winners = Match.Teams.Where(t => t.Players.Any(p => p.Controller != null));
         if (winners.Count() == 1)
         {
-            var forfeitedTeam = winners.First().Oppositon;
-            forfeitedTeam.IsSurrended = true;
-            Match.Log("Terminating by Cancelled");
+            var winner = winners.First();
+            var loser = winner.Oppositon;
+            loser.IsSurrended = true;
+            Match.Log($"Terminating by Cancelled, winner={winner.Index}, forfeited={loser.Index}");
             UtilitiesX
                 .GetGameRules()
                 .TerminateRoundX(
                     0,
-                    forfeitedTeam.CurrentTeam == CsTeam.Terrorist
+                    loser.CurrentTeam == CsTeam.Terrorist
                         ? RoundEndReason.TerroristsSurrender
                         : RoundEndReason.CTsSurrender
                 );
@@ -106,7 +107,7 @@ public class State
 
     public void OnMapEnd(MapResult result = MapResult.None, int? winner = null)
     {
-        Match.Log("Map has ended.");
+        Match.Log($"Map has ended, result={result}.");
         var map = Match.GetCurrentMap() ?? new(Server.MapName);
         var stats = Match.Teams.Select(t => t.Players.Select(p => p.Stats).ToList()).ToList();
         var demoFilename = Match.Cstv.GetFilename();
