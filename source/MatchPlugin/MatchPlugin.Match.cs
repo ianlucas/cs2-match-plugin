@@ -139,6 +139,35 @@ public class Match
 
     public Map? GetCurrentMap() => Maps.Where(m => m.Result == MapResult.None).FirstOrDefault();
 
+    public int GetCurrentMapIndex()
+    {
+        try
+        {
+            var map = GetCurrentMap();
+            if (map == null)
+                return 0;
+            return Maps.IndexOf(map);
+        }
+        catch
+        {
+            Log($"This is a bug. Unable to find index for the current map index.");
+            return 0;
+        }
+    }
+
+    public int GetMapIndex(Map? map)
+    {
+        try
+        {
+            return map != null ? Maps.IndexOf(map) : 0;
+        }
+        catch
+        {
+            Log($"This is a bug. Unable to find index for map {map?.MapName}.");
+            return 0;
+        }
+    }
+
     public int GetNeededPlayers() =>
         IsLoadedFromFile ? Teams.SelectMany(t => t.Players).Count() : players_needed.Value;
 

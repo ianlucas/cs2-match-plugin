@@ -5,6 +5,8 @@
 
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Entities;
+using CounterStrikeSharp.API.Modules.Utils;
 
 namespace MatchPlugin;
 
@@ -42,6 +44,8 @@ public partial class StateLive : State
         Match.Plugin.RegisterEventHandler<EventPlayerDisconnect>(OnPlayerDisconnect);
 
         Match.Log("Execing Live");
+        Match.SendEvent(Get5Events.OnGoingLive(Match));
+
         Config.ExecLive(
             max_rounds: Match.max_rounds.Value,
             ot_max_rounds: Match.ot_max_rounds.Value,
@@ -87,6 +91,36 @@ public partial class StateLive : State
         _canSurrender = true;
         _isLastRoundBeforeHalfTime = UtilitiesX.GetGameRules().IsLastRoundBeforeHalfTime();
         _playerHealth.Clear();
+
+        // @todo validate that this is working as expected, I don't think it's triggered mid freezetime.
+        var gameRules = UtilitiesX.GetGameRules();
+        if (
+            gameRules.TechnicalTimeOut
+            || gameRules.TerroristTimeOutActive
+            || gameRules.CTTimeOutActive
+        )
+        {
+            var team1 = Match.Teams.First();
+            CsTeam? csTeamTimeoutActive = gameRules.TerroristTimeOutActive
+                ? CsTeam.Terrorist
+                : gameRules.CTTimeOutActive
+                    ? CsTeam.CounterTerrorist
+                    : null;
+            var pauseTeam =
+                csTeamTimeoutActive != null
+                    ? team1.CurrentTeam == csTeamTimeoutActive
+                        ? team1
+                        : team1.Oppositon
+                    : null;
+            Match.SendEvent(
+                Get5Events.OnPauseBegan(
+                    Match,
+                    pauseTeam,
+                    gameRules.TechnicalTimeOut ? "technical" : "tactical"
+                )
+            );
+        }
+
         return HookResult.Continue;
     }
 

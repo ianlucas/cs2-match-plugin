@@ -88,41 +88,102 @@ public class Get5Events
             @event = "side_picked",
             matchid = match.Id,
             team = GetTeamString(team),
-            // This should never be null even tho technically it may be.
             map_name = map?.MapName,
             side = GetCsTeamString(team.StartingTeam),
-            map_number = map != null ? GetMapNumber(match.Maps.IndexOf(map)) : 0
+            map_number = match.GetMapIndex(map)
         };
     }
 
-    public static object OnBackupRestore(Match match, int round_number, string filename)
-    {
-        var map = match.GetCurrentMap();
-        return new
+    public static object OnBackupRestore(Match match, int round_number, string filename) =>
+        new
         {
             @event = "backup_loaded",
             matchid = match.Id,
-            map_number = map != null ? GetMapNumber(match.Maps.IndexOf(map)) : 0,
+            map_number = match.GetCurrentMapIndex(),
             round_number,
             filename
         };
-    }
 
-    public static object OnDemoFinished(Match match, string filename)
-    {
-        var map = match.GetCurrentMap();
-        return new
+    public static object OnDemoFinished(Match match, string filename) =>
+        new
         {
             @event = "demo_finished",
             matchid = match.Id,
-            map_number = map != null ? GetMapNumber(match.Maps.IndexOf(map)) : 0,
+            map_number = match.GetCurrentMapIndex(),
             filename
         };
-    }
+
+    public static object OnMatchPaused(Match match, Team team, string pause_type) =>
+        new
+        {
+            @event = "game_paused",
+            matchid = match.Id,
+            map_number = match.GetCurrentMapIndex(),
+            team = GetTeamString(team),
+            pause_type
+        };
+
+    public static object OnMatchUnpaused(Match match, Team? team, string pause_type) =>
+        new
+        {
+            @event = "game_unpaused",
+            matchid = match.Id,
+            map_number = match.GetCurrentMapIndex(),
+            team = GetTeamString(team),
+            pause_type
+        };
+
+    public static object OnPauseBegan(Match match, Team? team, string pause_type) =>
+        new
+        {
+            @event = "pause_began",
+            matchid = match.Id,
+            map_number = match.GetCurrentMapIndex(),
+            team = GetTeamString(team),
+            pause_type
+        };
+
+    public static object OnKnifeRoundStarted(Match match) =>
+        new
+        {
+            @event = "knife_start",
+            matchid = match.Id,
+            map_number = match.GetCurrentMapIndex()
+        };
+
+    public static object OnKnifeRoundWon(Match match, Team team, KnifeRoundVote decision) =>
+        new
+        {
+            @event = "knife_won",
+            matchid = match.Id,
+            map_number = match.GetCurrentMapIndex(),
+            team = GetTeamString(team),
+            side = GetCsTeamString(team.StartingTeam),
+            swapped = decision == KnifeRoundVote.Switch
+        };
+
+    public static object OnTeamReadyStatusChanged(Match match, Team team) =>
+        new
+        {
+            @event = "team_ready_status_changed",
+            matchid = match.Id,
+            team = GetTeamString(team),
+            ready = team.Players.All(p => p.IsReady),
+            game_state = match.State.Name
+        };
+
+    public static object OnGoingLive(Match match) =>
+        new
+        {
+            @event = "going_live",
+            matchid = match.Id,
+            map_number = match.GetCurrentMapIndex()
+        };
 
     public static string GetCsTeamString(CsTeam team) => team == CsTeam.Terrorist ? "t" : "ct";
 
-    public static string GetTeamString(Team team) => $"team{team.Index + 1}";
+    public static string GetTeamString(Team? team) =>
+        team != null ? $"team{team.Index + 1}" : "spec";
 
     public static int GetMapNumber(int mapNumber) => mapNumber > -1 ? mapNumber : 0;
 

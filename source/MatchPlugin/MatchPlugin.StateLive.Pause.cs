@@ -30,6 +30,7 @@ public partial class StateLive
                     ]
                 );
                 Server.ExecuteCommand("mp_pause_match");
+                Match.SendEvent(Get5Events.OnMatchPaused(Match, player.Team, "tactical"));
                 return;
             }
             var currentTeam = player.Team.CurrentTeam;
@@ -57,26 +58,13 @@ public partial class StateLive
                         ? "timeout_terrorist_start"
                         : "timeout_ct_start"
                 );
+                Match.SendEvent(Get5Events.OnMatchPaused(Match, player.Team, "tactical"));
             }
         }
     }
 
     public void OnUnpauseCommand(CCSPlayerController? controller, CommandInfo _)
     {
-        if (controller == null || AdminManager.PlayerHasPermissions(controller, "@css/config"))
-        {
-            Match.Log(
-                printToChat: true,
-                message: Match.Plugin.Localizer[
-                    "match.admin_unpause",
-                    Match.GetChatPrefix(true),
-                    UtilitiesX.GetPlayerName(controller)
-                ]
-            );
-            Server.ExecuteCommand("mp_unpause_match");
-            return;
-        }
-
         var player = Match.GetPlayerFromSteamID(controller?.SteamID);
         if (player != null && Match.friendly_pause.Value)
         {
@@ -104,6 +92,22 @@ public partial class StateLive
                     ]
                 );
             Server.ExecuteCommand("mp_unpause_match");
+            Match.SendEvent(Get5Events.OnMatchUnpaused(Match, player.Team, "tactical"));
+        }
+
+        if (controller == null || AdminManager.PlayerHasPermissions(controller, "@css/config"))
+        {
+            Match.Log(
+                printToChat: true,
+                message: Match.Plugin.Localizer[
+                    "match.admin_unpause",
+                    Match.GetChatPrefix(true),
+                    UtilitiesX.GetPlayerName(controller)
+                ]
+            );
+            Server.ExecuteCommand("mp_unpause_match");
+            Match.SendEvent(Get5Events.OnMatchUnpaused(Match, null, "admin"));
+            return;
         }
     }
 }

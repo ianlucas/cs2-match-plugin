@@ -156,6 +156,7 @@ public class StateWarmupKnifeVote : StateWarmup
         }
 
         Match.SendEvent(Get5Events.OnSidePicked(Match, winnerTeam));
+        Match.SendEvent(Get5Events.OnKnifeRoundWon(Match, winnerTeam, decision));
         Match.SetState(new StateLive());
     }
 }

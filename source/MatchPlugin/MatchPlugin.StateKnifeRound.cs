@@ -45,9 +45,12 @@ public class StateKnifeRound : State
             Match.SetState(new StateWarmupKnifeVote());
         }
         else
+        {
             ServerX.PrintToChatAllRepeat(
                 Match.Plugin.Localizer["match.knife", Match.GetChatPrefix()]
             );
+            Match.SendEvent(Get5Events.OnKnifeRoundStarted(Match));
+        }
         return HookResult.Continue;
     }
 
