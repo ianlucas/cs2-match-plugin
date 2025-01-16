@@ -25,7 +25,8 @@ public partial class StateLive
         }
         var round = command.ArgByIndex(1).ToLower().Trim().PadLeft(2, '0');
         round = $"{Match.GetBackupPrefix()}_round{round}.txt";
-        if (File.Exists(ServerX.GetCSGOPath(round)))
+        var filename = ServerX.GetCSGOPath(round);
+        if (File.Exists(filename))
         {
             Match.Log(
                 printToChat: true,
@@ -42,12 +43,17 @@ public partial class StateLive
             foreach (var report in players.SelectMany(p => p.DamageReport.Values))
                 report.Reset();
             if (int.TryParse(round, out var roundAsInt))
+            {
                 if (roundAsInt == 0)
                     foreach (var p in players)
                         p.Stats = new(p.SteamID);
                 else if (_statsBackup.TryGetValue(roundAsInt, out var snapshots))
                     foreach (var (player, snapshot) in snapshots)
                         player.Stats = snapshot.Clone();
+
+                Match.SendEvent(Get5Events.OnBackupRestore(Match, roundAsInt, filename));
+            }
+
             Server.ExecuteCommand($"mp_backup_restore_load_file {round}");
         }
         else

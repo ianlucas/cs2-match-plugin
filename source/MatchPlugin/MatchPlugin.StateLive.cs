@@ -10,6 +10,8 @@ namespace MatchPlugin;
 
 public partial class StateLive : State
 {
+    public override string Name => "live";
+
     public static readonly List<string> PauseCmds = ["css_pause", "css_p", "css_pausar"];
     public static readonly List<string> UnpauseCmds = ["css_unpause", "css_up", "css_despausar"];
     public static readonly List<string> SurrenderCmds = ["css_gg", "css_desistir"];

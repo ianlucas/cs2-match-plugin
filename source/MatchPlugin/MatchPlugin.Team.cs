@@ -29,6 +29,10 @@ public class Team(Match match, CsTeam startingTeam)
 
     public bool IsSurrended = false;
 
+    public int SeriesScore = 0;
+
+    public TeamStats Stats = new();
+
     public Team Oppositon
     {
         get
@@ -89,6 +93,8 @@ public class Team(Match match, CsTeam startingTeam)
         Name = "";
         IsUnpauseMatch = false;
         IsSurrended = false;
+        SeriesScore = 0;
+        Stats = new();
     }
 
     public bool CanAddPlayer()

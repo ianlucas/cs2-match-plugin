@@ -11,6 +11,8 @@ namespace MatchPlugin;
 
 public class StateWarmupKnifeVote : StateWarmup
 {
+    public override string Name => "waiting_for_knife_decision";
+
     public static readonly List<string> StayCmds = ["css_stay", "css_ficar"];
     public static readonly List<string> SwitchCmds = ["css_switch", "css_trocar"];
     public static readonly List<KnifeRoundVote> KnifeRoundVotes =
@@ -152,6 +154,8 @@ public class StateWarmupKnifeVote : StateWarmup
                 team.StartingTeam = UtilitiesX.ToggleCsTeam(team.StartingTeam);
             UtilitiesX.GetGameRules().HandleSwapTeams();
         }
+
+        Match.SendEvent(Get5Events.OnSidePicked(Match, winnerTeam));
         Match.SetState(new StateLive());
     }
 }

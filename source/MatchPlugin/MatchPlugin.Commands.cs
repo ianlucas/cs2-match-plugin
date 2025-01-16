@@ -136,7 +136,7 @@ public partial class MatchPlugin
         if (command.ArgCount != 2)
             return;
         var name = command.ArgByIndex(1).Trim();
-        var matchSchema = MatchFile.Read(name);
+        var matchSchema = MatchFile.Read(name, _match);
         if (matchSchema == null)
             return;
         var terrorists = _match.Teams.FirstOrDefault();
@@ -146,7 +146,6 @@ public partial class MatchPlugin
         _match.Reset();
         _match.IsLoadedFromFile = true;
         _match.Id = matchSchema.MatchId;
-        _match.EventsUrl = matchSchema.EventsUrl;
         foreach (var mapName in matchSchema.Maps)
             _match.Maps.Add(new(mapName));
         terrorists.StartingTeam = CsTeam.Terrorist;
@@ -186,5 +185,6 @@ public partial class MatchPlugin
                     controller.Kick();
         _match.CreateMatchFolder();
         _match.SetState(new StateWarmupReady());
+        _match.SendEvent(Get5Events.OnSeriesInit(_match));
     }
 }

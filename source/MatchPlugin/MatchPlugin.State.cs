@@ -31,6 +31,8 @@ public class State
         set { _match = value; }
     }
 
+    public virtual string Name { get; set; } = "default_state";
+
     public virtual void Load() { }
 
     public virtual void Unload() { }
@@ -112,6 +114,8 @@ public class State
         var stats = Match.Teams.Select(t => t.Players.Select(p => p.Stats).ToList()).ToList();
         var demoFilename = Match.Cstv.GetFilename();
         var scores = Match.Teams.Select(t => t.Score).ToList();
+        var team1 = Match.Teams.First();
+        var team2 = team1.Oppositon;
 
         map.DemoFilename = demoFilename;
         map.KnifeRoundWinner = Match.KnifeRoundWinner?.Index;
@@ -120,22 +124,52 @@ public class State
         map.Winner = winner;
         map.Scores = scores;
 
+        var winnerTeam =
+            winner != null
+                ? team1.Index == winner
+                    ? team1
+                    : team2
+                : null;
+
+        if (winnerTeam != null)
+            winnerTeam.SeriesScore += 1;
+
         var maps = (Match.Maps.Count > 0 ? Match.Maps : [map]).Where(m =>
             m.Result != MapResult.None
         );
 
+        // Even with Get5 Events, we still store results in json for further debugging.
+        // @todo Maybe only save if `match_verbose` is enabled in the future.
         ServerX.WriteJson(ServerX.GetFullPath($"{Match.GetMatchFolder()}/results.json"), maps);
+        Match.SendEvent(Get5Events.OnMapResult(Match, map));
 
         var isSeriesOver = Match.GetCurrentMap() == null;
         if (isSeriesOver || result != MapResult.Completed)
         {
-            Match.SendEvent(new { type = "matchend", results = maps });
+            // If match doesn't end normally, we already decided which side won.
+            if (result != MapResult.Completed)
+            {
+                team1.SeriesScore = 0;
+                team2.SeriesScore = 0;
+                if (winnerTeam != null)
+                    winnerTeam.SeriesScore = 1;
+            }
+
+            Match.SendEvent(Get5Events.OnSeriesResult(Match, winnerTeam));
             Match.Reset();
             Match.Log($"Match is over, kicking players={Match.matchmaking.Value}");
             Match.Plugin.OnMatchMatchmakingChanged(null, Match.matchmaking.Value);
             if (Match.matchmaking.Value)
                 foreach (var controller in Utilities.GetPlayers().Where(p => !p.IsBot))
                     controller.Kick();
+        }
+
+        // Demo will be stopped at StateWarmupReady::Load.
+        if (Match.Cstv.IsRecording())
+        {
+            var filename = Match.GetDemoFilename();
+            if (filename != null)
+                Match.SendEvent(Get5Events.OnDemoFinished(Match, filename));
         }
 
         Match.SetState(new StateWarmupReady());

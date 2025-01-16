@@ -40,8 +40,8 @@ public class CSTV
         if (!IsEnabled() || IsRecording() || filename == null)
             return;
         _filename = filename;
-        Server.ExecuteCommand($"tv_record {filename}");
         _match.Log($"Demo is being recorded at {filename}.");
+        Server.ExecuteCommand($"tv_record {filename}");
     }
 
     public void Stop()
@@ -49,6 +49,7 @@ public class CSTV
         if (IsRecording())
         {
             _filename = null;
+            _match.Log($"Demo is no longer being recorded.");
             Server.ExecuteCommand("tv_stoprecord");
         }
     }

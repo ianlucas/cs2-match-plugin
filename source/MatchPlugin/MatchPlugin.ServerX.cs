@@ -83,13 +83,20 @@ public class ServerX
         File.WriteAllText(filename, jsonString);
     }
 
-    public static async void SendJson(string url, object data)
+    public static async void SendJson(
+        string url,
+        object data,
+        Dictionary<string, string>? headers = null
+    )
     {
         try
         {
+            using HttpClient client = new();
+            if (headers != null)
+                foreach (var header in headers)
+                    client.DefaultRequestHeaders.Add(header.Key, header.Value);
             var json = JsonSerializer.Serialize(data);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            using HttpClient client = new();
             await client.PostAsync(url, content);
         }
         catch { }

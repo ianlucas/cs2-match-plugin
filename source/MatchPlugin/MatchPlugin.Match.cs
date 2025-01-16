@@ -46,9 +46,14 @@ public class Match
         new("match_surrender_timeout", "Time to vote surrender.", 30);
     public readonly FakeConVar<bool> verbose =
         new("match_verbose", "Are we debugging the plugin?", true);
+    public readonly FakeConVar<string> remote_log_url =
+        new("get5_remote_log_url", "The URL to send all events to.", "");
+    public readonly FakeConVar<string> remote_log_header_key =
+        new("get5_remote_log_header_key", "Used for your event HTTP requests.", "Authorization");
+    public readonly FakeConVar<string> remote_log_header_value =
+        new("get5_remote_log_header_value", "Used for your event HTTP requests.", "");
 
     public string? Id = null;
-    public string? EventsUrl = null;
     public State State = new();
     public readonly MatchPlugin Plugin;
     public readonly List<Team> Teams = [];
@@ -71,7 +76,7 @@ public class Match
     public void Reset()
     {
         Id = null;
-        EventsUrl = null;
+        remote_log_url.Value = "";
         IsLoadedFromFile = false;
         KnifeRoundWinner = null;
         Maps.Clear();
@@ -81,10 +86,14 @@ public class Match
 
     public void SendEvent(object @event)
     {
-        PropertyInfo? propertyInfo = @event.GetType().GetProperty("type");
-        Log($"EventsUrl={EventsUrl} type={propertyInfo?.GetValue(@event)}");
-        if (EventsUrl != null)
-            ServerX.SendJson(EventsUrl, @event);
+        PropertyInfo? propertyInfo = @event.GetType().GetProperty("event");
+        Log($"RemoteLogUrl={remote_log_url.Value} event={propertyInfo?.GetValue(@event)}");
+        var headers = new Dictionary<string, string>();
+        if (remote_log_header_key.Value != "" && remote_log_header_value.Value != "")
+            headers.Add(remote_log_header_key.Value, remote_log_header_value.Value);
+
+        if (remote_log_url.Value != "")
+            ServerX.SendJson(remote_log_url.Value, @event, headers);
     }
 
     public string GetChatPrefix(bool stripColors = false)
@@ -98,6 +107,7 @@ public class Match
     {
         if (newState.GetType() != typeof(StateWarmupReady) && State.GetType() == newState.GetType())
             return;
+        SendEvent(Get5Events.OnGameStateChanged(State, newState));
         State.Unload();
         Log($"Unloaded {State.GetType().FullName}");
         State = newState;
@@ -157,6 +167,7 @@ public class Match
         if (!IsLoadedFromFile)
         {
             Id = ServerX.Now().ToString();
+            Maps.Add(new(Server.MapName));
             CreateMatchFolder();
         }
         var idsInMatch = Teams.SelectMany(t => t.Players).Select(p => p.SteamID);

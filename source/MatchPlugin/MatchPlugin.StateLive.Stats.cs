@@ -205,6 +205,17 @@ public partial class StateLive
     public HookResult Stats_OnRoundEnd(EventRoundEnd @event, GameEventInfo _)
     {
         var winner = (CsTeam)@event.Winner;
+        var winnerTeam = Match.Teams.First(t => t.CurrentTeam == winner);
+
+        switch (winnerTeam.CurrentTeam)
+        {
+            case CsTeam.Terrorist:
+                winnerTeam.Stats.ScoreT += 1;
+                break;
+            case CsTeam.CounterTerrorist:
+                winnerTeam.Stats.ScoreCT += 1;
+                break;
+        }
 
         var gameRules = UtilitiesX.GetGameRules();
         _statsBackup[gameRules.TotalRoundsPlayed] = [];

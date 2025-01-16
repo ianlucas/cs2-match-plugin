@@ -12,6 +12,8 @@ namespace MatchPlugin;
 
 public class StateKnifeRound : State
 {
+    public override string Name => "knife";
+
     public override void Load()
     {
         Match.Plugin.RegisterEventHandler<EventRoundStart>(OnRoundStart);

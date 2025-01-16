@@ -11,6 +11,8 @@ namespace MatchPlugin;
 
 public class StateWarmupReady : StateWarmup
 {
+    public override string Name => "warmup";
+
     public static readonly List<string> ReadyCmds = ["css_ready", "css_r", "css_pronto"];
     public static readonly List<string> UnreadyCmds = ["css_unready", "css_ur", "css_naopronto"];
 
@@ -36,10 +38,15 @@ public class StateWarmupReady : StateWarmup
         ReadyCmds.ForEach(c => AddCommand(c, "Mark as ready.", OnReadyCommand));
         UnreadyCmds.ForEach(c => AddCommand(c, "Mark as unready.", OnUnreadyCommand));
 
-        foreach (var player in Match.Teams.SelectMany(t => t.Players))
+        foreach (var team in Match.Teams)
         {
-            player.IsReady = false;
-            player.Stats = new(player.SteamID);
+            team.Stats = new();
+
+            foreach (var player in team.Players)
+            {
+                player.IsReady = false;
+                player.Stats = new(player.SteamID);
+            }
         }
 
         if (Match.IsMatchmaking())
@@ -214,4 +221,9 @@ public class StateWarmupReady : StateWarmup
             Match.RemovePlayerBySteamID(@event.Userid?.SteamID);
         return HookResult.Continue;
     }
+}
+
+public class StateNone : StateWarmupReady
+{
+    public override string Name => "none";
 }
