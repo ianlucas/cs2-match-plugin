@@ -3,9 +3,11 @@
 *  Licensed under the MIT License. See License.txt in the project root for license information.
 *--------------------------------------------------------------------------------------------*/
 
+using System.Collections.Concurrent;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Modules.Entities;
+using CounterStrikeSharp.API.Modules.Memory;
+using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
 
 namespace MatchPlugin;
@@ -20,7 +22,18 @@ public partial class StateLive : State
 
     private bool _isForfeiting = false;
     private bool _isLastRoundBeforeHalfTime = false;
-    private readonly Dictionary<ulong, int> _playerHealth = [];
+    private readonly ConcurrentDictionary<ulong, int> _playerHealth = [];
+    private readonly ConcurrentDictionary<
+        uint,
+        ConcurrentDictionary<
+            ulong,
+            (
+                Player,
+                bool, /*killed*/
+                int /*damage*/
+            )
+        >
+    > _entityDamages = [];
     private long _roundStartedAt = 0;
 
     public override void Load()
@@ -35,7 +48,9 @@ public partial class StateLive : State
         Match.Plugin.RegisterEventHandler<EventRoundStart>(OnRoundStart);
         Match.Plugin.RegisterEventHandler<EventRoundStart>(Stats_OnRoundStart);
         Match.Plugin.RegisterEventHandler<EventGrenadeThrown>(OnGrenadeThrown);
+        Match.Plugin.RegisterEventHandler<EventHegrenadeDetonate>(OnHegrenadeDetonate);
         Match.Plugin.RegisterEventHandler<EventPlayerBlind>(Stats_OnPlayerBlind);
+        VirtualFunctions.CBaseEntity_TakeDamageOldFunc.Hook(OnTakeDamage, HookMode.Post);
         Match.Plugin.RegisterEventHandler<EventPlayerHurt>(OnPlayerHurt);
         Match.Plugin.RegisterEventHandler<EventPlayerDeath>(Stats_OnPlayerDeath);
         Match.Plugin.RegisterEventHandler<EventBombPlanted>(Stats_OnBombPlanted);
@@ -78,7 +93,9 @@ public partial class StateLive : State
         Match.Plugin.DeregisterEventHandler<EventRoundStart>(OnRoundStart);
         Match.Plugin.DeregisterEventHandler<EventRoundStart>(Stats_OnRoundStart);
         Match.Plugin.DeregisterEventHandler<EventGrenadeThrown>(OnGrenadeThrown);
+        Match.Plugin.DeregisterEventHandler<EventHegrenadeDetonate>(OnHegrenadeDetonate);
         Match.Plugin.DeregisterEventHandler<EventPlayerBlind>(Stats_OnPlayerBlind);
+        VirtualFunctions.CBaseEntity_TakeDamageOldFunc.Unhook(OnTakeDamage, HookMode.Post);
         Match.Plugin.DeregisterEventHandler<EventPlayerHurt>(OnPlayerHurt);
         Match.Plugin.DeregisterEventHandler<EventPlayerDeath>(Stats_OnPlayerDeath);
         Match.Plugin.DeregisterEventHandler<EventBombPlanted>(Stats_OnBombPlanted);
@@ -135,22 +152,45 @@ public partial class StateLive : State
         var player = Match.GetPlayerFromSteamID(@event.Userid?.SteamID);
         if (player != null)
         {
-            // @todo validate, this may yield a wrong weapon.
-            var weapon = player.Controller?.PlayerPawn.Value?.WeaponServices?.ActiveWeapon.Value;
-            if (weapon != null)
-            {
-                var gameRules = UtilitiesX.GetGameRules();
-                var roundTime = ServerX.NowMilliseconds() - _roundStartedAt;
-                Match.SendEvent(
-                    Get5Events.OnGrenadeThrown(
-                        Match,
-                        gameRules.TotalRoundsPlayed,
-                        roundTime,
-                        player,
-                        weapon
-                    )
-                );
-            }
+            var gameRules = UtilitiesX.GetGameRules();
+            var roundTime = ServerX.NowMilliseconds() - _roundStartedAt;
+            Match.SendEvent(
+                Get5Events.OnGrenadeThrown(
+                    Match,
+                    gameRules.TotalRoundsPlayed,
+                    roundTime,
+                    player,
+                    @event.Weapon
+                )
+            );
+        }
+        return HookResult.Continue;
+    }
+
+    public HookResult OnHegrenadeDetonate(EventHegrenadeDetonate @event, GameEventInfo _)
+    {
+        var player = Match.GetPlayerFromSteamID(@event.Userid?.SteamID);
+        if (player != null && _entityDamages.TryGetValue((uint)@event.Entityid, out var victims))
+        {
+            var roundTime = ServerX.NowMilliseconds() - _roundStartedAt;
+            Match.Plugin.AddTimer(
+                0.001f,
+                () =>
+                {
+                    var gameRules = UtilitiesX.GetGameRules();
+
+                    Match.SendEvent(
+                        Get5Events.OnHEGrenadeDetonated(
+                            match: Match,
+                            round_number: gameRules.TotalRoundsPlayed,
+                            round_time: roundTime,
+                            player,
+                            weapon: "weapon_hegrenade",
+                            victims
+                        )
+                    );
+                }
+            );
         }
         return HookResult.Continue;
     }
@@ -181,6 +221,37 @@ public partial class StateLive : State
             Stats_OnPlayerHurt(@event, damage);
             _playerHealth[victim.SteamID] = Math.Max(0, @event.Health);
         }
+        return HookResult.Continue;
+    }
+
+    public HookResult OnTakeDamage(DynamicHook hook)
+    {
+        var victimEntity = hook.GetParam<CEntityInstance>(0);
+        var info = hook.GetParam<CTakeDamageInfo>(1);
+        var inflictor = info.Inflictor.Value;
+
+        if (victimEntity.DesignerName != "player")
+            return HookResult.Continue;
+
+        var victim = Match.GetPlayerFromSteamID(
+            victimEntity.As<CCSPlayerPawn>().Controller.Value?.As<CCSPlayerController>().SteamID
+        );
+        var victimController = victim?.Controller;
+
+        if (
+            victim != null
+            && victimController != null
+            && inflictor != null
+            && UtilitiesX.IsUtilityClassname(inflictor.DesignerName)
+        )
+        {
+            var damages = _entityDamages.TryGetValue(inflictor.Index, out var v) ? v : [];
+            var damage = damages.TryGetValue(victim.SteamID, out var d) ? d : (victim, false, 0);
+            if (victimController.GetHealth() <= 0)
+                damage.Item2 = true;
+            damage.Item3 += (int)info.Damage;
+        }
+
         return HookResult.Continue;
     }
 

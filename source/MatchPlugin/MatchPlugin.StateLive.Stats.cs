@@ -4,7 +4,6 @@
 *--------------------------------------------------------------------------------------------*/
 
 using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Modules.Entities;
 using CounterStrikeSharp.API.Modules.Utils;
 
 namespace MatchPlugin;
@@ -102,8 +101,6 @@ public partial class StateLive
 
         var killedByBomb = @event.Weapon == "planted_c4";
         var killedWithKnife = UtilitiesX.IsKnifeClassname(@event.Weapon);
-        // @todo validate, this may yield a wrong weapon.
-        var weapon = attacker?.Controller?.PlayerPawn.Value?.WeaponServices?.ActiveWeapon.Value;
         var isSuicide = (attacker == null || attacker == victim) && !killedByBomb;
         var headshot = @event.Headshot;
         Player? assister = null;
@@ -187,7 +184,7 @@ public partial class StateLive
                 round_number: gameRules.TotalRoundsPlayed,
                 round_time: ServerX.NowMilliseconds() - _roundStartedAt,
                 player: victim,
-                weapon,
+                weapon: @event.Weapon,
                 bomb: killedByBomb,
                 headshot,
                 thru_smoke: @event.Thrusmoke,

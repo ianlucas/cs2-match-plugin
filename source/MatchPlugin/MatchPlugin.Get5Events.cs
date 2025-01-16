@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+using System.Collections.Concurrent;
 using System.IO;
 using System.Text.RegularExpressions;
 using CounterStrikeSharp.API.Core;
@@ -245,7 +246,7 @@ public class Get5Events
         int round_number,
         long round_time,
         Player player,
-        CBasePlayerWeapon weapon
+        string weapon
     ) =>
         new
         {
@@ -263,7 +264,7 @@ public class Get5Events
         int round_number,
         long round_time,
         Player player,
-        CBasePlayerWeapon? weapon,
+        string weapon,
         bool bomb,
         bool headshot,
         bool thru_smoke,
@@ -284,7 +285,7 @@ public class Get5Events
             round_number,
             round_time,
             player = GetPlayer(player),
-            weapon = weapon != null ? GetWeapon(weapon) : null,
+            weapon = GetWeapon(weapon),
             bomb,
             headshot,
             thru_smoke,
@@ -295,6 +296,72 @@ public class Get5Events
             friendly_fire,
             attacker,
             assist = assister != null ? GetAssister(player, assister, flash_assist) : null
+        };
+
+    public static object OnHEGrenadeDetonated(
+        Match match,
+        int round_number,
+        long round_time,
+        Player player,
+        string weapon,
+        ConcurrentDictionary<ulong, (Player, bool, int)> victims
+    ) =>
+        new
+        {
+            @event = "hegrenade_detonated",
+            matchid = match.Id,
+            map_number = match.GetCurrentMapIndex(),
+            round_number,
+            round_time,
+            player = GetPlayer(player),
+            weapon = GetWeapon(weapon),
+            victims = victims.Values.Select(v => new
+            {
+                player = GetPlayer(v.Item1),
+                killed = v.Item2,
+                damage = v.Item3
+            }),
+            damage_enemies = victims
+                .Values.Where(v => v.Item1.Team != player.Team)
+                .Select(v => v.Item3)
+                .Sum(),
+            damage_friendlies = victims
+                .Values.Where(v => v.Item1.Team == player.Team)
+                .Select(v => v.Item3)
+                .Sum()
+        };
+
+    public static object OnMolotovDetonated(
+        Match match,
+        int round_number,
+        int round_time,
+        Player player,
+        string weapon,
+        Dictionary<ulong, (Player, bool, int)> victims
+    ) =>
+        new
+        {
+            @event = "molotov_detonated",
+            matchid = match.Id,
+            map_number = match.GetCurrentMapIndex(),
+            round_number,
+            round_time,
+            player = GetPlayer(player),
+            weapon = GetWeapon(weapon),
+            victims = victims.Values.Select(v => new
+            {
+                player = GetPlayer(v.Item1),
+                killed = v.Item2,
+                damage = v.Item3
+            }),
+            damage_enemies = victims
+                .Values.Where(v => v.Item1.Team != player.Team)
+                .Select(v => v.Item3)
+                .Sum(),
+            damage_friendlies = victims
+                .Values.Where(v => v.Item1.Team == player.Team)
+                .Select(v => v.Item3)
+                .Sum()
         };
 
     public static string GetCsTeamString(CsTeam team) => team == CsTeam.Terrorist ? "t" : "ct";
@@ -338,12 +405,8 @@ public class Get5Events
             is_bot = false
         };
 
-    public static object GetWeapon(CBasePlayerWeapon weapon) =>
-        new
-        {
-            name = weapon.DesignerName.Replace("weapon_", ""),
-            id = weapon.AttributeManager.Item.ItemDefinitionIndex
-        };
+    public static object GetWeapon(string weapon) =>
+        new { name = weapon.Replace("weapon_", ""), id = ItemUtilities.GetItemDefIndex(weapon) };
 
     public static object GetAssister(Player player, Player assister, bool flash_assist) =>
         new
