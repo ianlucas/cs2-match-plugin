@@ -45,11 +45,21 @@ public partial class StateLive
             if (int.TryParse(round, out var roundAsInt))
             {
                 if (roundAsInt == 0)
+                {
                     foreach (var p in players)
                         p.Stats = new(p.SteamID);
-                else if (_statsBackup.TryGetValue(roundAsInt, out var snapshots))
-                    foreach (var (player, snapshot) in snapshots)
-                        player.Stats = snapshot.Clone();
+                    foreach (var t in Match.Teams)
+                        t.Stats = new();
+                }
+                else
+                {
+                    if (_statsBackup.TryGetValue(roundAsInt, out var playerSnapshots))
+                        foreach (var (player, playerStats) in playerSnapshots)
+                            player.Stats = playerStats.Clone();
+                    if (_teamStatsBackup.TryGetValue(roundAsInt, out var teamSnapshots))
+                        foreach (var (team, teamStats) in teamSnapshots)
+                            team.Stats = teamStats.Clone();
+                }
 
                 Match.SendEvent(Get5Events.OnBackupRestore(Match, roundAsInt, filename));
             }

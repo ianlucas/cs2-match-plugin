@@ -4,6 +4,7 @@
 *--------------------------------------------------------------------------------------------*/
 
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Entities;
 using CounterStrikeSharp.API.Modules.Utils;
 
 namespace MatchPlugin;
@@ -11,6 +12,7 @@ namespace MatchPlugin;
 public partial class StateLive
 {
     private readonly Dictionary<int, List<(Player, PlayerStats)>> _statsBackup = [];
+    private readonly Dictionary<int, List<(Team, TeamStats)>> _teamStatsBackup = [];
     private readonly Dictionary<CsTeam, bool> _isTeamClutching = [];
     private readonly Dictionary<ulong, int> _roundClutchingCount = [];
     private readonly Dictionary<ulong, int> _roundKills = [];
@@ -219,62 +221,68 @@ public partial class StateLive
 
         var gameRules = UtilitiesX.GetGameRules();
         _statsBackup[gameRules.TotalRoundsPlayed] = [];
+        _teamStatsBackup[gameRules.TotalRoundsPlayed] = [];
 
-        foreach (var player in Match.Teams.SelectMany(t => t.Players))
+        foreach (var team in Match.Teams)
         {
-            if (player.Controller != null)
-                player.Stats.Score = player.Controller.Score;
+            _teamStatsBackup[gameRules.TotalRoundsPlayed].Add((team, team.Stats.Clone()));
 
-            if (_roundKills.TryGetValue(player.SteamID, out var kills))
-                switch (kills)
-                {
-                    case 1:
-                        player.Stats.K1 += 1;
-                        break;
-                    case 2:
-                        player.Stats.K2 += 1;
-                        break;
-                    case 3:
-                        player.Stats.K3 += 1;
-                        break;
-                    case 4:
-                        player.Stats.K4 += 1;
-                        break;
-                    case 5:
-                        player.Stats.K5 += 1;
-                        break;
-                }
+            foreach (var player in team.Players)
+            {
+                if (player.Controller != null)
+                    player.Stats.Score = player.Controller.Score;
 
-            if (
-                player.Team.CurrentTeam == winner
-                && _roundClutchingCount.TryGetValue(player.SteamID, out var opponents)
-            )
-                switch (opponents)
-                {
-                    case 1:
-                        player.Stats.V1 += 1;
-                        break;
-                    case 2:
-                        player.Stats.V2 += 1;
-                        break;
-                    case 3:
-                        player.Stats.V3 += 1;
-                        break;
-                    case 4:
-                        player.Stats.V4 += 1;
-                        break;
-                    case 5:
-                        player.Stats.V5 += 1;
-                        break;
-                }
+                if (_roundKills.TryGetValue(player.SteamID, out var kills))
+                    switch (kills)
+                    {
+                        case 1:
+                            player.Stats.K1 += 1;
+                            break;
+                        case 2:
+                            player.Stats.K2 += 1;
+                            break;
+                        case 3:
+                            player.Stats.K3 += 1;
+                            break;
+                        case 4:
+                            player.Stats.K4 += 1;
+                            break;
+                        case 5:
+                            player.Stats.K5 += 1;
+                            break;
+                    }
 
-            if (
-                _playerKilledOrAssistedOrTradedKill.ContainsKey(player.SteamID)
-                || _playerSurvived.ContainsKey(player.SteamID)
-            )
-                player.Stats.KAST += 1;
+                if (
+                    player.Team.CurrentTeam == winner
+                    && _roundClutchingCount.TryGetValue(player.SteamID, out var opponents)
+                )
+                    switch (opponents)
+                    {
+                        case 1:
+                            player.Stats.V1 += 1;
+                            break;
+                        case 2:
+                            player.Stats.V2 += 1;
+                            break;
+                        case 3:
+                            player.Stats.V3 += 1;
+                            break;
+                        case 4:
+                            player.Stats.V4 += 1;
+                            break;
+                        case 5:
+                            player.Stats.V5 += 1;
+                            break;
+                    }
 
-            _statsBackup[gameRules.TotalRoundsPlayed].Add((player, player.Stats.Clone()));
+                if (
+                    _playerKilledOrAssistedOrTradedKill.ContainsKey(player.SteamID)
+                    || _playerSurvived.ContainsKey(player.SteamID)
+                )
+                    player.Stats.KAST += 1;
+
+                _statsBackup[gameRules.TotalRoundsPlayed].Add((player, player.Stats.Clone()));
+            }
         }
 
         return HookResult.Continue;

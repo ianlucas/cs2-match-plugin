@@ -14,4 +14,6 @@ public class TeamStats
 
     [JsonPropertyName("score_t")]
     public int ScoreT { get; set; } = 0;
+
+    public TeamStats Clone() => (TeamStats)MemberwiseClone();
 }
