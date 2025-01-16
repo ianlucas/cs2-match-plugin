@@ -16,6 +16,8 @@ public class ServerX
 {
     public static long Now() => DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
+    public static long NowMilliseconds() => DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+
     public static string GetConVarPath(string path = "") =>
         $"addons/counterstrikesharp/configs/plugins/MatchPlugin{path}";
 

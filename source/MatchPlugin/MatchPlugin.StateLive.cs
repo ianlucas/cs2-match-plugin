@@ -21,6 +21,7 @@ public partial class StateLive : State
     private bool _isForfeiting = false;
     private bool _isLastRoundBeforeHalfTime = false;
     private readonly Dictionary<ulong, int> _playerHealth = [];
+    private long _roundStartedAt = 0;
 
     public override void Load()
     {
@@ -33,6 +34,7 @@ public partial class StateLive : State
         Match.Plugin.RegisterEventHandler<EventRoundPrestart>(OnRoundPrestart);
         Match.Plugin.RegisterEventHandler<EventRoundStart>(OnRoundStart);
         Match.Plugin.RegisterEventHandler<EventRoundStart>(Stats_OnRoundStart);
+        Match.Plugin.RegisterEventHandler<EventGrenadeThrown>(OnGrenadeThrown);
         Match.Plugin.RegisterEventHandler<EventPlayerBlind>(Stats_OnPlayerBlind);
         Match.Plugin.RegisterEventHandler<EventPlayerHurt>(OnPlayerHurt);
         Match.Plugin.RegisterEventHandler<EventPlayerDeath>(Stats_OnPlayerDeath);
@@ -75,6 +77,7 @@ public partial class StateLive : State
         Match.Plugin.DeregisterEventHandler<EventRoundPrestart>(OnRoundPrestart);
         Match.Plugin.DeregisterEventHandler<EventRoundStart>(OnRoundStart);
         Match.Plugin.DeregisterEventHandler<EventRoundStart>(Stats_OnRoundStart);
+        Match.Plugin.DeregisterEventHandler<EventGrenadeThrown>(OnGrenadeThrown);
         Match.Plugin.DeregisterEventHandler<EventPlayerBlind>(Stats_OnPlayerBlind);
         Match.Plugin.DeregisterEventHandler<EventPlayerHurt>(OnPlayerHurt);
         Match.Plugin.DeregisterEventHandler<EventPlayerDeath>(Stats_OnPlayerDeath);
@@ -90,6 +93,7 @@ public partial class StateLive : State
     {
         _canSurrender = true;
         _isLastRoundBeforeHalfTime = UtilitiesX.GetGameRules().IsLastRoundBeforeHalfTime();
+        _roundStartedAt = ServerX.NowMilliseconds();
         _playerHealth.Clear();
 
         // @todo validate that this is working as expected, I don't think it's triggered mid freezetime.
@@ -121,6 +125,33 @@ public partial class StateLive : State
             );
         }
 
+        Match.SendEvent(Get5Events.OnRoundStart(Match, gameRules.TotalRoundsPlayed));
+
+        return HookResult.Continue;
+    }
+
+    public HookResult OnGrenadeThrown(EventGrenadeThrown @event, GameEventInfo _)
+    {
+        var player = Match.GetPlayerFromSteamID(@event.Userid?.SteamID);
+        if (player != null)
+        {
+            // @todo validate, this may yield a wrong weapon.
+            var weapon = player.Controller?.PlayerPawn.Value?.WeaponServices?.ActiveWeapon.Value;
+            if (weapon != null)
+            {
+                var gameRules = UtilitiesX.GetGameRules();
+                var roundTime = ServerX.NowMilliseconds() - _roundStartedAt;
+                Match.SendEvent(
+                    Get5Events.OnGrenadeThrown(
+                        Match,
+                        gameRules.TotalRoundsPlayed,
+                        roundTime,
+                        player,
+                        weapon
+                    )
+                );
+            }
+        }
         return HookResult.Continue;
     }
 
@@ -188,6 +219,7 @@ public partial class StateLive : State
                 report.Reset();
             }
         }
+
         return HookResult.Continue;
     }
 }

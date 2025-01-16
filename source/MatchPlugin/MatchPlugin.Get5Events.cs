@@ -4,6 +4,8 @@
  *--------------------------------------------------------------------------------------------*/
 
 using System.IO;
+using System.Text.RegularExpressions;
+using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 
 namespace MatchPlugin;
@@ -180,6 +182,121 @@ public class Get5Events
             map_number = match.GetCurrentMapIndex()
         };
 
+    public static object OnRoundStart(Match match, int round_number) =>
+        new
+        {
+            @event = "round_start",
+            matchid = match.Id,
+            map_number = match.GetCurrentMapIndex(),
+            round_number
+        };
+
+    public static object OnRoundEnd(
+        Match match,
+        int round_number,
+        long round_time,
+        int reason,
+        Team winner
+    )
+    {
+        var team1 = match.Teams.First();
+        var team2 = team1.Oppositon;
+        return new
+        {
+            @event = "round_start",
+            matchid = match.Id,
+            map_number = match.GetCurrentMapIndex(),
+            round_number,
+            round_time,
+            reason,
+            winner = GetWinner(winner),
+            team1 = GetStatsTeam(team1),
+            team2 = GetStatsTeam(team2)
+        };
+    }
+
+    public static object OnRoundStatsUpdated(Match match, int round_number) =>
+        new
+        {
+            @event = "round_start",
+            matchid = match.Id,
+            map_number = match.GetCurrentMapIndex(),
+            round_number
+        };
+
+    public static object OnPlayerBecameMVP(
+        Match match,
+        int round_number,
+        int reason,
+        Player player
+    ) =>
+        new
+        {
+            @event = "round_mvp",
+            matchid = match.Id,
+            map_number = match.GetCurrentMapIndex(),
+            round_number,
+            player = GetPlayer(player),
+            reason
+        };
+
+    public static object OnGrenadeThrown(
+        Match match,
+        int round_number,
+        long round_time,
+        Player player,
+        CBasePlayerWeapon weapon
+    ) =>
+        new
+        {
+            @event = "grenade_thrown",
+            matchid = match.Id,
+            map_number = match.GetCurrentMapIndex(),
+            round_number,
+            round_time,
+            player = GetPlayer(player),
+            weapon = GetWeapon(weapon)
+        };
+
+    public static object OnPlayerDeath(
+        Match match,
+        int round_number,
+        long round_time,
+        Player player,
+        CBasePlayerWeapon? weapon,
+        bool bomb,
+        bool headshot,
+        bool thru_smoke,
+        int penetrated,
+        bool attacker_blind,
+        bool no_scope,
+        bool suicide,
+        bool friendly_fire,
+        Player? attacker,
+        Player? assister,
+        bool flash_assist
+    ) =>
+        new
+        {
+            @event = "player_death",
+            matchid = match.Id,
+            map_number = match.GetCurrentMapIndex(),
+            round_number,
+            round_time,
+            player = GetPlayer(player),
+            weapon = weapon != null ? GetWeapon(weapon) : null,
+            bomb,
+            headshot,
+            thru_smoke,
+            penetrated,
+            attacker_blind,
+            no_scope,
+            suicide,
+            friendly_fire,
+            attacker,
+            assist = assister != null ? GetAssister(player, assister, flash_assist) : null
+        };
+
     public static string GetCsTeamString(CsTeam team) => team == CsTeam.Terrorist ? "t" : "ct";
 
     public static string GetTeamString(Team? team) =>
@@ -187,9 +304,8 @@ public class Get5Events
 
     public static int GetMapNumber(int mapNumber) => mapNumber > -1 ? mapNumber : 0;
 
-    public static object GetStatsTeam(Team team)
-    {
-        return new
+    public static object GetStatsTeam(Team team) =>
+        new
         {
             // @todo team.id
             name = team.Name,
@@ -208,10 +324,32 @@ public class Get5Events
                 })
                 .ToList()
         };
-    }
 
-    public static object GetWinner(Team team)
-    {
-        return new { side = GetCsTeamString(team.CurrentTeam), team = GetTeamString(team) };
-    }
+    public static object GetWinner(Team team) =>
+        new { side = GetCsTeamString(team.CurrentTeam), team = GetTeamString(team) };
+
+    public static object GetPlayer(Player player) =>
+        new
+        {
+            steamid = player.SteamID,
+            name = player.Name,
+            user_id = player.GetIndex(),
+            side = GetCsTeamString(player.Team.CurrentTeam),
+            is_bot = false
+        };
+
+    public static object GetWeapon(CBasePlayerWeapon weapon) =>
+        new
+        {
+            name = weapon.DesignerName.Replace("weapon_", ""),
+            id = weapon.AttributeManager.Item.ItemDefinitionIndex
+        };
+
+    public static object GetAssister(Player player, Player assister, bool flash_assist) =>
+        new
+        {
+            player = GetPlayer(assister),
+            friendly_fire = player.Team == assister.Team,
+            flash_assist
+        };
 }

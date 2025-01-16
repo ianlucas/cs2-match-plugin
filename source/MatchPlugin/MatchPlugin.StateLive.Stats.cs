@@ -102,8 +102,11 @@ public partial class StateLive
 
         var killedByBomb = @event.Weapon == "planted_c4";
         var killedWithKnife = UtilitiesX.IsKnifeClassname(@event.Weapon);
+        // @todo validate, this may yield a wrong weapon.
+        var weapon = attacker?.Controller?.PlayerPawn.Value?.WeaponServices?.ActiveWeapon.Value;
         var isSuicide = (attacker == null || attacker == victim) && !killedByBomb;
         var headshot = @event.Headshot;
+        Player? assister = null;
 
         victim.Stats.Deaths += 1;
         _playerSurvived[victim.SteamID] = true;
@@ -160,7 +163,7 @@ public partial class StateLive
                 if (killedWithKnife)
                     attacker.Stats.KnifeKills += 1;
 
-                var assister = Match.GetPlayerFromSteamID(@event.Assister?.SteamID);
+                assister = Match.GetPlayerFromSteamID(@event.Assister?.SteamID);
                 if (assister != null)
                 {
                     var friendlyFire = assister.Team == victim.Team;
@@ -176,6 +179,28 @@ public partial class StateLive
                 }
             }
         }
+
+        var gameRules = UtilitiesX.GetGameRules();
+        Match.SendEvent(
+            Get5Events.OnPlayerDeath(
+                match: Match,
+                round_number: gameRules.TotalRoundsPlayed,
+                round_time: ServerX.NowMilliseconds() - _roundStartedAt,
+                player: victim,
+                weapon,
+                bomb: killedByBomb,
+                headshot,
+                thru_smoke: @event.Thrusmoke,
+                penetrated: @event.Penetrated,
+                attacker_blind: @event.Attackerblind,
+                no_scope: @event.Noscope,
+                suicide: isSuicide,
+                friendly_fire: victim.Team == attacker?.Team,
+                attacker,
+                assister,
+                flash_assist: @event.Assistedflash
+            )
+        );
 
         return HookResult.Continue;
     }
@@ -200,7 +225,19 @@ public partial class StateLive
     {
         var player = Match.GetPlayerFromSteamID(@event.Userid?.SteamID);
         if (player != null)
+        {
             player.Stats.MVPs += 1;
+
+            var gameRules = UtilitiesX.GetGameRules();
+            Match.SendEvent(
+                Get5Events.OnPlayerBecameMVP(
+                    Match,
+                    gameRules.TotalRoundsPlayed,
+                    @event.Reason,
+                    player
+                )
+            );
+        }
         return HookResult.Continue;
     }
 
@@ -284,6 +321,19 @@ public partial class StateLive
                 _statsBackup[gameRules.TotalRoundsPlayed].Add((player, player.Stats.Clone()));
             }
         }
+
+        var roundTime = ServerX.NowMilliseconds() - _roundStartedAt;
+        Match.SendEvent(
+            Get5Events.OnRoundEnd(
+                Match,
+                gameRules.TotalRoundsPlayed,
+                roundTime,
+                @event.Reason,
+                winnerTeam
+            )
+        );
+
+        Match.SendEvent(Get5Events.OnRoundStatsUpdated(Match, gameRules.TotalRoundsPlayed));
 
         return HookResult.Continue;
     }
