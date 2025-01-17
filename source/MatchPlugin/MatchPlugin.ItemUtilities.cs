@@ -7,6 +7,16 @@ namespace MatchPlugin;
 
 public class ItemUtilities
 {
+    private static readonly List<string> UtilityClassnames =
+    [
+        "incgrenade",
+        "inferno",
+        "hegrenade",
+        "flashbang",
+        "decoy",
+        "smokegrenade"
+    ];
+
     private static readonly Dictionary<string, int> _itemDefinitionIndexes =
         new()
         {
@@ -87,4 +97,10 @@ public class ItemUtilities
             .Select(w => w.Value)
             .FirstOrDefault(65536);
     }
+
+    public static bool IsKnifeClassname(string designerName) =>
+        designerName.Contains("bayonet") || designerName.Contains("knife");
+
+    public static bool IsUtilityClassname(string designerName) =>
+        UtilityClassnames.Any(classname => classname.Contains(designerName));
 }

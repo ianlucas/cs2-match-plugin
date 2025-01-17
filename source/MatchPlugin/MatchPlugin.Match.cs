@@ -53,24 +53,31 @@ public class Match
     public readonly FakeConVar<string> remote_log_header_value =
         new("get5_remote_log_header_value", "Used for your event HTTP requests.", "");
 
-    public string? Id = null;
-    public State State = new();
     public readonly MatchPlugin Plugin;
     public readonly List<Team> Teams = [];
     public readonly List<Map> Maps = [];
+    public readonly Team Team1;
+    public readonly Team Team2;
+    public readonly CSTV Cstv;
+    public readonly Get5 Get5;
+
+    public string? Id = null;
+    public State State = new();
     public bool IsLoadedFromFile = false;
     public Team? KnifeRoundWinner;
-    public CSTV Cstv;
 
     public Match(MatchPlugin plugin)
     {
         var terrorists = new Team(this, CsTeam.Terrorist);
         var cts = new Team(this, CsTeam.CounterTerrorist);
-        terrorists.Oppositon = cts;
-        cts.Oppositon = terrorists;
+        terrorists.Opposition = cts;
+        cts.Opposition = terrorists;
         Teams = [terrorists, cts];
+        Team1 = terrorists;
+        Team2 = cts;
         Plugin = plugin;
         Cstv = new(this);
+        Get5 = new(this);
     }
 
     public void Reset()
@@ -107,7 +114,7 @@ public class Match
     {
         if (newState.GetType() != typeof(StateWarmupReady) && State.GetType() == newState.GetType())
             return;
-        SendEvent(Get5Events.OnGameStateChanged(State, newState));
+        SendEvent(Get5.OnGameStateChanged(oldState: State, newState));
         State.Unload();
         Log($"Unloaded {State.GetType().FullName}");
         State = newState;
@@ -137,13 +144,13 @@ public class Match
         return IsLoadedFromFile && matchmaking.Value;
     }
 
-    public Map? GetCurrentMap() => Maps.Where(m => m.Result == MapResult.None).FirstOrDefault();
+    public Map? GetMap() => Maps.Where(m => m.Result == MapResult.None).FirstOrDefault();
 
-    public int GetCurrentMapIndex()
+    public int GetMapIndex()
     {
         try
         {
-            var map = GetCurrentMap();
+            var map = GetMap();
             if (map == null)
                 return 0;
             return Maps.IndexOf(map);
@@ -155,7 +162,7 @@ public class Match
         }
     }
 
-    public int GetMapIndex(Map? map)
+    public int FindMapIndex(Map? map)
     {
         try
         {
@@ -209,7 +216,7 @@ public class Match
             foreach (var player in team.Players)
             {
                 player.DamageReport.Clear();
-                foreach (var opponent in team.Oppositon.Players)
+                foreach (var opponent in team.Opposition.Players)
                     player.DamageReport.Add(opponent.SteamID, new(opponent));
             }
         }
@@ -217,7 +224,7 @@ public class Match
 
     public bool CheckCurrentMap()
     {
-        var currentMap = GetCurrentMap();
+        var currentMap = GetMap();
         if (currentMap != null && Server.MapName != currentMap.MapName)
         {
             Server.ExecuteCommand($"changelevel {currentMap.MapName}");
@@ -225,6 +232,11 @@ public class Match
         }
         return false;
     }
+
+    public long GetRoundTime() =>
+        State is StateLive state ? ServerX.NowMilliseconds() - state.RoundStartedAt : 0;
+
+    public int GetRoundNumber() => UtilitiesX.GetGameRules().TotalRoundsPlayed;
 
     public void Log(string message, bool printToChat = false)
     {

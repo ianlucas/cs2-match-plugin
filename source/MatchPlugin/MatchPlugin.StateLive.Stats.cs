@@ -70,7 +70,7 @@ public partial class StateLive
             if (attacker != victim)
             {
                 attacker.Stats.Damage += damage;
-                if (UtilitiesX.IsUtilityClassname(@event.Weapon))
+                if (ItemUtilities.IsUtilityClassname(@event.Weapon))
                     attacker.Stats.UtilDamage += damage;
             }
         }
@@ -100,7 +100,7 @@ public partial class StateLive
         }
 
         var killedByBomb = @event.Weapon == "planted_c4";
-        var killedWithKnife = UtilitiesX.IsKnifeClassname(@event.Weapon);
+        var killedWithKnife = ItemUtilities.IsKnifeClassname(@event.Weapon);
         var isSuicide = (attacker == null || attacker == victim) && !killedByBomb;
         var headshot = @event.Headshot;
         Player? assister = null;
@@ -177,25 +177,21 @@ public partial class StateLive
             }
         }
 
-        var gameRules = UtilitiesX.GetGameRules();
         Match.SendEvent(
-            Get5Events.OnPlayerDeath(
-                match: Match,
-                round_number: gameRules.TotalRoundsPlayed,
-                round_time: ServerX.NowMilliseconds() - _roundStartedAt,
+            Match.Get5.OnPlayerDeath(
                 player: victim,
-                weapon: @event.Weapon,
-                bomb: killedByBomb,
-                headshot,
-                thru_smoke: @event.Thrusmoke,
-                penetrated: @event.Penetrated,
-                attacker_blind: @event.Attackerblind,
-                no_scope: @event.Noscope,
-                suicide: isSuicide,
-                friendly_fire: victim.Team == attacker?.Team,
                 attacker,
                 assister,
-                flash_assist: @event.Assistedflash
+                weapon: @event.Weapon,
+                isKilledByBomb: killedByBomb,
+                isHeadshot: headshot,
+                isThruSmoke: @event.Thrusmoke,
+                isPenetrated: @event.Penetrated,
+                isAttackerBlind: @event.Attackerblind,
+                isNoScope: @event.Noscope,
+                isSuicide: isSuicide,
+                isFriendlyFire: victim.Team == attacker?.Team,
+                isFlashAssist: @event.Assistedflash
             )
         );
 
@@ -226,14 +222,7 @@ public partial class StateLive
             player.Stats.MVPs += 1;
 
             var gameRules = UtilitiesX.GetGameRules();
-            Match.SendEvent(
-                Get5Events.OnPlayerBecameMVP(
-                    Match,
-                    gameRules.TotalRoundsPlayed,
-                    @event.Reason,
-                    player
-                )
-            );
+            Match.SendEvent(Match.Get5.OnPlayerBecameMVP(player, reason: @event.Reason));
         }
         return HookResult.Continue;
     }
@@ -319,18 +308,8 @@ public partial class StateLive
             }
         }
 
-        var roundTime = ServerX.NowMilliseconds() - _roundStartedAt;
-        Match.SendEvent(
-            Get5Events.OnRoundEnd(
-                Match,
-                gameRules.TotalRoundsPlayed,
-                roundTime,
-                @event.Reason,
-                winnerTeam
-            )
-        );
-
-        Match.SendEvent(Get5Events.OnRoundStatsUpdated(Match, gameRules.TotalRoundsPlayed));
+        Match.SendEvent(Match.Get5.OnRoundEnd(winner: winnerTeam, reason: @event.Reason));
+        Match.SendEvent(Match.Get5.OnRoundStatsUpdated());
 
         return HookResult.Continue;
     }

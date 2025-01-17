@@ -61,7 +61,7 @@ public partial class StateLive
                             team.Stats = teamStats.Clone();
                 }
 
-                Match.SendEvent(Get5Events.OnBackupRestore(Match, roundAsInt, filename));
+                Match.SendEvent(Match.Get5.OnBackupRestore(filename));
             }
 
             Server.ExecuteCommand($"mp_backup_restore_load_file {round}");

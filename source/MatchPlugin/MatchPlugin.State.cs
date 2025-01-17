@@ -57,22 +57,22 @@ public class State
         {
             Match.Plugin.ClearAllTimers();
             var result = MapResult.None;
-            int? winner = null;
+            Team? winner = null;
 
             foreach (var team in Match.Teams)
             {
                 if (team.IsSurrended)
                 {
                     result = MapResult.Forfeited;
-                    winner = team.Oppositon.Index;
-                    Match.Log($"forfeited, result={result}, winner={winner}");
+                    winner = team.Opposition;
+                    Match.Log($"forfeited, result={result}, winner={winner.Index}");
                     break;
                 }
-                if (team.Score > team.Oppositon.Score)
+                if (team.Score > team.Opposition.Score)
                 {
                     result = MapResult.Completed;
-                    winner = team.Index;
-                    Match.Log($"completed, result={result}, winner={winner}");
+                    winner = team;
+                    Match.Log($"completed, result={result}, winner={winner.Index}");
                 }
             }
 
@@ -91,7 +91,7 @@ public class State
         if (winners.Count() == 1)
         {
             var winner = winners.First();
-            var loser = winner.Oppositon;
+            var loser = winner.Opposition;
             loser.IsSurrended = true;
             Match.Log($"Terminating by Cancelled, winner={winner.Index}, forfeited={loser.Index}");
             UtilitiesX
@@ -107,15 +107,15 @@ public class State
             OnMapEnd(MapResult.Cancelled);
     }
 
-    public void OnMapEnd(MapResult result = MapResult.None, int? winner = null)
+    public void OnMapEnd(MapResult result = MapResult.None, Team? winner = null)
     {
         Match.Log($"Map has ended, result={result}.");
-        var map = Match.GetCurrentMap() ?? new(Server.MapName);
+        var map = Match.GetMap() ?? new(Server.MapName);
         var stats = Match.Teams.Select(t => t.Players.Select(p => p.Stats).ToList()).ToList();
         var demoFilename = Match.Cstv.GetFilename();
         var scores = Match.Teams.Select(t => t.Score).ToList();
         var team1 = Match.Teams.First();
-        var team2 = team1.Oppositon;
+        var team2 = team1.Opposition;
 
         map.DemoFilename = demoFilename;
         map.KnifeRoundWinner = Match.KnifeRoundWinner?.Index;
@@ -124,15 +124,8 @@ public class State
         map.Winner = winner;
         map.Scores = scores;
 
-        var winnerTeam =
-            winner != null
-                ? team1.Index == winner
-                    ? team1
-                    : team2
-                : null;
-
-        if (winnerTeam != null)
-            winnerTeam.SeriesScore += 1;
+        if (winner != null)
+            winner.SeriesScore += 1;
 
         var maps = (Match.Maps.Count > 0 ? Match.Maps : [map]).Where(m =>
             m.Result != MapResult.None
@@ -141,9 +134,9 @@ public class State
         // Even with Get5 Events, we still store results in json for further debugging.
         // @todo Maybe only save if `match_verbose` is enabled in the future.
         ServerX.WriteJson(ServerX.GetFullPath($"{Match.GetMatchFolder()}/results.json"), maps);
-        Match.SendEvent(Get5Events.OnMapResult(Match, map));
+        Match.SendEvent(Match.Get5.OnMapResult(map));
 
-        var isSeriesOver = Match.GetCurrentMap() == null;
+        var isSeriesOver = Match.GetMap() == null;
         if (isSeriesOver || result != MapResult.Completed)
         {
             // If match doesn't end normally, we already decided which side won.
@@ -151,11 +144,11 @@ public class State
             {
                 team1.SeriesScore = 0;
                 team2.SeriesScore = 0;
-                if (winnerTeam != null)
-                    winnerTeam.SeriesScore = 1;
+                if (winner != null)
+                    winner.SeriesScore = 1;
             }
 
-            Match.SendEvent(Get5Events.OnSeriesResult(Match, winnerTeam));
+            Match.SendEvent(Match.Get5.OnSeriesResult(winner));
             Match.Reset();
             Match.Log($"Match is over, kicking players={Match.matchmaking.Value}");
             Match.Plugin.OnMatchMatchmakingChanged(null, Match.matchmaking.Value);
@@ -169,7 +162,7 @@ public class State
         {
             var filename = Match.GetDemoFilename();
             if (filename != null)
-                Match.SendEvent(Get5Events.OnDemoFinished(Match, filename));
+                Match.SendEvent(Match.Get5.OnDemoFinished(filename));
         }
 
         Match.SetState(new StateWarmupReady());

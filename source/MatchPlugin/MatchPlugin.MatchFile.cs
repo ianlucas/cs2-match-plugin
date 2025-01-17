@@ -61,14 +61,14 @@ public class MatchFile
         try
         {
             var path = ServerX.GetFullPath($"/{name}.json");
-            match.SendEvent(Get5Events.OnPreLoadMatchConfig(path));
+            match.SendEvent(match.Get5.OnPreLoadMatchConfig(filename: path));
             var matchString = File.ReadAllText(path);
             return JsonSerializer.Deserialize<MatchData>(matchString);
         }
         catch (Exception ex)
         {
             Server.PrintToConsole($"Error reading match file: {ex.Message}");
-            match.SendEvent(Get5Events.OnLoadMatchConfigFailed(ex.Message));
+            match.SendEvent(match.Get5.OnLoadMatchConfigFailed(reason: ex.Message));
             return null;
         }
     }

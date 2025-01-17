@@ -33,7 +33,7 @@ public class Team(Match match, CsTeam startingTeam)
 
     public TeamStats Stats = new();
 
-    public Team Oppositon
+    public Team Opposition
     {
         get
         {

@@ -185,6 +185,6 @@ public partial class MatchPlugin
                     controller.Kick();
         _match.CreateMatchFolder();
         _match.SetState(new StateWarmupReady());
-        _match.SendEvent(Get5Events.OnSeriesInit(_match));
+        _match.SendEvent(_match.Get5.OnSeriesInit());
     }
 }

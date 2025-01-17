@@ -49,7 +49,7 @@ public class StateKnifeRound : State
             ServerX.PrintToChatAllRepeat(
                 Match.Plugin.Localizer["match.knife", Match.GetChatPrefix()]
             );
-            Match.SendEvent(Get5Events.OnKnifeRoundStarted(Match));
+            Match.SendEvent(Match.Get5.OnKnifeRoundStarted());
         }
         return HookResult.Continue;
     }

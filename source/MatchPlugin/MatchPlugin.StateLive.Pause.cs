@@ -30,7 +30,7 @@ public partial class StateLive
                     ]
                 );
                 Server.ExecuteCommand("mp_pause_match");
-                Match.SendEvent(Get5Events.OnMatchPaused(Match, player.Team, "tactical"));
+                Match.SendEvent(Match.Get5.OnMatchPaused(team: player.Team, pauseType: "tactical"));
                 return;
             }
             var currentTeam = player.Team.CurrentTeam;
@@ -58,7 +58,7 @@ public partial class StateLive
                         ? "timeout_terrorist_start"
                         : "timeout_ct_start"
                 );
-                Match.SendEvent(Get5Events.OnMatchPaused(Match, player.Team, "tactical"));
+                Match.SendEvent(Match.Get5.OnMatchPaused(team: player.Team, pauseType: "tactical"));
             }
         }
     }
@@ -78,7 +78,7 @@ public partial class StateLive
                             "match.pause_unpause1",
                             Match.GetChatPrefix(),
                             player.Team.FormattedName,
-                            player.Team.Oppositon.FormattedName
+                            player.Team.Opposition.FormattedName
                         ]
                     );
                 return;
@@ -92,7 +92,7 @@ public partial class StateLive
                     ]
                 );
             Server.ExecuteCommand("mp_unpause_match");
-            Match.SendEvent(Get5Events.OnMatchUnpaused(Match, player.Team, "tactical"));
+            Match.SendEvent(Match.Get5.OnMatchUnpaused(team: player.Team, pauseType: "tactical"));
         }
 
         if (controller == null || AdminManager.PlayerHasPermissions(controller, "@css/config"))
@@ -106,7 +106,7 @@ public partial class StateLive
                 ]
             );
             Server.ExecuteCommand("mp_unpause_match");
-            Match.SendEvent(Get5Events.OnMatchUnpaused(Match, null, "admin"));
+            Match.SendEvent(Match.Get5.OnMatchUnpaused(team: null, pauseType: "admin"));
             return;
         }
     }

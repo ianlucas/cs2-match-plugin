@@ -3,7 +3,6 @@
 *  Licensed under the MIT License. See License.txt in the project root for license information.
 *--------------------------------------------------------------------------------------------*/
 
-using System.Collections.Concurrent;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Memory;
@@ -20,21 +19,12 @@ public partial class StateLive : State
     public static readonly List<string> UnpauseCmds = ["css_unpause", "css_up", "css_despausar"];
     public static readonly List<string> SurrenderCmds = ["css_gg", "css_desistir"];
 
+    public long RoundStartedAt = 0;
+
     private bool _isForfeiting = false;
     private bool _isLastRoundBeforeHalfTime = false;
-    private readonly ConcurrentDictionary<ulong, int> _playerHealth = [];
-    private readonly ConcurrentDictionary<
-        uint,
-        ConcurrentDictionary<
-            ulong,
-            (
-                Player,
-                bool, /*killed*/
-                int /*damage*/
-            )
-        >
-    > _entityDamages = [];
-    private long _roundStartedAt = 0;
+    private readonly Dictionary<ulong, int> _playerHealth = [];
+    private readonly Dictionary<uint, UtilityVictims> _utilityVictims = [];
 
     public override void Load()
     {
@@ -61,7 +51,7 @@ public partial class StateLive : State
         Match.Plugin.RegisterEventHandler<EventPlayerDisconnect>(OnPlayerDisconnect);
 
         Match.Log("Execing Live");
-        Match.SendEvent(Get5Events.OnGoingLive(Match));
+        Match.SendEvent(Match.Get5.OnGoingLive());
 
         Config.ExecLive(
             max_rounds: Match.max_rounds.Value,
@@ -108,13 +98,15 @@ public partial class StateLive : State
 
     public HookResult OnRoundStart(EventRoundStart @event, GameEventInfo _)
     {
+        var gameRules = UtilitiesX.GetGameRules();
+        RoundStartedAt = ServerX.NowMilliseconds();
+
         _canSurrender = true;
-        _isLastRoundBeforeHalfTime = UtilitiesX.GetGameRules().IsLastRoundBeforeHalfTime();
-        _roundStartedAt = ServerX.NowMilliseconds();
+        _isLastRoundBeforeHalfTime = gameRules.IsLastRoundBeforeHalfTime();
         _playerHealth.Clear();
 
         // @todo validate that this is working as expected, I don't think it's triggered mid freezetime.
-        var gameRules = UtilitiesX.GetGameRules();
+
         if (
             gameRules.TechnicalTimeOut
             || gameRules.TerroristTimeOutActive
@@ -131,18 +123,17 @@ public partial class StateLive : State
                 csTeamTimeoutActive != null
                     ? team1.CurrentTeam == csTeamTimeoutActive
                         ? team1
-                        : team1.Oppositon
+                        : team1.Opposition
                     : null;
             Match.SendEvent(
-                Get5Events.OnPauseBegan(
-                    Match,
-                    pauseTeam,
-                    gameRules.TechnicalTimeOut ? "technical" : "tactical"
+                Match.Get5.OnPauseBegan(
+                    team: pauseTeam,
+                    pauseType: gameRules.TechnicalTimeOut ? "technical" : "tactical"
                 )
             );
         }
 
-        Match.SendEvent(Get5Events.OnRoundStart(Match, gameRules.TotalRoundsPlayed));
+        Match.SendEvent(Match.Get5.OnRoundStart());
 
         return HookResult.Continue;
     }
@@ -152,17 +143,7 @@ public partial class StateLive : State
         var player = Match.GetPlayerFromSteamID(@event.Userid?.SteamID);
         if (player != null)
         {
-            var gameRules = UtilitiesX.GetGameRules();
-            var roundTime = ServerX.NowMilliseconds() - _roundStartedAt;
-            Match.SendEvent(
-                Get5Events.OnGrenadeThrown(
-                    Match,
-                    gameRules.TotalRoundsPlayed,
-                    roundTime,
-                    player,
-                    @event.Weapon
-                )
-            );
+            Match.SendEvent(Match.Get5.OnGrenadeThrown(player, weapon: @event.Weapon));
         }
         return HookResult.Continue;
     }
@@ -170,9 +151,9 @@ public partial class StateLive : State
     public HookResult OnHegrenadeDetonate(EventHegrenadeDetonate @event, GameEventInfo _)
     {
         var player = Match.GetPlayerFromSteamID(@event.Userid?.SteamID);
-        if (player != null && _entityDamages.TryGetValue((uint)@event.Entityid, out var victims))
+        if (player != null && _utilityVictims.TryGetValue((uint)@event.Entityid, out var victims))
         {
-            var roundTime = ServerX.NowMilliseconds() - _roundStartedAt;
+            var roundTime = ServerX.NowMilliseconds() - RoundStartedAt;
             Match.Plugin.AddTimer(
                 0.001f,
                 () =>
@@ -180,14 +161,7 @@ public partial class StateLive : State
                     var gameRules = UtilitiesX.GetGameRules();
 
                     Match.SendEvent(
-                        Get5Events.OnHEGrenadeDetonated(
-                            match: Match,
-                            round_number: gameRules.TotalRoundsPlayed,
-                            round_time: roundTime,
-                            player,
-                            weapon: "weapon_hegrenade",
-                            victims
-                        )
+                        Match.Get5.OnHEGrenadeDetonated(player, weapon: "weapon_hegrenade", victims)
                     );
                 }
             );
@@ -226,30 +200,30 @@ public partial class StateLive : State
 
     public HookResult OnTakeDamage(DynamicHook hook)
     {
-        var victimEntity = hook.GetParam<CEntityInstance>(0);
+        var entity = hook.GetParam<CEntityInstance>(0);
+
+        if (entity.DesignerName != "player")
+            return HookResult.Continue;
+
         var info = hook.GetParam<CTakeDamageInfo>(1);
         var inflictor = info.Inflictor.Value;
 
-        if (victimEntity.DesignerName != "player")
+        if (inflictor == null || !ItemUtilities.IsUtilityClassname(inflictor.DesignerName))
             return HookResult.Continue;
 
-        var victim = Match.GetPlayerFromSteamID(
-            victimEntity.As<CCSPlayerPawn>().Controller.Value?.As<CCSPlayerController>().SteamID
-        );
-        var victimController = victim?.Controller;
+        var pawn = entity.As<CCSPlayerPawn>();
+        var controller = pawn.Controller.Value?.As<CCSPlayerController>();
+        var player = Match.GetPlayerFromSteamID(controller?.SteamID);
 
-        if (
-            victim != null
-            && victimController != null
-            && inflictor != null
-            && UtilitiesX.IsUtilityClassname(inflictor.DesignerName)
-        )
+        if (player != null && controller != null)
         {
-            var damages = _entityDamages.TryGetValue(inflictor.Index, out var v) ? v : [];
-            var damage = damages.TryGetValue(victim.SteamID, out var d) ? d : (victim, false, 0);
-            if (victimController.GetHealth() <= 0)
-                damage.Item2 = true;
-            damage.Item3 += (int)info.Damage;
+            var victims = _utilityVictims.TryGetValue(inflictor.Index, out var v) ? v : [];
+            var victim = victims.TryGetValue(player.SteamID, out var p) ? p : new(player, false, 0);
+            if (controller.GetHealth() <= 0)
+                victim.Killed = true;
+            victim.Damage += (int)info.Damage;
+            victims[player.SteamID] = victim;
+            _utilityVictims[inflictor.Index] = victims;
         }
 
         return HookResult.Continue;
@@ -294,3 +268,12 @@ public partial class StateLive : State
         return HookResult.Continue;
     }
 }
+
+public class UtilityDamage(Player player, bool killed, int damage)
+{
+    public Player Player = player;
+    public bool Killed = killed;
+    public int Damage = damage;
+}
+
+public class UtilityVictims : Dictionary<ulong, UtilityDamage> { }

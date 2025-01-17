@@ -192,7 +192,7 @@ public class StateWarmupReady : StateWarmup
             if (player != null)
             {
                 player.IsReady = true;
-                Match.SendEvent(Get5Events.OnTeamReadyStatusChanged(Match, player.Team));
+                Match.SendEvent(Match.Get5.OnTeamReadyStatusChanged(team: player.Team));
                 TryStartKnifeRound();
             }
         }
@@ -205,7 +205,7 @@ public class StateWarmupReady : StateWarmup
         if (player != null)
         {
             player.IsReady = false;
-            Match.SendEvent(Get5Events.OnTeamReadyStatusChanged(Match, player.Team));
+            Match.SendEvent(Match.Get5.OnTeamReadyStatusChanged(team: player.Team));
         }
     }
 
