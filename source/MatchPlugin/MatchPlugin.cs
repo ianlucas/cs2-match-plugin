@@ -30,6 +30,7 @@ public partial class MatchPlugin : BasePlugin
         Extensions.ChangeTeamFunc.Hook(OnChangeTeam, HookMode.Pre);
         RegisterEventHandler<EventPlayerConnect>(OnPlayerConnect);
         RegisterEventHandler<EventPlayerConnectFull>(OnPlayerConnectFull);
+        RegisterEventHandler<EventPlayerChat>(OnPlayerChat);
         RegisterEventHandler<EventPlayerDisconnect>(OnPlayerDisconnect);
         AddCommand("match_load", "Load a match file.", OnMatchLoadCommand);
         AddCommand("match_status", "Print match status.", OnMatchStatusCommand);
