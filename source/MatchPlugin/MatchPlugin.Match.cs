@@ -91,16 +91,18 @@ public class Match
             team.Reset();
     }
 
-    public void SendEvent(object @event)
+    public void SendEvent(object data)
     {
-        PropertyInfo? propertyInfo = @event.GetType().GetProperty("event");
-        Log($"RemoteLogUrl={remote_log_url.Value} event={propertyInfo?.GetValue(@event)}");
-        var headers = new Dictionary<string, string>();
-        if (remote_log_header_key.Value != "" && remote_log_header_value.Value != "")
-            headers.Add(remote_log_header_key.Value, remote_log_header_value.Value);
+        PropertyInfo? propertyInfo = data.GetType().GetProperty("event");
+        Log($"RemoteLogUrl={remote_log_url.Value} event={propertyInfo?.GetValue(data)}");
 
         if (remote_log_url.Value != "")
-            ServerX.SendJson(remote_log_url.Value, @event, headers);
+        {
+            var headers = new Dictionary<string, string>();
+            if (remote_log_header_key.Value != "" && remote_log_header_value.Value != "")
+                headers.Add(remote_log_header_key.Value, remote_log_header_value.Value);
+            ServerX.SendJson(remote_log_url.Value, data, headers);
+        }
     }
 
     public string GetChatPrefix(bool stripColors = false)

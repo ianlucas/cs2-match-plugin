@@ -4,6 +4,7 @@
 *--------------------------------------------------------------------------------------------*/
 
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Utils;
 
 namespace MatchPlugin;
@@ -51,11 +52,19 @@ public partial class StateLive
         if (attacker != null && victim != null)
         {
             var friendlyFire = attacker.Team == victim.Team;
-            if (@event.BlindDuration > 2.5)
+            if (@event.BlindDuration > 2.5f)
                 if (friendlyFire)
                     attacker.Stats.FriendliesFlashed += 1;
                 else
                     attacker.Stats.EnemiesFlashed += 1;
+
+            var entityId = (uint)@event.Entityid;
+            var victims = _utilityVictims.TryGetValue(entityId, out var v) ? v : [];
+            var theVictim = victims.TryGetValue(victim.SteamID, out var p) ? p : new(victim);
+            theVictim.FriendlyFire = friendlyFire;
+            theVictim.BindDuration = @event.BlindDuration;
+            victims[victim.SteamID] = theVictim;
+            _utilityVictims[entityId] = victims;
         }
 
         return HookResult.Continue;
@@ -200,9 +209,16 @@ public partial class StateLive
 
     public HookResult Stats_OnBombPlanted(EventBombPlanted @event, GameEventInfo _)
     {
+        _bombPlantedAt = ServerX.NowMilliseconds();
+        _lastPlantedBombZone = @event.Userid?.PlayerPawn?.Value?.WhichBombZone;
+
         var player = Match.GetPlayerFromSteamID(@event.Userid?.SteamID);
         if (player != null)
+        {
             player.Stats.BombPlants += 1;
+
+            Match.SendEvent(Match.Get5.OnBombPlanted(player, site: _lastPlantedBombZone));
+        }
         return HookResult.Continue;
     }
 
@@ -210,7 +226,17 @@ public partial class StateLive
     {
         var player = Match.GetPlayerFromSteamID(@event.Userid?.SteamID);
         if (player != null)
+        {
             player.Stats.BombDefuses += 1;
+
+            var timeToDefuse = ServerX.NowMilliseconds() - _bombPlantedAt;
+            var c4Timer = (ConVar.Find("mp_c4timer")?.GetPrimitiveValue<int>() ?? 0) * 1000;
+            var bombTimeRemaining = c4Timer - timeToDefuse;
+
+            Match.SendEvent(
+                Match.Get5.OnBombDefused(player, site: _lastPlantedBombZone, bombTimeRemaining)
+            );
+        }
         return HookResult.Continue;
     }
 

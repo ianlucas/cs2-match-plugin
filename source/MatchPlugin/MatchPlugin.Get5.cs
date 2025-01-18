@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-using System.Collections.Concurrent;
+using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 
 namespace MatchPlugin;
@@ -259,22 +259,30 @@ public class Get5(Match match)
                 : null
         };
 
-    public object OnHEGrenadeDetonated(Player player, string weapon, UtilityVictims victims) =>
+    public object OnHEGrenadeDetonated(
+        int roundNumber,
+        long roundTime,
+        Player player,
+        string weapon,
+        UtilityVictim victims
+    ) =>
         new
         {
             @event = "hegrenade_detonated",
             matchid = match.Id,
             map_number = match.GetMapIndex(),
-            round_number = match.GetRoundNumber(),
-            round_time = match.GetRoundTime(),
+            round_number = roundNumber,
+            round_time = roundTime,
             player = ToGet5Player(player),
             weapon = ToGet5Weapon(weapon),
-            victims = victims.Values.Select(victim => new
-            {
-                player = ToGet5Player(victim.Player),
-                killed = victim.Killed,
-                damage = victim.Damage
-            }),
+            victims = victims
+                .Values.Select(victim => new
+                {
+                    player = ToGet5Player(victim.Player),
+                    killed = victim.Killed,
+                    damage = victim.Damage
+                })
+                .ToList(),
             damage_enemies = victims
                 .Values.Where(v => v.Player.Team != player.Team)
                 .Select(v => v.Damage)
@@ -283,6 +291,193 @@ public class Get5(Match match)
                 .Values.Where(v => v.Player.Team == player.Team)
                 .Select(v => v.Damage)
                 .Sum()
+        };
+
+    public object OnMolotovDetonated(
+        int roundNumber,
+        long roundTime,
+        Player player,
+        string weapon,
+        UtilityVictim victims
+    ) =>
+        new
+        {
+            @event = "molotov_detonated",
+            matchid = match.Id,
+            map_number = match.GetMapIndex(),
+            round_number = roundNumber,
+            round_time = roundTime,
+            player = ToGet5Player(player),
+            weapon = ToGet5Weapon(weapon),
+            victims = victims
+                .Values.Select(victim => new
+                {
+                    player = ToGet5Player(victim.Player),
+                    killed = victim.Killed,
+                    damage = victim.Damage
+                })
+                .ToList(),
+            damage_enemies = victims
+                .Values.Where(v => v.Player.Team != player.Team)
+                .Select(v => v.Damage)
+                .Sum(),
+            damage_friendlies = victims
+                .Values.Where(v => v.Player.Team == player.Team)
+                .Select(v => v.Damage)
+                .Sum()
+        };
+
+    public object OnFlashbangDetonated(
+        int roundNumber,
+        long roundTime,
+        Player player,
+        string weapon,
+        UtilityVictim victims
+    ) =>
+        new
+        {
+            @event = "flashbang_detonated",
+            matchid = match.Id,
+            map_number = match.GetMapIndex(),
+            round_number = roundNumber,
+            round_time = roundTime,
+            player = ToGet5Player(player),
+            weapon = ToGet5Weapon(weapon),
+            victims = victims
+                .Values.Select(victim => new
+                {
+                    player = ToGet5Player(victim.Player),
+                    friendly_fire = victim.FriendlyFire,
+                    blind_duration = victim.BindDuration
+                })
+                .ToList()
+        };
+
+    public object OnSmokeGrenadeDetonated(
+        int roundNumber,
+        long roundTime,
+        Player player,
+        string weapon,
+        bool didExtingishMolotovs
+    ) =>
+        new
+        {
+            @event = "smokegrenade_detonated",
+            matchid = match.Id,
+            map_number = match.GetMapIndex(),
+            round_number = roundNumber,
+            round_time = roundTime,
+            player = ToGet5Player(player),
+            weapon = ToGet5Weapon(weapon),
+            extinguished_molotov = didExtingishMolotovs
+        };
+
+    public object OnDecoyStarted(Player player, string weapon) =>
+        new
+        {
+            @event = "decoygrenade_started",
+            matchid = match.Id,
+            map_number = match.GetMapIndex(),
+            round_number = match.GetRoundNumber(),
+            round_time = match.GetRoundTime(),
+            player = ToGet5Player(player),
+            weapon = ToGet5Weapon(weapon)
+        };
+
+    public object OnBombPlanted(Player player, int? site) =>
+        new
+        {
+            @event = "bomb_planted",
+            matchid = match.Id,
+            map_number = match.GetMapIndex(),
+            round_number = match.GetRoundNumber(),
+            round_time = match.GetRoundTime(),
+            player = ToGet5Player(player),
+            site = ToGet5Site(site)
+        };
+
+    public object OnBombDefused(Player player, int? site, long bombTimeRemaining) =>
+        new
+        {
+            @event = "bomb_defused",
+            matchid = match.Id,
+            map_number = match.GetMapIndex(),
+            round_number = match.GetRoundNumber(),
+            round_time = match.GetRoundTime(),
+            player = ToGet5Player(player),
+            site = ToGet5Site(site),
+            bomb_time_remaining = bombTimeRemaining
+        };
+
+    public object OnBombExploded(int? site) =>
+        new
+        {
+            @event = "bomb_exploded",
+            matchid = match.Id,
+            map_number = match.GetMapIndex(),
+            round_number = match.GetRoundNumber(),
+            round_time = match.GetRoundTime(),
+            site = ToGet5Site(site)
+        };
+
+    public object OnPlayerConnected(Player player, string ipAddress) =>
+        new
+        {
+            @event = "player_connect",
+            matchid = match.Id,
+            player = ToGet5Player(player),
+            ip_address = ipAddress
+        };
+
+    public object OnPlayerConnected(CCSPlayerController player, string ipAddress) =>
+        new
+        {
+            @event = "player_connect",
+            matchid = match.Id,
+            player = ToGet5Player(player),
+            ip_address = ipAddress
+        };
+
+    public object OnPlayerDisconnected(Player player) =>
+        new
+        {
+            @event = "player_disconnect",
+            matchid = match.Id,
+            player = ToGet5Player(player)
+        };
+
+    public object OnPlayerDisconnected(CCSPlayerController player) =>
+        new
+        {
+            @event = "player_disconnect",
+            matchid = match.Id,
+            player = ToGet5Player(player)
+        };
+
+    public object OnPlayerSay(Player player, string command, string message) =>
+        new
+        {
+            @event = "player_say",
+            matchid = match.Id,
+            map_number = match.GetMapIndex(),
+            round_number = match.GetRoundNumber(),
+            round_time = match.GetRoundTime(),
+            player = ToGet5Player(player),
+            command,
+            message
+        };
+
+    public object OnPlayerSay(CCSPlayerController player, string command, string message) =>
+        new
+        {
+            @event = "player_say",
+            matchid = match.Id,
+            map_number = match.GetMapIndex(),
+            round_number = match.GetRoundNumber(),
+            round_time = match.GetRoundTime(),
+            player = ToGet5Player(player),
+            command,
+            message
         };
 
     private string ToGet5SideString(CsTeam team) => team == CsTeam.Terrorist ? "t" : "ct";
@@ -325,6 +520,24 @@ public class Get5(Match match)
             is_bot = player.Controller?.IsBot ?? false
         };
 
+    private object ToGet5Player(CCSPlayerController controller) =>
+        new
+        {
+            steamid = controller.SteamID,
+            name = controller.PlayerName,
+            user_id = -1,
+            side = ToGet5SideString(controller.Team),
+            is_bot = controller.IsBot
+        };
+
     private object ToGet5Weapon(string weapon) =>
         new { name = weapon.Replace("weapon_", ""), id = ItemUtilities.GetItemDefIndex(weapon) };
+
+    private string ToGet5Site(int? site) =>
+        site switch
+        {
+            1 => "a",
+            2 => "b",
+            _ => "none",
+        };
 }
