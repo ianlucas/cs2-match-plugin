@@ -33,17 +33,10 @@ public partial class MatchPlugin
             && _match.matchmaking.Value
             && !AdminManager.PlayerHasPermissions(controller, "@css/root")
         )
-        {
             controller.Kick();
-        }
 
-        if (ipAddress != null)
-        {
-            if (player != null)
-                _match.SendEvent(_match.Get5.OnPlayerConnected(player, ipAddress));
-            else if (controller != null)
-                _match.SendEvent(_match.Get5.OnPlayerConnected(controller, ipAddress));
-        }
+        if (controller != null && ipAddress != null)
+            _match.SendEvent(_match.Get5.OnPlayerConnected(controller, ipAddress));
     }
 
     public HookResult OnPlayerChat(EventPlayerChat @event, GameEventInfo _)
@@ -72,7 +65,6 @@ public partial class MatchPlugin
             if (player != null)
             {
                 player.Controller = null;
-                _match.SendEvent(_match.Get5.OnPlayerDisconnected(player));
             }
             else
                 _match.SendEvent(_match.Get5.OnPlayerDisconnected(controller));

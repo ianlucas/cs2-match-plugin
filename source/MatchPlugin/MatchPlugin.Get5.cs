@@ -420,15 +420,6 @@ public class Get5(Match match)
             site = ToGet5Site(site)
         };
 
-    public object OnPlayerConnected(Player player, string ipAddress) =>
-        new
-        {
-            @event = "player_connect",
-            matchid = match.Id,
-            player = ToGet5Player(player),
-            ip_address = ipAddress
-        };
-
     public object OnPlayerConnected(CCSPlayerController player, string ipAddress) =>
         new
         {
@@ -438,33 +429,12 @@ public class Get5(Match match)
             ip_address = ipAddress
         };
 
-    public object OnPlayerDisconnected(Player player) =>
-        new
-        {
-            @event = "player_disconnect",
-            matchid = match.Id,
-            player = ToGet5Player(player)
-        };
-
     public object OnPlayerDisconnected(CCSPlayerController player) =>
         new
         {
             @event = "player_disconnect",
             matchid = match.Id,
             player = ToGet5Player(player)
-        };
-
-    public object OnPlayerSay(Player player, string command, string message) =>
-        new
-        {
-            @event = "player_say",
-            matchid = match.Id,
-            map_number = match.GetMapIndex(),
-            round_number = match.GetRoundNumber(),
-            round_time = match.GetRoundTime(),
-            player = ToGet5Player(player),
-            command,
-            message
         };
 
     public object OnPlayerSay(CCSPlayerController player, string command, string message) =>
@@ -515,7 +485,8 @@ public class Get5(Match match)
         {
             steamid = player.SteamID,
             name = player.Name,
-            user_id = player.GetIndex(),
+            // @todo user_id may be null
+            user_id = player.Controller?.UserId,
             side = ToGet5SideString(player.Team.CurrentTeam),
             is_bot = player.Controller?.IsBot ?? false
         };
@@ -525,7 +496,7 @@ public class Get5(Match match)
         {
             steamid = controller.SteamID,
             name = controller.PlayerName,
-            user_id = -1,
+            user_id = controller.UserId,
             side = ToGet5SideString(controller.Team),
             is_bot = controller.IsBot
         };
