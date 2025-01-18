@@ -45,7 +45,8 @@ public partial class StateLive
         if (!_isForfeiting)
             foreach (var team in Match.Teams)
                 if (
-                    team.Players.All(p =>
+                    team.Players.Count > 0
+                    && team.Players.All(p =>
                         p.SteamID == disconnecting?.SteamID || p.Controller == null
                     )
                 )
