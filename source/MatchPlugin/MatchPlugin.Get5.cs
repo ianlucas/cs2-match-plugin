@@ -173,7 +173,7 @@ public class Get5(Match match)
     public object OnRoundEnd(Team winner, int reason) =>
         new
         {
-            @event = "round_start",
+            @event = "round_end",
             matchid = match.Id,
             map_number = match.GetMapIndex(),
             round_number = match.GetRoundNumber(),
@@ -187,7 +187,7 @@ public class Get5(Match match)
     public object OnRoundStatsUpdated() =>
         new
         {
-            @event = "round_start",
+            @event = "stats_updated",
             matchid = match.Id,
             map_number = match.GetMapIndex(),
             round_number = match.GetRoundNumber()
@@ -248,7 +248,7 @@ public class Get5(Match match)
             no_scope = isNoScope,
             suicide = isSuicide,
             friendly_fire = isFriendlyFire,
-            attacker,
+            attacker = attacker != null ? ToGet5Player(attacker) : null,
             assist = assister != null
                 ? new
                 {

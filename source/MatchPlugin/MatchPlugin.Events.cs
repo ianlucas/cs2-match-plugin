@@ -13,7 +13,7 @@ public partial class MatchPlugin
 {
     public HookResult OnPlayerConnect(EventPlayerConnect @event, GameEventInfo _)
     {
-        OnPlayerConnected(@event.Userid, @event.Address);
+        OnPlayerConnected(@event.Userid);
         return HookResult.Continue;
     }
 
@@ -23,7 +23,7 @@ public partial class MatchPlugin
         return HookResult.Continue;
     }
 
-    public void OnPlayerConnected(CCSPlayerController? controller, string? ipAddress = null)
+    public void OnPlayerConnected(CCSPlayerController? controller)
     {
         var player = _match.GetPlayerFromSteamID(controller?.SteamID);
         if (player != null)
@@ -34,9 +34,6 @@ public partial class MatchPlugin
             && !AdminManager.PlayerHasPermissions(controller, "@css/root")
         )
             controller.Kick();
-
-        if (controller != null && ipAddress != null)
-            _match.SendEvent(_match.Get5.OnPlayerConnected(controller, ipAddress));
     }
 
     public HookResult OnPlayerChat(EventPlayerChat @event, GameEventInfo _)

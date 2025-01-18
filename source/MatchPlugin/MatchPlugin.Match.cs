@@ -45,10 +45,12 @@ public class Match
         new("match_surrender_timeout", "Time to vote surrender.", 30);
     public readonly FakeConVar<bool> verbose =
         new("match_verbose", "Are we debugging the plugin?", true);
+    public readonly FakeConVar<string> remote_log_protocol =
+        new("get5_remote_log_protocol", "The URL protocol to send all events to.", "https");
     public readonly FakeConVar<string> remote_log_url =
         new("get5_remote_log_url", "The URL to send all events to.", "");
     public readonly FakeConVar<string> remote_log_header_key =
-        new("get5_remote_log_header_key", "Used for your event HTTP requests.", "Authorization");
+        new("get5_remote_log_header_key", "Used for your event HTTP requests.", "");
     public readonly FakeConVar<string> remote_log_header_value =
         new("get5_remote_log_header_value", "Used for your event HTTP requests.", "");
 
@@ -92,15 +94,16 @@ public class Match
 
     public void SendEvent(object data)
     {
+        var url = $"{remote_log_protocol.Value}://{remote_log_url.Value}";
         PropertyInfo? propertyInfo = data.GetType().GetProperty("event");
-        Log($"RemoteLogUrl={remote_log_url.Value} event={propertyInfo?.GetValue(data)}");
+        Log($"RemoteLogUrl={url} event={propertyInfo?.GetValue(data)}");
 
         if (remote_log_url.Value != "")
         {
             var headers = new Dictionary<string, string>();
             if (remote_log_header_key.Value != "" && remote_log_header_value.Value != "")
                 headers.Add(remote_log_header_key.Value, remote_log_header_value.Value);
-            ServerX.SendJson(remote_log_url.Value, data, headers);
+            ServerX.SendJson(url, data, headers);
         }
     }
 
