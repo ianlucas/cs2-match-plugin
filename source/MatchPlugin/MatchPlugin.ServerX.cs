@@ -1,12 +1,11 @@
 ﻿/*---------------------------------------------------------------------------------------------
-*  Copyright (c) Ian Lucas. All rights reserved.
-*  Licensed under the MIT License. See License.txt in the project root for license information.
-*--------------------------------------------------------------------------------------------*/
+ *  Copyright (c) Ian Lucas. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 
 using System.Text;
 using System.Text.Json;
 using CounterStrikeSharp.API;
-using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Events;
 using CounterStrikeSharp.API.Modules.Utils;
 
@@ -49,22 +48,6 @@ public class ServerX
             new GameEvent("nextlevel_changed", false).FireEvent(false);
         }
         catch { }
-    }
-
-    public static object? GetLastRoundSaveContents()
-    {
-        try
-        {
-            var file = ConVar.Find("mp_backup_round_file_last")?.StringValue;
-            if (file == null)
-                return null;
-            var path = Path.Combine(Server.GameDirectory, "csgo", file);
-            return File.Exists(path) ? KeyValues.Parse<object>(File.ReadAllText(path)) : null;
-        }
-        catch
-        {
-            return null;
-        }
     }
 
     public static void WriteJson(string filename, object contents)
