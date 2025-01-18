@@ -84,7 +84,6 @@ public class Match
     public void Reset()
     {
         Id = null;
-        remote_log_url.Value = "";
         IsLoadedFromFile = false;
         KnifeRoundWinner = null;
         Maps.Clear();
