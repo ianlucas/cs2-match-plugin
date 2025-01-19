@@ -20,6 +20,7 @@ public partial class StateLive : State
     public static readonly List<string> SurrenderCmds = ["css_gg", "css_desistir"];
 
     public long RoundStartedAt = 0;
+    public int Round = -1;
 
     private bool _isForfeiting = false;
     private bool _isLastRoundBeforeHalfTime = false;
@@ -39,6 +40,7 @@ public partial class StateLive : State
         PauseCmds.ForEach(c => AddCommand(c, "Pause the match", OnPauseCommand));
         UnpauseCmds.ForEach(c => AddCommand(c, "Unpause the match", OnUnpauseCommand));
         AddCommand("css_restore", "Restore a round.", OnRestoreCommand);
+
         Match.Plugin.RegisterEventHandler<EventPlayerConnect>(OnPlayerConnect);
         Match.Plugin.RegisterEventHandler<EventPlayerConnectFull>(OnPlayerConnectFull);
         Match.Plugin.RegisterEventHandler<EventRoundPrestart>(OnRoundPrestart);
@@ -119,8 +121,10 @@ public partial class StateLive : State
 
     public HookResult OnRoundStart(EventRoundStart @event, GameEventInfo _)
     {
-        var gameRules = UtilitiesX.GetGameRules();
+        Round += 1;
         RoundStartedAt = ServerX.NowMilliseconds();
+
+        var gameRules = UtilitiesX.GetGameRules();
 
         _canSurrender = true;
         _isLastRoundBeforeHalfTime = gameRules.IsLastRoundBeforeHalfTime();
@@ -191,14 +195,15 @@ public partial class StateLive : State
         if (player != null)
         {
             var entityId = (uint)@event.Entityid;
-            var victims = _utilityVictims.TryGetValue(entityId, out var v) ? v : [];
             var roundNumber = Match.GetRoundNumber();
             var roundTime = Match.GetRoundTime();
 
             Match.Plugin.AddTimer(
-                0.001f,
+                0.1f,
                 () =>
                 {
+                    var victims = _utilityVictims.TryGetValue(entityId, out var v) ? v : [];
+
                     Match.SendEvent(
                         Match.Get5.OnHEGrenadeDetonated(
                             roundNumber,
@@ -228,7 +233,7 @@ public partial class StateLive : State
             _lastThrownSmokegrenade = entityId;
 
             Match.Plugin.AddTimer(
-                0.001f,
+                0.1f,
                 () =>
                 {
                     Match.SendEvent(
@@ -279,14 +284,15 @@ public partial class StateLive : State
         if (player != null)
         {
             var entityId = (uint)@event.Entityid;
-            var victims = _utilityVictims.TryGetValue(entityId, out var v) ? v : [];
             var roundNumber = Match.GetRoundNumber();
             var roundTime = Match.GetRoundTime();
 
             Match.Plugin.AddTimer(
-                0.001f,
+                0.1f,
                 () =>
                 {
+                    var victims = _utilityVictims.TryGetValue(entityId, out var v) ? v : [];
+
                     Match.SendEvent(
                         Match.Get5.OnFlashbangDetonated(
                             roundNumber,
@@ -340,14 +346,18 @@ public partial class StateLive : State
         if (entity.DesignerName != "player")
             return HookResult.Continue;
 
+        var pawn = entity.As<CCSPlayerPawn>();
+        var controller = pawn.OriginalController.Value;
+
+        if (controller?.IsBot == true)
+            return HookResult.Continue;
+
         var info = hook.GetParam<CTakeDamageInfo>(1);
         var inflictor = info.Inflictor.Value;
 
         if (inflictor == null || !ItemUtilities.IsUtilityClassname(inflictor.DesignerName))
             return HookResult.Continue;
 
-        var pawn = entity.As<CCSPlayerPawn>();
-        var controller = pawn.Controller.Value?.As<CCSPlayerController>();
         var player = Match.GetPlayerFromSteamID(controller?.SteamID);
 
         if (player != null && controller != null)

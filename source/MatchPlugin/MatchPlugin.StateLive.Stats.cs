@@ -232,6 +232,11 @@ public partial class StateLive
             var timeToDefuse = ServerX.NowMilliseconds() - _bombPlantedAt;
             var c4Timer = (ConVar.Find("mp_c4timer")?.GetPrimitiveValue<int>() ?? 0) * 1000;
             var bombTimeRemaining = c4Timer - timeToDefuse;
+            if (bombTimeRemaining < 0)
+            {
+                Match.Log($"bombTimeRemaining={bombTimeRemaining} is negative!");
+                bombTimeRemaining = 0;
+            }
 
             Match.SendEvent(
                 Match.Get5.OnBombDefused(player, site: _lastPlantedBombZone, bombTimeRemaining)

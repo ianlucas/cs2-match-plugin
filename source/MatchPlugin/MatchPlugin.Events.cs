@@ -60,11 +60,9 @@ public partial class MatchPlugin
         {
             var player = _match.GetPlayerFromSteamID(controller.SteamID);
             if (player != null)
-            {
                 player.Controller = null;
-            }
-            else
-                _match.SendEvent(_match.Get5.OnPlayerDisconnected(controller));
+
+            _match.SendEvent(_match.Get5.OnPlayerDisconnected(controller));
         }
         return HookResult.Continue;
     }

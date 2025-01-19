@@ -12,6 +12,7 @@ public class ItemUtilities
         "incgrenade",
         "inferno",
         "hegrenade",
+        "hegrenade_projectile",
         "flashbang",
         "decoy",
         "smokegrenade"

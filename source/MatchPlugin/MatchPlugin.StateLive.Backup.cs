@@ -24,8 +24,8 @@ public partial class StateLive
             return;
         }
         var round = command.ArgByIndex(1).ToLower().Trim().PadLeft(2, '0');
-        round = $"{Match.GetBackupPrefix()}_round{round}.txt";
-        var filename = ServerX.GetCSGOPath(round);
+        var filenameAsArg = $"{Match.GetBackupPrefix()}_round{round}.txt";
+        var filename = ServerX.GetCSGOPath(filenameAsArg);
         if (File.Exists(filename))
         {
             Match.Log(
@@ -61,10 +61,22 @@ public partial class StateLive
                             team.Stats = teamStats.Clone();
                 }
 
-                Match.SendEvent(Match.Get5.OnBackupRestore(filename));
-            }
+                // Because we increment at OnRoundStart.
+                Round = roundAsInt - 1;
+                _thrownMolotovs.Clear();
 
-            Server.ExecuteCommand($"mp_backup_restore_load_file {round}");
+                Match.SendEvent(Match.Get5.OnBackupRestore(filename));
+
+                Server.ExecuteCommand($"mp_backup_restore_load_file {filenameAsArg}");
+            }
+            else
+                controller?.PrintToChat(
+                    Match.Plugin.Localizer[
+                        "match.admin_restore_error",
+                        Match.GetChatPrefix(true),
+                        round
+                    ]
+                );
         }
         else
             controller?.PrintToChat(

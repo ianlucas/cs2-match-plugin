@@ -239,7 +239,12 @@ public class Match
     public long GetRoundTime() =>
         State is StateLive state ? ServerX.NowMilliseconds() - state.RoundStartedAt : 0;
 
-    public int GetRoundNumber() => UtilitiesX.GetGameRules().TotalRoundsPlayed;
+    public int GetRoundNumber() =>
+        State is StateLive state
+            ? state.Round > -1
+                ? state.Round
+                : 0
+            : 0;
 
     public void Log(string message, bool printToChat = false)
     {
