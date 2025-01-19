@@ -45,9 +45,7 @@ public class Get5(Match match)
             map_number = match.FindMapIndex(map),
             team1 = ToGet5StatsTeam(match.Team1),
             team2 = ToGet5StatsTeam(match.Team2),
-            // @todo winner may be null
             winner = ToGet5Winner(map.Winner),
-            // @todo extended property
             result = map.Result
         };
 
@@ -58,7 +56,6 @@ public class Get5(Match match)
             matchid = match.Id,
             team1_series_score = match.Team1.SeriesScore,
             team2_series_score = match.Team2.SeriesScore,
-            // @todo winner may be null
             winner = ToGet5Winner(winner),
             time_until_restore = 0
         };
@@ -487,7 +484,6 @@ public class Get5(Match match)
         {
             steamid = player.SteamID,
             name = player.Name,
-            // @todo user_id may be null
             user_id = player.Controller?.UserId,
             side = ToGet5SideString(player.Team.CurrentTeam),
             is_bot = player.Controller?.IsBot ?? false
@@ -692,7 +688,6 @@ public class Get5MatchTeam
     [JsonPropertyName("fromfile")]
     public string? Fromfile { get; set; }
 
-    // @todo this is our thing
     [JsonPropertyName("leaderid")]
     public string? Leaderid { get; set; }
 
