@@ -26,8 +26,12 @@ public partial class MatchPlugin
     public void OnPlayerConnected(CCSPlayerController? controller)
     {
         var player = _match.GetPlayerFromSteamID(controller?.SteamID);
-        if (player != null)
+        if (player != null && controller != null)
+        {
+            if (player.Name == "")
+                player.Name = controller.PlayerName;
             player.Controller = controller;
+        }
         else if (
             controller?.IsBot == false
             && _match.matchmaking.Value

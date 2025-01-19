@@ -135,45 +135,78 @@ public partial class MatchPlugin
             return;
         if (command.ArgCount != 2)
             return;
+
         var name = command.ArgByIndex(1).Trim();
-        var matchSchema = MatchFile.Read(name, _match);
-        if (matchSchema == null)
+        var file = Get5Match.Read(name);
+        if (file.Error != null)
+            _match.SendEvent(_match.Get5.OnLoadMatchConfigFailed(reason: file.Error));
+        var match = file.Contents;
+        if (match == null || file.Path == null)
             return;
-        var terrorists = _match.Teams.FirstOrDefault();
-        var cts = _match.Teams.LastOrDefault();
-        if (terrorists == null || cts == null)
-            return;
+
+        _match.SendEvent(_match.Get5.OnPreLoadMatchConfig(filename: file.Path));
         _match.Reset();
         _match.IsLoadedFromFile = true;
-        _match.Id = matchSchema.MatchId;
-        foreach (var mapName in matchSchema.Maps)
-            _match.Maps.Add(new(mapName));
-        terrorists.StartingTeam = CsTeam.Terrorist;
-        cts.StartingTeam = CsTeam.CounterTerrorist;
+        _match.Id = match.Matchid;
+        _match.ClinchSeries = match.ClinchSeries ?? true;
+
+        // Maps
+        var maplist = match.Maplist.Get();
+        if (maplist != null)
+            foreach (var mapName in maplist)
+                _match.Maps.Add(new(mapName));
+        else
+        {
+            _match.Reset();
+            return;
+        }
+
+        // Teams
+        _match.Team1.StartingTeam = CsTeam.Terrorist;
+        _match.Team2.StartingTeam = CsTeam.CounterTerrorist;
         for (var index = 0; index < _match.Teams.Count; index++)
         {
             var team = _match.Teams[index];
-            var teamSchema = matchSchema.Teams[index];
+            var teamSchema = (index == 0 ? match.Team1 : match.Team2)?.Get();
+            var players = teamSchema?.Players.Get();
+            if (teamSchema == null || players == null)
+                continue;
+
+            var electedInGameLeader = false;
+            ulong? leaderId = ulong.TryParse(teamSchema.Leaderid, out ulong li) ? li : null;
+
+            team.Id = teamSchema.Id ?? "";
             team.Name = teamSchema.Name ?? "";
-            foreach (var playerSchema in teamSchema.Players)
+            team.SeriesScore = teamSchema.SeriesScore ?? 0;
+
+            foreach (var playerSchema in players)
             {
-                var steamId = ulong.Parse(playerSchema.SteamID);
+                var steamId = playerSchema.Key;
                 var player = new Player(
                     steamId,
-                    playerSchema.Name,
+                    playerSchema.Value,
                     team,
                     Utilities.GetPlayerFromSteamId(steamId)
                 );
                 team.AddPlayer(player);
-                if (playerSchema.IsInGameLeader == true)
+                if (!electedInGameLeader && (leaderId == null || steamId == leaderId))
+                {
+                    electedInGameLeader = true;
                     team.InGameLeader = player;
+                }
             }
         }
-        if (matchSchema.IsMatchmaking != null)
-            _match.matchmaking.Value = matchSchema.IsMatchmaking.Value;
-        if (matchSchema.IsTvRecord != null)
-            _match.tv_record.Value = matchSchema.IsTvRecord.Value;
-        matchSchema.Commands?.ForEach(Server.ExecuteCommand);
+
+        if (match.Cvars != null)
+            foreach (var cvar in match.Cvars)
+            {
+                var key = cvar.Key;
+                var value = cvar.Value.ToString();
+                var cmd = $"{key} {value}";
+                _match.Log($"Execing {cmd}");
+                Server.ExecuteCommand(cmd);
+            }
+
         foreach (var controller in Utilities.GetPlayers().Where(p => !p.IsBot))
             if (_match.GetPlayerFromSteamID(controller.SteamID) == null)
                 if (
@@ -183,6 +216,7 @@ public partial class MatchPlugin
                     controller.ChangeTeam(CsTeam.Spectator);
                 else
                     controller.Kick();
+
         _match.CreateMatchFolder();
         _match.SetState(new StateWarmupReady());
         _match.SendEvent(_match.Get5.OnSeriesInit());

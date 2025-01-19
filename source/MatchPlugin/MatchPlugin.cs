@@ -14,6 +14,8 @@ public partial class MatchPlugin : BasePlugin
     public override string ModuleName => "MatchPlugin";
     public override string ModuleVersion => "1.0.0";
 
+    public static readonly List<string> LoadMatchCmds = ["match_load", "get5_loadmatch"];
+
     private readonly Match _match;
 
     public MatchPlugin()
@@ -33,7 +35,8 @@ public partial class MatchPlugin : BasePlugin
         RegisterEventHandler<EventPlayerConnectFull>(OnPlayerConnectFull);
         RegisterEventHandler<EventPlayerChat>(OnPlayerChat);
         RegisterEventHandler<EventPlayerDisconnect>(OnPlayerDisconnect);
-        AddCommand("match_load", "Load a match file.", OnMatchLoadCommand);
+
+        LoadMatchCmds.ForEach(c => AddCommand(c, "Load a match file.", OnMatchLoadCommand));
         AddCommand("match_status", "Print match status.", OnMatchStatusCommand);
         AddCommand("css_start", "Forcefully start match.", OnStartCommand);
         AddCommand("css_restart", "Forcefully restart match.", OnRestartCommand);

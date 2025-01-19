@@ -103,10 +103,10 @@ public static partial class Extensions
         static int SumHealth(CCSPlayerController player) => player.GetHealth();
     }
 
-    public static string StripColorTags(this string str)
-    {
-        return ColorTag().Replace(str, "");
-    }
+    public static string StripColorTags(this string str) => ColorTag().Replace(str, "");
+
+    public static string StripQuotes(this string str) =>
+        str.Length >= 2 && str.StartsWith('"') && str.EndsWith('"') ? str[1..^1] : str;
 
     [GeneratedRegex(@"\{.*?\}")]
     private static partial Regex ColorTag();

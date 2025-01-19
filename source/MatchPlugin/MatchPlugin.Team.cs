@@ -25,6 +25,8 @@ public class Team(Match match, CsTeam startingTeam)
 
     public string Name = "";
 
+    public string Id = "";
+
     public bool IsUnpauseMatch = false;
 
     public bool IsSurrended = false;
