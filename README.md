@@ -164,17 +164,21 @@
 
 * Loads a [Get5 match configuration file (JSON)](https://splewis.github.io/get5/latest/match_schema) relative to the `csgo/addons/counterstrikesharp/config/plugins/MatchPlugin` or `csgo` directories. Requires `@css/config` permission.
 
+#### `css_restore <round>` or `!restore <round>` Command
+
+* Tries to restore a round in a live match. Requires `@css/config` permission.
+
 ### Get5 Match Schema
 
 #### Differences
 
-Currently, not all properties from the Match Schema is used, check our source code for `match_load` command for more details.
+Currently, not all properties from Get5 Match Schema are used, check the source code for the `match_load` command.
 
-##### `Get5MatchTeam`
+##### `Get5MatchTeam` Object
 
 * `leaderid` (`string`) is added. It's the `SteamID` for the in-game leader of the team. If absent, the plugin will elect the first player as the team in-game leader.
 
-#### Example
+#### Minimal Example
 
 ```json
 {
@@ -220,15 +224,15 @@ Not all events are implemented, and some events may have some differences. Check
 
 #### Get5 Objects
 
-##### `Get5Player`
+##### `Get5Player` Object
 
 * `user_id` may be `null`.
 
-#### `OnGameStateChanged`
+#### `OnGameStateChanged` Event
 
 The states `none`, `pre_veto`, `veto`, `going_live` and `post_game` won't be available. The plugin follows this state order: `warmup` → `knife` → `waiting_for_knife_decision` → `live` → `warmup`.
 
-#### `OnMapResult`
+#### `OnMapResult` Event
 
 * `winner` may be `null`.
 * `result` (`number`) is added.
@@ -237,10 +241,10 @@ The states `none`, `pre_veto`, `veto`, `going_live` and `post_game` won't be ava
 	* `2` is `MapResult.Cancelled`;
 	* `3` is `MapResult.Forfeited`.
 
-#### `OnSeriesResult`
+#### `OnSeriesResult` Event
 
 * `winner` may be `null`.
 
-#### `OnPauseBegan`
+#### `OnPauseBegan` Event
 
 This event may not be triggered mid-freeze.
