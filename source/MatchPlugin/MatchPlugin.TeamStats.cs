@@ -3,23 +3,17 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+using System.Text.Json.Serialization;
+
 namespace MatchPlugin;
 
-public class Damage
+public class TeamStats
 {
-    public int Value = 0;
-    public int Hits = 0;
-}
+    [JsonPropertyName("score_ct")]
+    public int ScoreCT { get; set; } = 0;
 
-public class DamageReport(Player player)
-{
-    public Damage To = new();
-    public Damage From = new();
-    public Player Player = player;
+    [JsonPropertyName("score_t")]
+    public int ScoreT { get; set; } = 0;
 
-    public void Reset()
-    {
-        To = new();
-        From = new();
-    }
+    public TeamStats Clone() => (TeamStats)MemberwiseClone();
 }

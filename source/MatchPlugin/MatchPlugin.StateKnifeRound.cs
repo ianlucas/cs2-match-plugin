@@ -1,7 +1,7 @@
 ﻿/*---------------------------------------------------------------------------------------------
-*  Copyright (c) Ian Lucas. All rights reserved.
-*  Licensed under the MIT License. See License.txt in the project root for license information.
-*--------------------------------------------------------------------------------------------*/
+ *  Copyright (c) Ian Lucas. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
@@ -12,6 +12,8 @@ namespace MatchPlugin;
 
 public class StateKnifeRound : State
 {
+    public override string Name => "knife";
+
     public override void Load()
     {
         Match.Plugin.RegisterEventHandler<EventRoundStart>(OnRoundStart);
@@ -43,9 +45,12 @@ public class StateKnifeRound : State
             Match.SetState(new StateWarmupKnifeVote());
         }
         else
+        {
             ServerX.PrintToChatAllRepeat(
                 Match.Plugin.Localizer["match.knife", Match.GetChatPrefix()]
             );
+            Match.SendEvent(Match.Get5.OnKnifeRoundStarted());
+        }
         return HookResult.Continue;
     }
 

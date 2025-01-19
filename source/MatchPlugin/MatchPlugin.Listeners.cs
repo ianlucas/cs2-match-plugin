@@ -1,8 +1,9 @@
 ﻿/*---------------------------------------------------------------------------------------------
-*  Copyright (c) Ian Lucas. All rights reserved.
-*  Licensed under the MIT License. See License.txt in the project root for license information.
-*--------------------------------------------------------------------------------------------*/
+ *  Copyright (c) Ian Lucas. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 
+using System.Text.RegularExpressions;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Admin;
@@ -38,6 +39,13 @@ public partial class MatchPlugin
         OnMatchBotsChanged(null, _match.bots.Value);
         OnMatchMatchmakingChanged(null, _match.matchmaking.Value);
         _match.SetState(new StateWarmupReady());
+    }
+
+    public void OnClientConnect(int slot, string name, string ipAddress)
+    {
+        var controller = Utilities.GetPlayerFromSlot(slot);
+        if (controller != null)
+            _match.SendEvent(_match.Get5.OnPlayerConnected(controller, ipAddress));
     }
 
     public void OnMatchBotsChanged(object? sender, bool value)

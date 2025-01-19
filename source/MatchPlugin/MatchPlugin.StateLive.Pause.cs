@@ -1,7 +1,7 @@
 ﻿/*---------------------------------------------------------------------------------------------
-*  Copyright (c) Ian Lucas. All rights reserved.
-*  Licensed under the MIT License. See License.txt in the project root for license information.
-*--------------------------------------------------------------------------------------------*/
+ *  Copyright (c) Ian Lucas. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
@@ -30,6 +30,7 @@ public partial class StateLive
                     ]
                 );
                 Server.ExecuteCommand("mp_pause_match");
+                Match.SendEvent(Match.Get5.OnMatchPaused(team: player.Team, pauseType: "tactical"));
                 return;
             }
             var currentTeam = player.Team.CurrentTeam;
@@ -57,26 +58,13 @@ public partial class StateLive
                         ? "timeout_terrorist_start"
                         : "timeout_ct_start"
                 );
+                Match.SendEvent(Match.Get5.OnMatchPaused(team: player.Team, pauseType: "tactical"));
             }
         }
     }
 
     public void OnUnpauseCommand(CCSPlayerController? controller, CommandInfo _)
     {
-        if (controller == null || AdminManager.PlayerHasPermissions(controller, "@css/config"))
-        {
-            Match.Log(
-                printToChat: true,
-                message: Match.Plugin.Localizer[
-                    "match.admin_unpause",
-                    Match.GetChatPrefix(true),
-                    UtilitiesX.GetPlayerName(controller)
-                ]
-            );
-            Server.ExecuteCommand("mp_unpause_match");
-            return;
-        }
-
         var player = Match.GetPlayerFromSteamID(controller?.SteamID);
         if (player != null && Match.friendly_pause.Value)
         {
@@ -90,7 +78,7 @@ public partial class StateLive
                             "match.pause_unpause1",
                             Match.GetChatPrefix(),
                             player.Team.FormattedName,
-                            player.Team.Oppositon.FormattedName
+                            player.Team.Opposition.FormattedName
                         ]
                     );
                 return;
@@ -104,6 +92,22 @@ public partial class StateLive
                     ]
                 );
             Server.ExecuteCommand("mp_unpause_match");
+            Match.SendEvent(Match.Get5.OnMatchUnpaused(team: player.Team, pauseType: "tactical"));
+        }
+
+        if (controller == null || AdminManager.PlayerHasPermissions(controller, "@css/config"))
+        {
+            Match.Log(
+                printToChat: true,
+                message: Match.Plugin.Localizer[
+                    "match.admin_unpause",
+                    Match.GetChatPrefix(true),
+                    UtilitiesX.GetPlayerName(controller)
+                ]
+            );
+            Server.ExecuteCommand("mp_unpause_match");
+            Match.SendEvent(Match.Get5.OnMatchUnpaused(team: null, pauseType: "admin"));
+            return;
         }
     }
 }

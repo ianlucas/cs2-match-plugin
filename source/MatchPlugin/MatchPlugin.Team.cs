@@ -1,7 +1,7 @@
 ﻿/*---------------------------------------------------------------------------------------------
-*  Copyright (c) Ian Lucas. All rights reserved.
-*  Licensed under the MIT License. See License.txt in the project root for license information.
-*--------------------------------------------------------------------------------------------*/
+ *  Copyright (c) Ian Lucas. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 
 using CounterStrikeSharp.API.Modules.Utils;
 
@@ -29,7 +29,11 @@ public class Team(Match match, CsTeam startingTeam)
 
     public bool IsSurrended = false;
 
-    public Team Oppositon
+    public int SeriesScore = 0;
+
+    public TeamStats Stats = new();
+
+    public Team Opposition
     {
         get
         {
@@ -89,6 +93,8 @@ public class Team(Match match, CsTeam startingTeam)
         Name = "";
         IsUnpauseMatch = false;
         IsSurrended = false;
+        SeriesScore = 0;
+        Stats = new();
     }
 
     public bool CanAddPlayer()

@@ -1,7 +1,7 @@
 ﻿/*---------------------------------------------------------------------------------------------
-*  Copyright (c) Ian Lucas. All rights reserved.
-*  Licensed under the MIT License. See License.txt in the project root for license information.
-*--------------------------------------------------------------------------------------------*/
+ *  Copyright (c) Ian Lucas. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
@@ -24,8 +24,9 @@ public partial class StateLive
             return;
         }
         var round = command.ArgByIndex(1).ToLower().Trim().PadLeft(2, '0');
-        round = $"{Match.GetBackupPrefix()}_round{round}.txt";
-        if (File.Exists(ServerX.GetCSGOPath(round)))
+        var filenameAsArg = $"{Match.GetBackupPrefix()}_round{round}.txt";
+        var filename = ServerX.GetCSGOPath(filenameAsArg);
+        if (File.Exists(filename))
         {
             Match.Log(
                 printToChat: true,
@@ -42,13 +43,40 @@ public partial class StateLive
             foreach (var report in players.SelectMany(p => p.DamageReport.Values))
                 report.Reset();
             if (int.TryParse(round, out var roundAsInt))
+            {
                 if (roundAsInt == 0)
+                {
                     foreach (var p in players)
                         p.Stats = new(p.SteamID);
-                else if (_statsBackup.TryGetValue(roundAsInt, out var snapshots))
-                    foreach (var (player, snapshot) in snapshots)
-                        player.Stats = snapshot.Clone();
-            Server.ExecuteCommand($"mp_backup_restore_load_file {round}");
+                    foreach (var t in Match.Teams)
+                        t.Stats = new();
+                }
+                else
+                {
+                    if (_statsBackup.TryGetValue(roundAsInt, out var playerSnapshots))
+                        foreach (var (player, playerStats) in playerSnapshots)
+                            player.Stats = playerStats.Clone();
+                    if (_teamStatsBackup.TryGetValue(roundAsInt, out var teamSnapshots))
+                        foreach (var (team, teamStats) in teamSnapshots)
+                            team.Stats = teamStats.Clone();
+                }
+
+                // Because we increment at OnRoundStart.
+                Round = roundAsInt - 1;
+                _thrownMolotovs.Clear();
+
+                Match.SendEvent(Match.Get5.OnBackupRestore(filename));
+
+                Server.ExecuteCommand($"mp_backup_restore_load_file {filenameAsArg}");
+            }
+            else
+                controller?.PrintToChat(
+                    Match.Plugin.Localizer[
+                        "match.admin_restore_error",
+                        Match.GetChatPrefix(true),
+                        round
+                    ]
+                );
         }
         else
             controller?.PrintToChat(

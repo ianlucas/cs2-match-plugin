@@ -1,7 +1,7 @@
 ﻿/*---------------------------------------------------------------------------------------------
-*  Copyright (c) Ian Lucas. All rights reserved.
-*  Licensed under the MIT License. See License.txt in the project root for license information.
-*--------------------------------------------------------------------------------------------*/
+ *  Copyright (c) Ian Lucas. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -56,17 +56,19 @@ public class MatchPlayerData
 
 public class MatchFile
 {
-    public static MatchData? Read(string name)
+    public static MatchData? Read(string name, Match match)
     {
         try
         {
             var path = ServerX.GetFullPath($"/{name}.json");
+            match.SendEvent(match.Get5.OnPreLoadMatchConfig(filename: path));
             var matchString = File.ReadAllText(path);
             return JsonSerializer.Deserialize<MatchData>(matchString);
         }
         catch (Exception ex)
         {
             Server.PrintToConsole($"Error reading match file: {ex.Message}");
+            match.SendEvent(match.Get5.OnLoadMatchConfigFailed(reason: ex.Message));
             return null;
         }
     }

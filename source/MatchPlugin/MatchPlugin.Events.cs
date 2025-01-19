@@ -1,8 +1,9 @@
 ﻿/*---------------------------------------------------------------------------------------------
-*  Copyright (c) Ian Lucas. All rights reserved.
-*  Licensed under the MIT License. See License.txt in the project root for license information.
-*--------------------------------------------------------------------------------------------*/
+ *  Copyright (c) Ian Lucas. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Admin;
 
@@ -32,16 +33,37 @@ public partial class MatchPlugin
             && _match.matchmaking.Value
             && !AdminManager.PlayerHasPermissions(controller, "@css/root")
         )
-        {
             controller.Kick();
-        }
+    }
+
+    public HookResult OnPlayerChat(EventPlayerChat @event, GameEventInfo _)
+    {
+        var message = @event.Text.Trim();
+        if (message.Length == 0)
+            return HookResult.Continue;
+        var controller = Utilities.GetPlayerFromUserid(@event.Userid);
+        if (controller != null)
+            _match.SendEvent(
+                _match.Get5.OnPlayerSay(
+                    player: controller,
+                    @event.Teamonly ? "say_team" : "team",
+                    message
+                )
+            );
+        return HookResult.Continue;
     }
 
     public HookResult OnPlayerDisconnect(EventPlayerDisconnect @event, GameEventInfo _)
     {
-        var player = _match.GetPlayerFromSteamID(@event.Userid?.SteamID);
-        if (player != null)
-            player.Controller = null;
+        var controller = @event.Userid;
+        if (controller != null)
+        {
+            var player = _match.GetPlayerFromSteamID(controller.SteamID);
+            if (player != null)
+                player.Controller = null;
+
+            _match.SendEvent(_match.Get5.OnPlayerDisconnected(controller));
+        }
         return HookResult.Continue;
     }
 }

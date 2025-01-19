@@ -1,12 +1,11 @@
 ﻿/*---------------------------------------------------------------------------------------------
-*  Copyright (c) Ian Lucas. All rights reserved.
-*  Licensed under the MIT License. See License.txt in the project root for license information.
-*--------------------------------------------------------------------------------------------*/
+ *  Copyright (c) Ian Lucas. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 
 using System.Text;
 using System.Text.Json;
 using CounterStrikeSharp.API;
-using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Events;
 using CounterStrikeSharp.API.Modules.Utils;
 
@@ -15,6 +14,8 @@ namespace MatchPlugin;
 public class ServerX
 {
     public static long Now() => DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+    public static long NowMilliseconds() => DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 
     public static string GetConVarPath(string path = "") =>
         $"addons/counterstrikesharp/configs/plugins/MatchPlugin{path}";
@@ -49,22 +50,6 @@ public class ServerX
         catch { }
     }
 
-    public static object? GetLastRoundSaveContents()
-    {
-        try
-        {
-            var file = ConVar.Find("mp_backup_round_file_last")?.StringValue;
-            if (file == null)
-                return null;
-            var path = Path.Combine(Server.GameDirectory, "csgo", file);
-            return File.Exists(path) ? KeyValues.Parse<object>(File.ReadAllText(path)) : null;
-        }
-        catch
-        {
-            return null;
-        }
-    }
-
     public static void WriteJson(string filename, object contents)
     {
         if (File.Exists(filename))
@@ -83,13 +68,20 @@ public class ServerX
         File.WriteAllText(filename, jsonString);
     }
 
-    public static async void SendJson(string url, object data)
+    public static async void SendJson(
+        string url,
+        object data,
+        Dictionary<string, string>? headers = null
+    )
     {
         try
         {
+            using HttpClient client = new();
+            if (headers != null)
+                foreach (var header in headers)
+                    client.DefaultRequestHeaders.Add(header.Key, header.Value);
             var json = JsonSerializer.Serialize(data);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            using HttpClient client = new();
             await client.PostAsync(url, content);
         }
         catch { }

@@ -1,7 +1,7 @@
 ﻿/*---------------------------------------------------------------------------------------------
-*  Copyright (c) Ian Lucas. All rights reserved.
-*  Licensed under the MIT License. See License.txt in the project root for license information.
-*--------------------------------------------------------------------------------------------*/
+ *  Copyright (c) Ian Lucas. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
@@ -11,6 +11,8 @@ namespace MatchPlugin;
 
 public class StateWarmupKnifeVote : StateWarmup
 {
+    public override string Name => "waiting_for_knife_decision";
+
     public static readonly List<string> StayCmds = ["css_stay", "css_ficar"];
     public static readonly List<string> SwitchCmds = ["css_switch", "css_trocar"];
     public static readonly List<KnifeRoundVote> KnifeRoundVotes =
@@ -152,6 +154,9 @@ public class StateWarmupKnifeVote : StateWarmup
                 team.StartingTeam = UtilitiesX.ToggleCsTeam(team.StartingTeam);
             UtilitiesX.GetGameRules().HandleSwapTeams();
         }
+
+        Match.SendEvent(Match.Get5.OnSidePicked(team: winnerTeam));
+        Match.SendEvent(Match.Get5.OnKnifeRoundWon(team: winnerTeam, decision));
         Match.SetState(new StateLive());
     }
 }

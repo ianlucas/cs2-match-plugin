@@ -1,7 +1,7 @@
 ﻿/*---------------------------------------------------------------------------------------------
-*  Copyright (c) Ian Lucas. All rights reserved.
-*  Licensed under the MIT License. See License.txt in the project root for license information.
-*--------------------------------------------------------------------------------------------*/
+ *  Copyright (c) Ian Lucas. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
@@ -44,7 +44,7 @@ public partial class StateLive
                 );
                 player.Team.IsSurrended = true;
                 player.Team.Score = 0;
-                player.Team.Oppositon.Score = 1;
+                player.Team.Opposition.Score = 1;
                 Match.Log("Terminating by Surrender");
                 UtilitiesX
                     .GetGameRules()

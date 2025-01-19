@@ -1,7 +1,7 @@
 ﻿/*---------------------------------------------------------------------------------------------
-*  Copyright (c) Ian Lucas. All rights reserved.
-*  Licensed under the MIT License. See License.txt in the project root for license information.
-*--------------------------------------------------------------------------------------------*/
+ *  Copyright (c) Ian Lucas. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 
 using CounterStrikeSharp.API.Core;
 
@@ -27,9 +27,11 @@ public partial class MatchPlugin : BasePlugin
     {
         RegisterListener<Listeners.OnTick>(OnTick);
         RegisterListener<Listeners.OnMapStart>(OnMapStart);
+        RegisterListener<Listeners.OnClientConnect>(OnClientConnect);
         Extensions.ChangeTeamFunc.Hook(OnChangeTeam, HookMode.Pre);
         RegisterEventHandler<EventPlayerConnect>(OnPlayerConnect);
         RegisterEventHandler<EventPlayerConnectFull>(OnPlayerConnectFull);
+        RegisterEventHandler<EventPlayerChat>(OnPlayerChat);
         RegisterEventHandler<EventPlayerDisconnect>(OnPlayerDisconnect);
         AddCommand("match_load", "Load a match file.", OnMatchLoadCommand);
         AddCommand("match_status", "Print match status.", OnMatchStatusCommand);

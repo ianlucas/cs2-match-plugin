@@ -1,7 +1,7 @@
 ﻿/*---------------------------------------------------------------------------------------------
-*  Copyright (c) Ian Lucas. All rights reserved.
-*  Licensed under the MIT License. See License.txt in the project root for license information.
-*--------------------------------------------------------------------------------------------*/
+ *  Copyright (c) Ian Lucas. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
@@ -31,6 +31,8 @@ public class State
         set { _match = value; }
     }
 
+    public virtual string Name { get; set; } = "default_state";
+
     public virtual void Load() { }
 
     public virtual void Unload() { }
@@ -55,22 +57,22 @@ public class State
         {
             Match.Plugin.ClearAllTimers();
             var result = MapResult.None;
-            int? winner = null;
+            Team? winner = null;
 
             foreach (var team in Match.Teams)
             {
                 if (team.IsSurrended)
                 {
                     result = MapResult.Forfeited;
-                    winner = team.Oppositon.Index;
-                    Match.Log($"forfeited, result={result}, winner={winner}");
+                    winner = team.Opposition;
+                    Match.Log($"forfeited, result={result}, winner={winner.Index}");
                     break;
                 }
-                if (team.Score > team.Oppositon.Score)
+                if (team.Score > team.Opposition.Score)
                 {
                     result = MapResult.Completed;
-                    winner = team.Index;
-                    Match.Log($"completed, result={result}, winner={winner}");
+                    winner = team;
+                    Match.Log($"completed, result={result}, winner={winner.Index}");
                 }
             }
 
@@ -89,7 +91,7 @@ public class State
         if (winners.Count() == 1)
         {
             var winner = winners.First();
-            var loser = winner.Oppositon;
+            var loser = winner.Opposition;
             loser.IsSurrended = true;
             Match.Log($"Terminating by Cancelled, winner={winner.Index}, forfeited={loser.Index}");
             UtilitiesX
@@ -105,13 +107,15 @@ public class State
             OnMapEnd(MapResult.Cancelled);
     }
 
-    public void OnMapEnd(MapResult result = MapResult.None, int? winner = null)
+    public void OnMapEnd(MapResult result = MapResult.None, Team? winner = null)
     {
         Match.Log($"Map has ended, result={result}.");
-        var map = Match.GetCurrentMap() ?? new(Server.MapName);
+        var map = Match.GetMap() ?? new(Server.MapName);
         var stats = Match.Teams.Select(t => t.Players.Select(p => p.Stats).ToList()).ToList();
         var demoFilename = Match.Cstv.GetFilename();
         var scores = Match.Teams.Select(t => t.Score).ToList();
+        var team1 = Match.Teams.First();
+        var team2 = team1.Opposition;
 
         map.DemoFilename = demoFilename;
         map.KnifeRoundWinner = Match.KnifeRoundWinner?.Index;
@@ -120,22 +124,45 @@ public class State
         map.Winner = winner;
         map.Scores = scores;
 
+        if (winner != null)
+            winner.SeriesScore += 1;
+
         var maps = (Match.Maps.Count > 0 ? Match.Maps : [map]).Where(m =>
             m.Result != MapResult.None
         );
 
+        // Even with Get5 Events, we still store results in json for further debugging.
+        // @todo Maybe only save if `match_verbose` is enabled in the future.
         ServerX.WriteJson(ServerX.GetFullPath($"{Match.GetMatchFolder()}/results.json"), maps);
+        Match.SendEvent(Match.Get5.OnMapResult(map));
 
-        var isSeriesOver = Match.GetCurrentMap() == null;
+        var isSeriesOver = Match.GetMap() == null;
         if (isSeriesOver || result != MapResult.Completed)
         {
-            Match.SendEvent(new { type = "matchend", results = maps });
+            // If match doesn't end normally, we already decided which side won.
+            if (result != MapResult.Completed)
+            {
+                team1.SeriesScore = 0;
+                team2.SeriesScore = 0;
+                if (winner != null)
+                    winner.SeriesScore = 1;
+            }
+
+            Match.SendEvent(Match.Get5.OnSeriesResult(winner));
             Match.Reset();
             Match.Log($"Match is over, kicking players={Match.matchmaking.Value}");
             Match.Plugin.OnMatchMatchmakingChanged(null, Match.matchmaking.Value);
             if (Match.matchmaking.Value)
                 foreach (var controller in Utilities.GetPlayers().Where(p => !p.IsBot))
                     controller.Kick();
+        }
+
+        // Demo will be stopped at StateWarmupReady::Load.
+        if (Match.Cstv.IsRecording())
+        {
+            var filename = Match.GetDemoFilename();
+            if (filename != null)
+                Match.SendEvent(Match.Get5.OnDemoFinished(filename));
         }
 
         Match.SetState(new StateWarmupReady());
