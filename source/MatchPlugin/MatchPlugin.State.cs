@@ -136,7 +136,14 @@ public class State
         ServerX.WriteJson(ServerX.GetFullPath($"{Match.GetMatchFolder()}/results.json"), maps);
         Match.SendEvent(Match.Get5.OnMapResult(map));
 
-        var isSeriesOver = Match.GetMap() == null;
+        var mapCount = Match.Maps.Count;
+        if (mapCount % 2 == 0)
+            mapCount += 1;
+        var seriesScoreToWin = (int)Math.Round(mapCount / 2.0, MidpointRounding.AwayFromZero);
+        var isSeriesOver =
+            (Match.ClinchSeries && Match.Teams.Any(t => t.SeriesScore >= seriesScoreToWin))
+            || Match.GetMap() == null;
+
         if (isSeriesOver || result != MapResult.Completed)
         {
             // If match doesn't end normally, we already decided which side won.

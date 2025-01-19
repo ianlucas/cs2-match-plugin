@@ -45,14 +45,14 @@ public class Match
         new("match_surrender_timeout", "Time to vote surrender.", 30);
     public readonly FakeConVar<bool> verbose =
         new("match_verbose", "Are we debugging the plugin?", true);
-    public readonly FakeConVar<string> remote_log_protocol =
-        new("get5_remote_log_protocol", "The URL protocol to send all events to.", "https");
+    public readonly FakeConVar<string> server_id =
+        new("get5_server_id", "A string that identifies your server.", "");
     public readonly FakeConVar<string> remote_log_url =
         new("get5_remote_log_url", "The URL to send all events to.", "");
     public readonly FakeConVar<string> remote_log_header_key =
-        new("get5_remote_log_header_key", "Used for your event HTTP requests.", "");
+        new("get5_remote_log_header_key", "Key of the header sent on remote log request.", "");
     public readonly FakeConVar<string> remote_log_header_value =
-        new("get5_remote_log_header_value", "Used for your event HTTP requests.", "");
+        new("get5_remote_log_header_value", "Value of the header sent on remote log request.", "");
 
     public readonly MatchPlugin Plugin;
     public readonly List<Team> Teams = [];
@@ -63,6 +63,7 @@ public class Match
     public readonly Get5 Get5;
 
     public string? Id = null;
+    public bool ClinchSeries = true;
     public State State = new();
     public bool IsLoadedFromFile = false;
     public Team? KnifeRoundWinner;
@@ -84,6 +85,7 @@ public class Match
     public void Reset()
     {
         Id = null;
+        ClinchSeries = true;
         IsLoadedFromFile = false;
         KnifeRoundWinner = null;
         Maps.Clear();
@@ -93,13 +95,15 @@ public class Match
 
     public void SendEvent(object data)
     {
-        var url = $"{remote_log_protocol.Value}://{remote_log_url.Value}";
+        var url = remote_log_url.Value.StripQuotes();
         PropertyInfo? propertyInfo = data.GetType().GetProperty("event");
-        Log($"RemoteLogUrl={url} event={propertyInfo?.GetValue(data)}");
+        Log($"RemoteLogUrl='{url}' event='{propertyInfo?.GetValue(data)}'");
 
-        if (remote_log_url.Value != "")
+        if (url != "")
         {
             var headers = new Dictionary<string, string>();
+            if (server_id.Value != "")
+                headers.Add("Get5-ServerId", server_id.Value);
             if (remote_log_header_key.Value != "" && remote_log_header_value.Value != "")
                 headers.Add(remote_log_header_key.Value, remote_log_header_value.Value);
             ServerX.SendJson(url, data, headers);
@@ -203,12 +207,15 @@ public class Match
 
     public void Setup()
     {
+        if (Id == "" || !IsLoadedFromFile)
+            Id = ServerX.Now().ToString();
+
         if (!IsLoadedFromFile)
         {
-            Id = ServerX.Now().ToString();
             Maps.Add(new(Server.MapName));
             CreateMatchFolder();
         }
+
         var idsInMatch = Teams.SelectMany(t => t.Players).Select(p => p.SteamID);
         foreach (var controller in UtilitiesX.GetPlayersInTeams())
             if (!idsInMatch.Contains(controller.SteamID))
