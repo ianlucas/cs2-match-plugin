@@ -7,7 +7,6 @@ using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Memory;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
-using CounterStrikeSharp.API.Modules.Utils;
 
 namespace MatchPlugin;
 
@@ -41,6 +40,7 @@ public partial class StateLive : State
         UnpauseCmds.ForEach(c => AddCommand(c, "Unpause the match", OnUnpauseCommand));
         AddCommand("css_restore", "Restore a round.", OnRestoreCommand);
 
+        Match.Plugin.RegisterListener<Listeners.OnTick>(OnTick);
         Match.Plugin.RegisterEventHandler<EventPlayerConnect>(OnPlayerConnect);
         Match.Plugin.RegisterEventHandler<EventPlayerConnectFull>(OnPlayerConnectFull);
         Match.Plugin.RegisterEventHandler<EventRoundPrestart>(OnRoundPrestart);
@@ -93,6 +93,7 @@ public partial class StateLive : State
         RemoveAllCommands();
 
         Match.Plugin.ClearAllTimers();
+        Match.Plugin.RemoveListener<Listeners.OnTick>(OnTick);
         Match.Plugin.DeregisterEventHandler<EventPlayerConnect>(OnPlayerConnect);
         Match.Plugin.DeregisterEventHandler<EventPlayerConnectFull>(OnPlayerConnectFull);
         Match.Plugin.DeregisterEventHandler<EventRoundPrestart>(OnRoundPrestart);
@@ -119,6 +120,12 @@ public partial class StateLive : State
         Match.Plugin.DeregisterEventHandler<EventPlayerDisconnect>(OnPlayerDisconnect);
     }
 
+    public void OnTick()
+    {
+        if (Match.remote_log_url.Value != "")
+            CheckPauseEvents();
+    }
+
     public HookResult OnRoundStart(EventRoundStart @event, GameEventInfo _)
     {
         Round += 1;
@@ -136,33 +143,6 @@ public partial class StateLive : State
         _lastThrownSmokegrenade = 0;
         _utilityVictims.Clear();
         _didSmokeExtinguishMolotov.Clear();
-
-        // @todo validate that this is working as expected, I don't think it's triggered mid freezetime.
-        if (
-            gameRules.TechnicalTimeOut
-            || gameRules.TerroristTimeOutActive
-            || gameRules.CTTimeOutActive
-        )
-        {
-            var team1 = Match.Teams.First();
-            CsTeam? csTeamTimeoutActive = gameRules.TerroristTimeOutActive
-                ? CsTeam.Terrorist
-                : gameRules.CTTimeOutActive
-                    ? CsTeam.CounterTerrorist
-                    : null;
-            var pauseTeam =
-                csTeamTimeoutActive != null
-                    ? team1.CurrentTeam == csTeamTimeoutActive
-                        ? team1
-                        : team1.Opposition
-                    : null;
-            Match.SendEvent(
-                Match.Get5.OnPauseBegan(
-                    team: pauseTeam,
-                    pauseType: gameRules.TechnicalTimeOut ? "technical" : "tactical"
-                )
-            );
-        }
 
         Match.SendEvent(Match.Get5.OnRoundStart());
 
