@@ -85,6 +85,7 @@ public partial class MatchPlugin
                 UtilitiesX.GetPlayerName(caller)
             ]
         );
+
         _match.Setup();
         _match.SetState(new StateKnifeRound());
     }
@@ -108,6 +109,7 @@ public partial class MatchPlugin
                 UtilitiesX.GetPlayerName(caller)
             ]
         );
+
         Server.ExecuteCommand($"changelevel {mapname}");
     }
 
@@ -123,6 +125,7 @@ public partial class MatchPlugin
                 UtilitiesX.GetPlayerName(caller)
             ]
         );
+
         _match.Reset();
         _match.SetState(new StateWarmupReady());
     }
@@ -207,18 +210,7 @@ public partial class MatchPlugin
                 Server.ExecuteCommand(cmd);
             }
 
-        foreach (var controller in Utilities.GetPlayers().Where(p => !p.IsBot))
-            if (_match.GetPlayerFromSteamID(controller.SteamID) == null)
-                if (
-                    _match.matchmaking.Value
-                    || AdminManager.PlayerHasPermissions(controller, "@css/config")
-                )
-                    controller.ChangeTeam(CsTeam.Spectator);
-                else
-                    controller.Kick();
-
-        _match.CreateMatchFolder();
+        _match.Setup();
         _match.SetState(new StateWarmupReady());
-        _match.SendEvent(_match.Get5.OnSeriesInit());
     }
 }
