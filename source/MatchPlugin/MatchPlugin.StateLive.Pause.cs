@@ -13,6 +13,59 @@ namespace MatchPlugin;
 
 public partial class StateLive
 {
+    private bool _wasPaused = false;
+    private string _wasPausedType = "";
+    private Team? _teamWhichPaused = null;
+
+    public void CheckPauseEvents()
+    {
+        var gameRules = UtilitiesX.GetGameRules();
+
+        if (!gameRules.FreezePeriod)
+            return;
+
+        var isTeamPaused = gameRules.TerroristTimeOutActive || gameRules.CTTimeOutActive;
+        var isTechnicalPaused = gameRules.TechnicalTimeOut;
+        var isMatchPaused = gameRules.MatchWaitingForResume;
+        var isPaused = isTeamPaused || isTechnicalPaused || isMatchPaused;
+        var didPauseStateChange = _wasPaused != isPaused;
+
+        if (didPauseStateChange)
+        {
+            if (isPaused)
+            {
+                CsTeam? sideWhichPaused = gameRules.TerroristTimeOutActive
+                    ? CsTeam.Terrorist
+                    : gameRules.CTTimeOutActive
+                        ? CsTeam.CounterTerrorist
+                        : null;
+                var teamWhichPaused =
+                    sideWhichPaused != null
+                        ? Match.Team1.CurrentTeam == sideWhichPaused
+                            ? Match.Team1
+                            : Match.Team2.Opposition
+                        : null;
+
+                var pauseType = isTeamPaused
+                    ? "team"
+                    : isTechnicalPaused
+                        ? "technical"
+                        : "admin";
+
+                Match.SendEvent(Match.Get5.OnPauseBegan(team: teamWhichPaused, pauseType));
+
+                _teamWhichPaused = teamWhichPaused;
+                _wasPausedType = pauseType;
+            }
+            else
+                Match.SendEvent(
+                    Match.Get5.OnMatchUnpaused(team: _teamWhichPaused, pauseType: _wasPausedType)
+                );
+        }
+
+        _wasPaused = isPaused;
+    }
+
     public void OnPauseCommand(CCSPlayerController? controller, CommandInfo _)
     {
         var player = Match.GetPlayerFromSteamID(controller?.SteamID);
@@ -92,7 +145,6 @@ public partial class StateLive
                     ]
                 );
             Server.ExecuteCommand("mp_unpause_match");
-            Match.SendEvent(Match.Get5.OnMatchUnpaused(team: player.Team, pauseType: "tactical"));
         }
 
         if (controller == null || AdminManager.PlayerHasPermissions(controller, "@css/config"))
@@ -106,7 +158,6 @@ public partial class StateLive
                 ]
             );
             Server.ExecuteCommand("mp_unpause_match");
-            Match.SendEvent(Match.Get5.OnMatchUnpaused(team: null, pauseType: "admin"));
             return;
         }
     }

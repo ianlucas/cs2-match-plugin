@@ -172,11 +172,15 @@
 
 #### Differences
 
-Currently, not all properties from Get5 Match Schema are used, check the source code for the `match_load` command.
+Not all properties from Get5 Match Schema are being used, check the source code for the `match_load` command.
+
+##### `SteamID` String
+
+We only support 64-bit SteamIDs, e.g. 76561197960287930.
 
 ##### `Get5MatchTeam` Object
 
-* `leaderid` (`string`) is added. It's the `SteamID` for the in-game leader of the team. If absent, the plugin will elect the first player as the team in-game leader.
+* `leaderid` (`string`) property has been added. It's the `SteamID` for the in-game leader of the team. If absent, the plugin will elect the first player as the team in-game leader.
 
 #### Minimal Example
 
@@ -214,7 +218,7 @@ Currently, not all properties from Get5 Match Schema are used, check the source 
 
 The plugin has compatibility with most Get5 events. Once you setup `get5_remote_log_url` ConVar with a URL, the plugin will send events to it. You can refer to the events at [Get5 Events & Forwards](https://splewis.github.io/get5/latest/events.html).
 
-Not all events are implemented, and some events may have some differences. Check below.
+Not all events are implemented, and some events may have some differences, so please check below.
 
 #### Missing events
 
@@ -226,16 +230,16 @@ Not all events are implemented, and some events may have some differences. Check
 
 ##### `Get5Player` Object
 
-* `user_id` may be `null`.
+* `user_id` property may be `null`.
 
 #### `OnGameStateChanged` Event
 
-The states `pre_veto`, `veto`, `going_live` and `post_game` are not be available. The plugin follows this state order: `none` → `warmup` → `knife` → `waiting_for_knife_decision` → `live` → `none`.
+* `new_state` and `old_state` properties can't have `pre_veto`, `veto`, `going_live` and `post_game` states. The lifecycle of the plugin follows this order: `none` → `warmup` → `knife` → `waiting_for_knife_decision` → `live` → `none`.
 
 #### `OnMapResult` Event
 
-* `winner` may be `null`.
-* `result` (`number`) is added.
+* `winner` property may be `null`.
+* `result` (`number`) property has been added.
 	* `0` is `MapResult.None`;
 	* `1` is `MapResult.Completed`;
 	* `2` is `MapResult.Cancelled`;
@@ -243,8 +247,4 @@ The states `pre_veto`, `veto`, `going_live` and `post_game` are not be available
 
 #### `OnSeriesResult` Event
 
-* `winner` may be `null`.
-
-#### `OnPauseBegan` Event
-
-This event may not be triggered mid-freeze.
+* `winner` property may be `null`.
