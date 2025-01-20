@@ -84,9 +84,6 @@
 
 ### 4. Match Setup
 
-> [!CAUTION]  
-> I'd recommend not to mess with these settings. Overtime is always enabled.
-
 #### `match_players_needed` ConVar
 
 * Number of players needed for a match.
@@ -134,7 +131,7 @@
 #### `match_verbose` ConVar
 
 > [!IMPORTANT]
-> Disable this if you trust the plugin enough, but it'll make harder to debug issues.
+> Keeping this setting enabled makes debugging issues easier.
 
 * Are we debugging the plugin?
 * **Type:** `bool`
