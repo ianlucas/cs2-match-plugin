@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Reflection;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core.Translations;
+using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Utils;
 using Microsoft.Extensions.Logging;
@@ -119,7 +120,7 @@ public class Match
 
     public void SetState(State newState)
     {
-        if (newState.GetType() != typeof(StateWarmupReady) && State.GetType() == newState.GetType())
+        if (newState is not StateWarmupReady && State.GetType() == newState.GetType())
             return;
         SendEvent(Get5.OnGameStateChanged(oldState: State, newState));
         State.Unload();
@@ -217,9 +218,16 @@ public class Match
         }
 
         var idsInMatch = Teams.SelectMany(t => t.Players).Select(p => p.SteamID);
-        foreach (var controller in UtilitiesX.GetPlayersInTeams())
+        foreach (var controller in Utilities.GetPlayers().Where(p => !p.IsBot))
             if (!idsInMatch.Contains(controller.SteamID))
-                controller.ChangeTeam(CsTeam.Spectator);
+                if (
+                    !matchmaking.Value
+                    || AdminManager.PlayerHasPermissions(controller, "@css/config")
+                )
+                    controller.ChangeTeam(CsTeam.Spectator);
+                else
+                    controller.Kick();
+
         foreach (var team in Teams)
         {
             ServerX.SetTeamName(team.StartingTeam, team.ServerName);
@@ -230,6 +238,8 @@ public class Match
                     player.DamageReport.Add(opponent.SteamID, new(opponent));
             }
         }
+
+        SendEvent(Get5.OnSeriesInit());
     }
 
     public bool CheckCurrentMap()

@@ -140,14 +140,16 @@ public class State
         if (mapCount % 2 == 0)
             mapCount += 1;
         var seriesScoreToWin = (int)Math.Round(mapCount / 2.0, MidpointRounding.AwayFromZero);
+        var isSeriesCancelled = result != MapResult.Completed;
         var isSeriesOver =
-            (Match.ClinchSeries && Match.Teams.Any(t => t.SeriesScore >= seriesScoreToWin))
+            isSeriesCancelled
+            || (Match.ClinchSeries && Match.Teams.Any(t => t.SeriesScore >= seriesScoreToWin))
             || Match.GetMap() == null;
 
-        if (isSeriesOver || result != MapResult.Completed)
+        if (isSeriesOver)
         {
             // If match doesn't end normally, we already decided which side won.
-            if (result != MapResult.Completed)
+            if (isSeriesCancelled)
             {
                 team1.SeriesScore = 0;
                 team2.SeriesScore = 0;
@@ -172,6 +174,6 @@ public class State
                 Match.SendEvent(Match.Get5.OnDemoFinished(filename));
         }
 
-        Match.SetState(new StateWarmupReady());
+        Match.SetState(isSeriesOver ? new StateNone() : new StateWarmupReady());
     }
 }

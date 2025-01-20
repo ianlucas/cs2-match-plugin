@@ -214,7 +214,8 @@ public class StateWarmupReady : StateWarmup
         var players = Match.Teams.SelectMany(t => t.Players);
         if (players.Count() == Match.GetNeededPlayers() && players.All(p => p.IsReady))
         {
-            Match.Setup();
+            if (!Match.IsLoadedFromFile)
+                Match.Setup();
             Match.SetState(new StateKnifeRound());
         }
     }

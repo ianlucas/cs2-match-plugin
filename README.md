@@ -230,7 +230,7 @@ Not all events are implemented, and some events may have some differences. Check
 
 #### `OnGameStateChanged` Event
 
-The states `none`, `pre_veto`, `veto`, `going_live` and `post_game` won't be available. The plugin follows this state order: `warmup` → `knife` → `waiting_for_knife_decision` → `live` → `warmup`.
+The states `pre_veto`, `veto`, `going_live` and `post_game` are not be available. The plugin follows this state order: `none` → `warmup` → `knife` → `waiting_for_knife_decision` → `live` → `none`.
 
 #### `OnMapResult` Event
 
