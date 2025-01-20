@@ -43,6 +43,6 @@ public partial class MatchPlugin : BasePlugin
         AddCommand("css_map", "Change current map.", OnMapCommand);
 
         RegisterFakeConVars(_match);
-        Directory.CreateDirectory(ServerX.GetFullPath());
+        Directory.CreateDirectory(ServerX.GetConfigPath());
     }
 }

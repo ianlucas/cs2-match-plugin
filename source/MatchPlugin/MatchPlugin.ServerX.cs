@@ -17,11 +17,11 @@ public class ServerX
 
     public static long NowMilliseconds() => DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 
-    public static string GetConVarPath(string path = "") =>
+    public static string GetConfigConVarPath(string path = "") =>
         $"addons/counterstrikesharp/configs/plugins/MatchPlugin{path}";
 
-    public static string GetFullPath(string path = "") =>
-        Path.Combine(Server.GameDirectory, "csgo", GetConVarPath(path));
+    public static string GetConfigPath(string path = "") =>
+        Path.Combine(Server.GameDirectory, "csgo", GetConfigConVarPath(path));
 
     public static string GetCSGOPath(string path = "") =>
         Path.Combine(Server.GameDirectory, "csgo", path);
