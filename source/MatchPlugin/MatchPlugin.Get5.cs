@@ -598,7 +598,7 @@ public class Get5Maplist
             var name = AsObject?.Fromfile ?? "";
             if (!name.EndsWith(".json"))
                 name += ".json";
-            var filepath = ServerX.GetFullPath($"/{name}");
+            var filepath = ServerX.GetConfigPath($"/{name}");
             if (!File.Exists(filepath))
                 filepath = ServerX.GetCSGOPath(filepath);
             return JsonSerializer.Deserialize<List<string>>(File.ReadAllText(filepath));
@@ -700,7 +700,7 @@ public class Get5MatchTeam
             var name = Fromfile ?? "";
             if (!name.EndsWith(".json"))
                 name += ".json";
-            var filepath = ServerX.GetFullPath($"/{name}");
+            var filepath = ServerX.GetConfigPath($"/{name}");
             if (!File.Exists(filepath))
                 filepath = ServerX.GetCSGOPath(filepath);
             return JsonSerializer.Deserialize<Get5MatchTeam>(File.ReadAllText(filepath));
@@ -804,7 +804,7 @@ public class Get5Match
         {
             if (!name.EndsWith(".json"))
                 name += ".json";
-            var filepath = ServerX.GetFullPath($"/{name}");
+            var filepath = ServerX.GetConfigPath($"/{name}");
             if (!File.Exists(filepath))
                 filepath = ServerX.GetCSGOPath(filepath);
             return new Get5MatchFile

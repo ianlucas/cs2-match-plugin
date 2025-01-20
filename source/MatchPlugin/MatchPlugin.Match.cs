@@ -191,17 +191,16 @@ public class Match
         return IsLoadedFromFile || State is not StateWarmupReady;
     }
 
-    public string GetMatchFolder() =>
-        Id != null ? $"/{(IsLoadedFromFile ? "match-" : "scrim-")}{Id}" : "";
+    public string GetMatchFolder() => Id != null ? $"/{(IsLoadedFromFile ? "M_" : "S_")}{Id}" : "";
 
     public DirectoryInfo CreateMatchFolder() =>
-        Directory.CreateDirectory(ServerX.GetFullPath(GetMatchFolder()));
+        Directory.CreateDirectory(ServerX.GetConfigPath(GetMatchFolder()));
 
     public string? GetBackupPrefix() =>
-        Id != null ? ServerX.GetConVarPath($"{GetMatchFolder()}/{Server.MapName}") : null;
+        Id != null ? ServerX.GetConfigConVarPath($"{GetMatchFolder()}/{Server.MapName}") : null;
 
     public string? GetDemoFilename() =>
-        Id != null ? ServerX.GetConVarPath($"{GetMatchFolder()}/{Server.MapName}.dem") : null;
+        Id != null ? ServerX.GetConfigConVarPath($"{GetMatchFolder()}/{Server.MapName}.dem") : null;
 
     public bool AreTeamsPlayingSwitchedSides() =>
         State is StateLive && UtilitiesX.GetGameRules().AreTeamsPlayingSwitchedSides();
@@ -209,7 +208,7 @@ public class Match
     public void Setup()
     {
         if (Id == "" || !IsLoadedFromFile)
-            Id = ServerX.Now().ToString();
+            Id = Guid.NewGuid().ToString();
 
         if (!IsLoadedFromFile)
         {

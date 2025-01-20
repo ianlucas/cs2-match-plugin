@@ -133,7 +133,7 @@ public class State
 
         // Even with Get5 Events, we still store results in json for further debugging.
         // @todo Maybe only save if `match_verbose` is enabled in the future.
-        ServerX.WriteJson(ServerX.GetFullPath($"{Match.GetMatchFolder()}/results.json"), maps);
+        ServerX.WriteJson(ServerX.GetConfigPath($"{Match.GetMatchFolder()}/results.json"), maps);
         Match.SendEvent(Match.Get5.OnMapResult(map));
 
         var mapCount = Match.Maps.Count;
