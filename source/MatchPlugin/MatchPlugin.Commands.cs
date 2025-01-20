@@ -127,7 +127,7 @@ public partial class MatchPlugin
         );
 
         _match.Reset();
-        _match.SetState(new StateWarmupReady());
+        _match.SetState(new StateNone());
     }
 
     public void OnMatchLoadCommand(CCSPlayerController? caller, CommandInfo command)
