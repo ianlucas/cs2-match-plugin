@@ -157,6 +157,17 @@ public class State
                     winner.SeriesScore = 1;
             }
 
+            // Team with most series score wins the series for non clinch series.
+            if (!Match.ClinchSeries)
+            {
+                winner =
+                    team1.SeriesScore > team2.SeriesScore
+                        ? team1
+                        : team2.SeriesScore > team1.SeriesScore
+                            ? team2
+                            : null;
+            }
+
             Match.SendEvent(Match.Get5.OnSeriesResult(winner));
             Match.Reset();
             Match.Log($"Match is over, kicking players={Match.matchmaking.Value}");
