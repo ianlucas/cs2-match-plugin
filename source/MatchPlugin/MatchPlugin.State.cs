@@ -159,14 +159,12 @@ public class State
 
             // Team with most series score wins the series for non clinch series.
             if (!Match.IsClinchSeries)
-            {
                 winner =
                     team1.SeriesScore > team2.SeriesScore
                         ? team1
                         : team2.SeriesScore > team1.SeriesScore
                             ? team2
                             : null;
-            }
 
             Match.SendEvent(Match.Get5.OnSeriesResult(winner));
             Match.Reset();
