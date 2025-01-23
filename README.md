@@ -10,9 +10,6 @@
 
 ## Quick Start
 
-> [!IMPORTANT]
-> This plugin may not work with workshop maps.
-
 ### 1. Basics
 
 #### `match_chat_prefix` ConVar
@@ -23,10 +20,7 @@
 
 #### `match_bots` ConVar
 
-> [!CAUTION]  
-> I don't recommend enabling this setting. No support will be given.
-
-* Bots join the game to fill slots.
+* Bots join the game to fill slots. Not recommended to be enabled.
 * **Type:** `bool`
 * **Default:** `false`
 
