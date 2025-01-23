@@ -151,7 +151,7 @@ public partial class MatchPlugin
         _match.Reset();
         _match.IsLoadedFromFile = true;
         _match.Id = match.Matchid;
-        _match.ClinchSeries = match.ClinchSeries ?? true;
+        _match.IsClinchSeries = match.ClinchSeries ?? true;
 
         // Maps
         var maplist = match.Maplist.Get();

@@ -143,7 +143,7 @@ public class State
         var isSeriesCancelled = result != MapResult.Completed;
         var isSeriesOver =
             isSeriesCancelled
-            || (Match.ClinchSeries && Match.Teams.Any(t => t.SeriesScore >= seriesScoreToWin))
+            || (Match.IsClinchSeries && Match.Teams.Any(t => t.SeriesScore >= seriesScoreToWin))
             || Match.GetMap() == null;
 
         if (isSeriesOver)
@@ -158,7 +158,7 @@ public class State
             }
 
             // Team with most series score wins the series for non clinch series.
-            if (!Match.ClinchSeries)
+            if (!Match.IsClinchSeries)
             {
                 winner =
                     team1.SeriesScore > team2.SeriesScore
