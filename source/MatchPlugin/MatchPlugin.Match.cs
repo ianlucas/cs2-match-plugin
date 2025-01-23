@@ -40,6 +40,8 @@ public class Match
         new("match_friendly_pause", "Teams can pause at any time.", false);
     public readonly FakeConVar<int> knife_vote_timeout =
         new("match_knife_vote_timeout", "Time to decide side.", 60);
+    public readonly FakeConVar<bool> forfeit_enabled =
+        new("match_forfeit_enabled", "Can we forfeit disconnected teams?", true);
     public readonly FakeConVar<int> forfeit_timeout =
         new("match_forfeit_timeout", "Time to forfeit a team.", 60);
     public readonly FakeConVar<int> surrender_timeout =

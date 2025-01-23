@@ -42,7 +42,7 @@ public partial class StateLive
 
     public void TryForfeitMatch(Player? disconnecting = null)
     {
-        if (!_isForfeiting)
+        if (!_isForfeiting && Match.forfeit_enabled.Value)
             foreach (var team in Match.Teams)
                 if (
                     team.Players.Count > 0
