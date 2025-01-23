@@ -64,9 +64,10 @@ public class Match
     public readonly Get5 Get5;
 
     public string? Id = null;
-    public bool ClinchSeries = true;
+    public bool IsClinchSeries = true;
     public State State = new();
     public bool IsLoadedFromFile = false;
+    public bool IsSeriesStarted = false;
     public Team? KnifeRoundWinner;
 
     public Match(MatchPlugin plugin)
@@ -86,8 +87,9 @@ public class Match
     public void Reset()
     {
         Id = null;
-        ClinchSeries = true;
+        IsClinchSeries = true;
         IsLoadedFromFile = false;
+        IsSeriesStarted = false;
         KnifeRoundWinner = null;
         Maps.Clear();
         foreach (var team in Teams)
@@ -211,10 +213,7 @@ public class Match
             Id = Guid.NewGuid().ToString();
 
         if (!IsLoadedFromFile)
-        {
             Maps.Add(new(Server.MapName));
-            CreateMatchFolder();
-        }
 
         var idsInMatch = Teams.SelectMany(t => t.Players).Select(p => p.SteamID);
         foreach (var controller in Utilities.GetPlayers().Where(p => !p.IsBot))
@@ -238,6 +237,8 @@ public class Match
             }
         }
 
+        IsSeriesStarted = true;
+        CreateMatchFolder();
         SendEvent(Get5.OnSeriesInit());
     }
 
@@ -246,6 +247,7 @@ public class Match
         var currentMap = GetMap();
         if (currentMap != null && Server.MapName != currentMap.MapName)
         {
+            Log($"Need to change map to {currentMap.MapName}");
             Server.ExecuteCommand($"changelevel {currentMap.MapName}");
             return true;
         }

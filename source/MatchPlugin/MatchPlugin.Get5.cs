@@ -467,7 +467,7 @@ public class Get5(Match match)
             players = team
                 .Players.Select(player => new
                 {
-                    steamid = player.SteamID,
+                    steamid = player.SteamID.ToString(),
                     name = player.Name,
                     stats = player.Stats
                 })

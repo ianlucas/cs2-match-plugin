@@ -38,7 +38,7 @@ public partial class MatchPlugin
     {
         OnMatchBotsChanged(null, _match.bots.Value);
         OnMatchMatchmakingChanged(null, _match.matchmaking.Value);
-        _match.SetState(new StateNone());
+        _match.SetState(_match.IsSeriesStarted ? new StateWarmupReady() : new StateNone());
     }
 
     public void OnClientConnect(int slot, string name, string ipAddress)
