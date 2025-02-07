@@ -21,7 +21,7 @@ public partial class StateLive
     private bool _hadFirstKill = false;
 
     // KAST
-    private readonly Dictionary<ulong, bool> _playerSurvived = [];
+    private readonly Dictionary<ulong, bool> _playerDied = [];
     private readonly Dictionary<ulong, bool> _playerKilledOrAssistedOrTradedKill = [];
 
     public HookResult Stats_OnRoundStart(EventRoundStart @event, GameEventInfo _)
@@ -32,7 +32,7 @@ public partial class StateLive
         _hadFirstDeath = false;
         _hadFirstKill = false;
 
-        _playerSurvived.Clear();
+        _playerDied.Clear();
         _playerKilledOrAssistedOrTradedKill.Clear();
 
         foreach (var player in Match.Teams.SelectMany(t => t.Players))
@@ -115,7 +115,7 @@ public partial class StateLive
         Player? assister = null;
 
         victim.Stats.Deaths += 1;
-        _playerSurvived[victim.SteamID] = true;
+        _playerDied[victim.SteamID] = true;
 
         if (!_hadFirstDeath)
         {
@@ -331,7 +331,7 @@ public partial class StateLive
 
                 if (
                     _playerKilledOrAssistedOrTradedKill.ContainsKey(player.SteamID)
-                    || _playerSurvived.ContainsKey(player.SteamID)
+                    || !_playerDied.ContainsKey(player.SteamID)
                 )
                     player.Stats.KAST += 1;
 
