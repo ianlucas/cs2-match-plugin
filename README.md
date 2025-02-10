@@ -222,6 +222,11 @@ Not all events are implemented, and some events may have some differences, so pl
 ##### `Get5Player` Object
 
 * `user_id` property may be `null`.
+* `ping` (`number | null`) property has been added.
+
+##### `Get5StatsTeam` Object
+
+* `ping` (`number | null`) property has been added.
 
 #### `OnGameStateChanged` Event
 

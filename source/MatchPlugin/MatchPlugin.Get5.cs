@@ -469,7 +469,8 @@ public class Get5(Match match)
                 {
                     steamid = player.SteamID.ToString(),
                     name = player.Name,
-                    stats = player.Stats
+                    stats = player.Stats,
+                    ping = player.Controller?.Ping
                 })
                 .ToList()
         };
@@ -486,7 +487,8 @@ public class Get5(Match match)
             name = player.Name,
             user_id = player.Controller?.UserId,
             side = ToGet5SideString(player.Team.CurrentTeam),
-            is_bot = player.Controller?.IsBot ?? false
+            is_bot = player.Controller?.IsBot ?? false,
+            ping = player.Controller?.Ping
         };
 
     private object ToGet5Player(CCSPlayerController controller) =>
@@ -496,7 +498,8 @@ public class Get5(Match match)
             name = controller.PlayerName,
             user_id = controller.UserId,
             side = ToGet5SideString(controller.Team),
-            is_bot = controller.IsBot
+            is_bot = controller.IsBot,
+            ping = controller.Ping
         };
 
     private object ToGet5Weapon(string weapon) =>
