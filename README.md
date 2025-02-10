@@ -167,7 +167,7 @@ Not all properties from Get5 Match Schema are being used, check the source code 
 
 ##### `SteamID` String
 
-We only support 64-bit SteamIDs, e.g. 76561197960287930.
+We only support 64-bit SteamIDs, e.g. `76561197960287930`.
 
 ##### `Get5MatchTeam` Object
 
@@ -217,14 +217,12 @@ Not all events are implemented, and some events may have some differences, so pl
 * `OnMapVetoed`
 * `OnDemoUploadEnded`
 
-#### Get5 Objects
-
-##### `Get5Player` Object
+#### `Get5Player` Object
 
 * `user_id` property may be `null`.
 * `ping` (`number | null`) property has been added.
 
-##### `Get5StatsTeam` Object
+#### `Get5StatsTeam` Object
 
 * `ping` (`number | null`) property has been added.
 
