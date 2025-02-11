@@ -25,15 +25,24 @@ public partial class MatchPlugin
 
     public void OnPlayerConnected(CCSPlayerController? controller)
     {
-        var player = _match.GetPlayerFromSteamID(controller?.SteamID);
-        if (player != null && controller != null)
+        if (controller == null)
+            return;
+
+        if (_pendingOnPlayerConnected.TryGetValue(controller.Slot, out var sendPlayerConnected))
+        {
+            sendPlayerConnected(controller);
+            _pendingOnPlayerConnected.TryRemove(controller.Slot, out var _);
+        }
+
+        var player = _match.GetPlayerFromSteamID(controller.SteamID);
+        if (player != null)
         {
             if (player.Name == "")
                 player.Name = controller.PlayerName;
             player.Controller = controller;
         }
         else if (
-            controller?.IsBot == false
+            !controller.IsBot
             && _match.matchmaking.Value
             && !AdminManager.PlayerHasPermissions(controller, "@css/root")
         )

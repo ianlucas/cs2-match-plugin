@@ -30,6 +30,7 @@ public partial class MatchPlugin : BasePlugin
         RegisterListener<Listeners.OnTick>(OnTick);
         RegisterListener<Listeners.OnMapStart>(OnMapStart);
         RegisterListener<Listeners.OnClientConnect>(OnClientConnect);
+        RegisterListener<Listeners.OnClientDisconnect>(OnClientDisconnect);
         Extensions.ChangeTeamFunc.Hook(OnChangeTeam, HookMode.Pre);
         RegisterEventHandler<EventPlayerConnect>(OnPlayerConnect);
         RegisterEventHandler<EventPlayerConnectFull>(OnPlayerConnectFull);

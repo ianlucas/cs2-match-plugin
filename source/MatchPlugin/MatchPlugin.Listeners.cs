@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-using System.Text.RegularExpressions;
+using System.Collections.Concurrent;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Admin;
@@ -14,6 +14,7 @@ namespace MatchPlugin;
 public partial class MatchPlugin
 {
     private bool _pendingInternalPush = true;
+    private ConcurrentDictionary<int, Action<CCSPlayerController>> _pendingOnPlayerConnected = [];
 
     public void OnMapStart(string _)
     {
@@ -43,9 +44,17 @@ public partial class MatchPlugin
 
     public void OnClientConnect(int slot, string name, string ipAddress)
     {
-        var controller = Utilities.GetPlayerFromSlot(slot);
-        if (controller != null)
-            _match.SendEvent(_match.Get5.OnPlayerConnected(controller, ipAddress));
+        // It may be too early to get controller from the slot.
+        _pendingOnPlayerConnected.TryAdd(
+            slot,
+            (CCSPlayerController controller) =>
+                _match.SendEvent(_match.Get5.OnPlayerConnected(controller, ipAddress))
+        );
+    }
+
+    public void OnClientDisconnect(int slot)
+    {
+        _pendingOnPlayerConnected.TryRemove(slot, out var _);
     }
 
     public void OnMatchBotsChanged(object? sender, bool value)
