@@ -14,7 +14,10 @@ namespace MatchPlugin;
 public partial class MatchPlugin
 {
     private bool _pendingInternalPush = true;
-    private ConcurrentDictionary<int, Action<CCSPlayerController>> _pendingOnPlayerConnected = [];
+    private readonly ConcurrentDictionary<
+        int,
+        Action<CCSPlayerController>
+    > _pendingOnPlayerConnected = [];
 
     public void OnMapStart(string _)
     {

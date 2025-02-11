@@ -28,11 +28,8 @@ public partial class MatchPlugin
         if (controller == null)
             return;
 
-        if (_pendingOnPlayerConnected.TryGetValue(controller.Slot, out var sendPlayerConnected))
-        {
+        if (_pendingOnPlayerConnected.TryRemove(controller.Slot, out var sendPlayerConnected))
             sendPlayerConnected(controller);
-            _pendingOnPlayerConnected.TryRemove(controller.Slot, out var _);
-        }
 
         var player = _match.GetPlayerFromSteamID(controller.SteamID);
         if (player != null)

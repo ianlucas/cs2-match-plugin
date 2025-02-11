@@ -282,4 +282,37 @@ public class Match
         var output = $"{prefix} {message}";
         Plugin.Logger.LogInformation(output);
     }
+
+    public bool SetFakeConVarValue<T>(string name, T value)
+    {
+        var field = GetType()
+            .GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+            .FirstOrDefault(f =>
+                f.Name == name.Replace("get5_", "").Replace("match_", "")
+                && f.FieldType.IsGenericType
+                && f.FieldType.GetGenericTypeDefinition() == typeof(FakeConVar<>)
+            );
+        if (field == null)
+            return false;
+        var instance = field.GetValue(this);
+        if (instance == null)
+            return false;
+        Type convarType = field.FieldType.GetGenericArguments()[0];
+        try
+        {
+            object? convertedValue = Convert.ChangeType(value, convarType);
+            if (convertedValue == null)
+                return false;
+            var valueProperty = field.FieldType.GetProperty("Value");
+            if (valueProperty == null)
+                return false;
+            valueProperty.SetValue(instance, convertedValue);
+            Log($"Set {name} as {value} ({convertedValue.GetType()})");
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
 }
