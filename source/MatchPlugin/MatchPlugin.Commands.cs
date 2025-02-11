@@ -205,6 +205,8 @@ public partial class MatchPlugin
             {
                 var key = cvar.Key;
                 var value = cvar.Value.ToString();
+                // This bypass FakeConVar validations, but we need to update them immediatelly.
+                _match.SetFakeConVarValue(key, value);
                 var cmd = $"{key} {value}";
                 _match.Log($"Execing {cmd}");
                 Server.ExecuteCommand(cmd);
