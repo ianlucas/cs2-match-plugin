@@ -23,6 +23,7 @@ public partial class StateLive
     // KAST
     private readonly Dictionary<ulong, bool> _playerDied = [];
     private readonly Dictionary<ulong, bool> _playerKilledOrAssistedOrTradedKill = [];
+    private readonly Dictionary<ulong, bool> _playerPlayedRound = [];
 
     public HookResult Stats_OnRoundStart(EventRoundStart @event, GameEventInfo _)
     {
@@ -34,13 +35,18 @@ public partial class StateLive
 
         _playerDied.Clear();
         _playerKilledOrAssistedOrTradedKill.Clear();
+        _playerPlayedRound.Clear();
 
         foreach (var player in Match.Teams.SelectMany(t => t.Players))
         {
             _roundKills[player.SteamID] = 0;
             if (player.Controller != null)
+            {
                 player.Stats.RoundsPlayed += 1;
+                _playerPlayedRound[player.SteamID] = true;
+            }
         }
+
         return HookResult.Continue;
     }
 
@@ -329,11 +335,12 @@ public partial class StateLive
                             break;
                     }
 
-                if (
-                    _playerKilledOrAssistedOrTradedKill.ContainsKey(player.SteamID)
-                    || !_playerDied.ContainsKey(player.SteamID)
-                )
-                    player.Stats.KAST += 1;
+                if (_playerPlayedRound.ContainsKey(player.SteamID))
+                    if (
+                        _playerKilledOrAssistedOrTradedKill.ContainsKey(player.SteamID)
+                        || !_playerDied.ContainsKey(player.SteamID)
+                    )
+                        player.Stats.KAST += 1;
 
                 _statsBackup[gameRules.TotalRoundsPlayed].Add((player, player.Stats.Clone()));
             }
