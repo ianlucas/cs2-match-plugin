@@ -124,6 +124,16 @@ public partial class StateLive : State
     {
         if (Match.remote_log_url.Value != "")
             CheckPauseEvents();
+
+        if (Match.server_graphic_url.Value != "")
+            foreach (var player in Match.Teams.SelectMany(t => t.Players))
+            {
+                var deathTime = player.Controller?.PlayerPawn.Value?.DeathTime;
+                if (Server.CurrentTime - deathTime < Match.server_graphic_duration.Value)
+                    player.Controller?.PrintToCenterHtml(
+                        $"<img src='{Match.server_graphic_url.Value.StripQuotes()}'>"
+                    );
+            }
     }
 
     public HookResult OnRoundStart(EventRoundStart @event, GameEventInfo _)
