@@ -16,6 +16,10 @@ namespace MatchPlugin;
 
 public class Match
 {
+    public readonly FakeConVar<string> server_graphic_url =
+        new("match_server_graphic_url", "Image that will be displayed on player death.", "");
+    public readonly FakeConVar<int> server_graphic_duration =
+        new("match_server_graphic_duration", "Duration for the server graphic.", 5);
     public readonly FakeConVar<string> chat_prefix =
         new("match_chat_prefix", "Prefix for chat messages.", "[{red}Match{default}]");
     public readonly FakeConVar<bool> bots =
