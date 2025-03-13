@@ -41,6 +41,7 @@ public partial class MatchPlugin
         else if (
             !controller.IsBot
             && _match.matchmaking.Value
+            && _match.matchmaking_kick.Value
             && !AdminManager.PlayerHasPermissions(controller, "@css/root")
         )
             controller.Kick();
