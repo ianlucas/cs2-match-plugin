@@ -34,6 +34,8 @@ public class Match
         new("match_players_needed_per_team", "Number of players needed per team.", 5);
     public readonly FakeConVar<bool> matchmaking =
         new("match_matchmaking", "Matchmaking mode", false);
+    public readonly FakeConVar<bool> matchmaking_kick =
+        new("match_matchmaking_kick", "Kick not in-match players?", true);
     public readonly FakeConVar<int> matchmaking_ready_timeout =
         new("match_matchmaking_ready_timeout", "Time to players ready up.", 300);
     public readonly FakeConVar<int> max_rounds =
@@ -226,6 +228,7 @@ public class Match
             if (!idsInMatch.Contains(controller.SteamID))
                 if (
                     !matchmaking.Value
+                    || !matchmaking_kick.Value
                     || AdminManager.PlayerHasPermissions(controller, "@css/config")
                 )
                     controller.ChangeTeam(CsTeam.Spectator);
