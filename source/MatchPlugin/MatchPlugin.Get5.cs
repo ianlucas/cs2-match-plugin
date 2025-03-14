@@ -483,7 +483,7 @@ public class Get5(Match match)
     private object ToGet5Player(Player player) =>
         new
         {
-            steamid = player.SteamID,
+            steamid = player.SteamID.ToString(),
             name = player.Name,
             user_id = player.Controller?.UserId,
             side = ToGet5SideString(player.Team.CurrentTeam),
@@ -494,7 +494,7 @@ public class Get5(Match match)
     private object ToGet5Player(CCSPlayerController controller) =>
         new
         {
-            steamid = controller.SteamID,
+            steamid = controller.SteamID.ToString(),
             name = controller.PlayerName,
             user_id = controller.UserId,
             side = ToGet5SideString(controller.Team),
