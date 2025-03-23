@@ -243,10 +243,18 @@ Not all events are implemented, and some events may have some differences, so pl
 
 * `winner` property may be `null`.
 * `last_map` (`object`) property has been added.
-	* `map_number` (`number`);
-	* `team1` (`Get5Team`)
-	* `team2` (`Get5Team`)
-	* `result` (`number`)
+	* `map_number` (`number`).
+	* `team1` and `team2` (`object`).
+		* `id` (`string`).
+		* `name` (`string`).
+		* `series_score` (`number`).
+		* `score` (`number`).
+		* `score_ct` (`number`).
+		* `score_t` (`number`).
+		* `side` (`string`).
+		* `starting_side` (`string`).
+	* `team2` (`Get5Team`).
+	* `result` (`number`).
 		* `0` is `MapResult.None`;
 		* `1` is `MapResult.Completed`;
 		* `2` is `MapResult.Cancelled`;

@@ -61,8 +61,8 @@ public class Get5(Match match)
             last_map = new
             {
                 map_number = match.FindMapIndex(map),
-                team1 = ToGet5StatsTeam(match.Team1),
-                team2 = ToGet5StatsTeam(match.Team2),
+                team1 = ToExtensionTeam(match.Team1),
+                team2 = ToExtensionTeam(match.Team2),
                 result = map.Result
             }
         };
@@ -459,6 +459,19 @@ public class Get5(Match match)
     private string ToGet5SideString(CsTeam team) => team == CsTeam.Terrorist ? "t" : "ct";
 
     private string ToGet5TeamString(Team? team) => team != null ? $"team{team.Index + 1}" : "spec";
+
+    private object ToExtensionTeam(Team team) =>
+        new
+        {
+            id = team.Id,
+            name = team.Name,
+            series_score = team.SeriesScore,
+            score = team.Score,
+            score_ct = team.Stats.ScoreCT,
+            score_t = team.Stats.ScoreT,
+            side = ToGet5SideString(team.CurrentTeam),
+            starting_side = ToGet5SideString(team.StartingTeam)
+        };
 
     private object ToGet5StatsTeam(Team team) =>
         new
