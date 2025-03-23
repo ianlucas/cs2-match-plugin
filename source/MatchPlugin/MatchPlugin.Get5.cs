@@ -49,7 +49,7 @@ public class Get5(Match match)
             result = map.Result
         };
 
-    public object OnSeriesResult(Team? winner) =>
+    public object OnSeriesResult(Team? winner, Map map) =>
         new
         {
             @event = "series_end",
@@ -57,7 +57,14 @@ public class Get5(Match match)
             team1_series_score = match.Team1.SeriesScore,
             team2_series_score = match.Team2.SeriesScore,
             winner = ToGet5Winner(winner),
-            time_until_restore = 0
+            time_until_restore = 0,
+            last_map = new
+            {
+                map_number = match.FindMapIndex(map),
+                team1 = ToGet5StatsTeam(match.Team1),
+                team2 = ToGet5StatsTeam(match.Team2),
+                result = map.Result
+            }
         };
 
     public object OnSidePicked(Team team)

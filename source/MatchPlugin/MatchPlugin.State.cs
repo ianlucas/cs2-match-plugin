@@ -166,7 +166,7 @@ public class State
                             ? team2
                             : null;
 
-            Match.SendEvent(Match.Get5.OnSeriesResult(winner));
+            Match.SendEvent(Match.Get5.OnSeriesResult(winner, map));
             Match.Reset();
             Match.Log($"Match is over, kicking players={Match.matchmaking.Value}");
             Match.Plugin.OnMatchMatchmakingChanged(null, Match.matchmaking.Value);
