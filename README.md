@@ -253,7 +253,6 @@ Not all events are implemented, and some events may have some differences, so pl
 		* `score_t` (`number`).
 		* `side` (`string`).
 		* `starting_side` (`string`).
-	* `team2` (`Get5Team`).
 	* `result` (`number`).
 		* `0` is `MapResult.None`;
 		* `1` is `MapResult.Completed`;
