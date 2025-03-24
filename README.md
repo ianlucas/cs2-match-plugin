@@ -242,19 +242,4 @@ Not all events are implemented, and some events may have some differences, so pl
 #### `OnSeriesResult` Event
 
 * `winner` property may be `null`.
-* `last_map` (`object`) property has been added.
-	* `map_number` (`number`).
-	* `team1` and `team2` (`object`).
-		* `id` (`string`).
-		* `name` (`string`).
-		* `series_score` (`number`).
-		* `score` (`number`).
-		* `score_ct` (`number`).
-		* `score_t` (`number`).
-		* `side` (`string`).
-		* `starting_side` (`string`).
-	* `result` (`number`).
-		* `0` is `MapResult.None`;
-		* `1` is `MapResult.Completed`;
-		* `2` is `MapResult.Cancelled`;
-		* `3` is `MapResult.Forfeited`.
+* `last_map_number` (`number`) property has been added.
