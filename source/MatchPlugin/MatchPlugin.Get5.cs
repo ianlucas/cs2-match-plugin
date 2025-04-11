@@ -170,7 +170,7 @@ public class Get5(Match match)
             round_number = match.GetRoundNumber()
         };
 
-    public object OnRoundEnd(Team winner, int reason) =>
+    public object OnRoundEnd(Team? winner, int reason) =>
         new
         {
             @event = "round_end",
