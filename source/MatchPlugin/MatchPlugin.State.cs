@@ -51,33 +51,38 @@ public class State
         _commands.Clear();
     }
 
+    public HookResult OnCsWinPanelMatch(EventCsWinPanelMatch _, GameEventInfo __)
+    {
+        Match.Plugin.ClearAllTimers();
+        var result = MapResult.None;
+        Team? winner = null;
+
+        foreach (var team in Match.Teams)
+        {
+            if (team.IsSurrended)
+            {
+                result = MapResult.Forfeited;
+                winner = team.Opposition;
+                Match.Log($"forfeited, result={result}, winner={winner.Index}");
+                break;
+            }
+            if (team.Score > team.Opposition.Score)
+            {
+                result = MapResult.Completed;
+                winner = team;
+                Match.Log($"completed, result={result}, winner={winner.Index}");
+            }
+        }
+
+        OnMapResult(result, winner);
+
+        return HookResult.Continue;
+    }
+
     public HookResult OnRoundPrestart(EventRoundPrestart _, GameEventInfo __)
     {
         if (UtilitiesX.GetGameRules().GamePhase == 5)
-        {
-            Match.Plugin.ClearAllTimers();
-            var result = MapResult.None;
-            Team? winner = null;
-
-            foreach (var team in Match.Teams)
-            {
-                if (team.IsSurrended)
-                {
-                    result = MapResult.Forfeited;
-                    winner = team.Opposition;
-                    Match.Log($"forfeited, result={result}, winner={winner.Index}");
-                    break;
-                }
-                if (team.Score > team.Opposition.Score)
-                {
-                    result = MapResult.Completed;
-                    winner = team;
-                    Match.Log($"completed, result={result}, winner={winner.Index}");
-                }
-            }
-
-            OnMapEnd(result, winner);
-        }
+            OnMapEnd(); // Map result should be computed at State::OnCsWinPanelRound.
 
         return HookResult.Continue;
     }
@@ -104,12 +109,16 @@ public class State
                 );
         }
         else
-            OnMapEnd(MapResult.Cancelled);
+        {
+            OnMapResult(MapResult.Cancelled);
+            OnMapEnd();
+        }
     }
 
-    public void OnMapEnd(MapResult result = MapResult.None, Team? winner = null)
+    public void OnMapResult(MapResult result = MapResult.None, Team? winner = null)
     {
-        Match.Log($"Map has ended, result={result}.");
+        Match.Log($"Computing map end, result={result}.");
+
         var map = Match.GetMap() ?? new(Server.MapName);
         var stats = Match.Teams.Select(t => t.Players.Select(p => p.Stats).ToList()).ToList();
         var demoFilename = Match.Cstv.GetFilename();
@@ -126,15 +135,6 @@ public class State
 
         if (winner != null)
             winner.SeriesScore += 1;
-
-        var maps = (Match.Maps.Count > 0 ? Match.Maps : [map]).Where(m =>
-            m.Result != MapResult.None
-        );
-
-        // Even with Get5 Events, we still store results in json for further debugging.
-        // @todo Maybe only save if `match_verbose` is enabled in the future.
-        ServerX.WriteJson(ServerX.GetConfigPath($"{Match.GetMatchFolder()}/results.json"), maps);
-        Match.SendEvent(Match.Get5.OnMapResult(map));
 
         var mapCount = Match.Maps.Count;
         if (mapCount % 2 == 0)
@@ -165,14 +165,61 @@ public class State
                         : team2.SeriesScore > team1.SeriesScore
                             ? team2
                             : null;
+        }
 
+        Match.MapEndResult = new MapEndResult
+        {
+            Map = map,
+            IsSeriesOver = isSeriesOver,
+            Winner = winner
+        };
+
+        if (isSeriesOver)
+        {
+            var isMatchmaking = Match.matchmaking.Value;
+            Match.Plugin.SetTimer(
+                "KickPlayers",
+                15.0f,
+                () =>
+                {
+                    if (isMatchmaking)
+                    {
+                        Match.Log("Match is over, kicking players.");
+                        foreach (var controller in Utilities.GetPlayers().Where(p => !p.IsBot))
+                            controller.Kick();
+                    }
+                }
+            );
+        }
+    }
+
+    public void OnMapEnd()
+    {
+        if (Match.MapEndResult == null)
+        {
+            Match.Log("Map result not found, defaulting to state none.");
+            Match.SetState(new StateNone());
+            return;
+        }
+
+        var map = Match.MapEndResult.Map;
+        var isSeriesOver = Match.MapEndResult.IsSeriesOver;
+        var winner = Match.MapEndResult.Winner;
+
+        var maps = (Match.Maps.Count > 0 ? Match.Maps : [map]).Where(m =>
+            m.Result != MapResult.None
+        );
+
+        // Even with Get5 Events, we still store results in json for further debugging.
+        // @todo Maybe only save if `match_verbose` is enabled in the future.
+        ServerX.WriteJson(ServerX.GetConfigPath($"{Match.GetMatchFolder()}/results.json"), maps);
+        Match.SendEvent(Match.Get5.OnMapResult(map));
+
+        if (isSeriesOver)
+        {
             Match.SendEvent(Match.Get5.OnSeriesResult(winner, map));
             Match.Reset();
-            Match.Log($"Match is over, kicking players={Match.matchmaking.Value}");
             Match.Plugin.OnMatchMatchmakingChanged(null, Match.matchmaking.Value);
-            if (Match.matchmaking.Value)
-                foreach (var controller in Utilities.GetPlayers().Where(p => !p.IsBot))
-                    controller.Kick();
         }
 
         // Demo will be stopped at StateWarmupReady::Load.

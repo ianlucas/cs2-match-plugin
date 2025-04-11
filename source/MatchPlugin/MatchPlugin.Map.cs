@@ -41,3 +41,10 @@ public class Map(string mapName)
     [JsonPropertyName("knifeRoundWinner")]
     public int? KnifeRoundWinner { get; set; }
 }
+
+public class MapEndResult
+{
+    public required Map Map { get; set; }
+    public required bool IsSeriesOver { get; set; }
+    public Team? Winner { get; set; }
+}

@@ -11,6 +11,7 @@ using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Utils;
 using Microsoft.Extensions.Logging;
+using static CounterStrikeSharp.API.Core.Listeners;
 
 namespace MatchPlugin;
 
@@ -49,7 +50,7 @@ public class Match
     public readonly FakeConVar<bool> forfeit_enabled =
         new("match_forfeit_enabled", "Can we forfeit disconnected teams?", true);
     public readonly FakeConVar<int> forfeit_timeout =
-        new("match_forfeit_timeout", "Time to forfeit a team.", 60);
+        new("match_forfeit_timeout", "Time to forfeit a team.", 120);
     public readonly FakeConVar<int> surrender_timeout =
         new("match_surrender_timeout", "Time to vote surrender.", 30);
     public readonly FakeConVar<bool> verbose =
@@ -77,6 +78,7 @@ public class Match
     public bool IsLoadedFromFile = false;
     public bool IsSeriesStarted = false;
     public Team? KnifeRoundWinner;
+    public MapEndResult? MapEndResult = null;
 
     public Match(MatchPlugin plugin)
     {
@@ -99,6 +101,7 @@ public class Match
         IsLoadedFromFile = false;
         IsSeriesStarted = false;
         KnifeRoundWinner = null;
+        MapEndResult = null;
         Maps.Clear();
         foreach (var team in Teams)
             team.Reset();

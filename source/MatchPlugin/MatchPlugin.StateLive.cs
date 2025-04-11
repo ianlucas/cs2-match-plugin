@@ -64,6 +64,7 @@ public partial class StateLive : State
         Match.Plugin.RegisterEventHandler<EventRoundMvp>(Stats_OnRoundMvp);
         Match.Plugin.RegisterEventHandler<EventRoundEnd>(OnRoundEndPre, HookMode.Pre);
         Match.Plugin.RegisterEventHandler<EventRoundEnd>(Stats_OnRoundEnd);
+        Match.Plugin.RegisterEventHandler<EventCsWinPanelMatch>(OnCsWinPanelMatch);
         Match.Plugin.RegisterEventHandler<EventPlayerDisconnect>(OnPlayerDisconnect);
 
         Match.Log("Execing Live");
@@ -117,6 +118,7 @@ public partial class StateLive : State
         Match.Plugin.DeregisterEventHandler<EventRoundMvp>(Stats_OnRoundMvp);
         Match.Plugin.DeregisterEventHandler<EventRoundEnd>(OnRoundEndPre, HookMode.Pre);
         Match.Plugin.DeregisterEventHandler<EventRoundEnd>(Stats_OnRoundEnd);
+        Match.Plugin.DeregisterEventHandler<EventCsWinPanelMatch>(OnCsWinPanelMatch);
         Match.Plugin.DeregisterEventHandler<EventPlayerDisconnect>(OnPlayerDisconnect);
     }
 

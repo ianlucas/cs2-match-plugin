@@ -267,9 +267,9 @@ public partial class StateLive
     public HookResult Stats_OnRoundEnd(EventRoundEnd @event, GameEventInfo _)
     {
         var winner = (CsTeam)@event.Winner;
-        var winnerTeam = Match.Teams.First(t => t.CurrentTeam == winner);
+        var winnerTeam = Match.Teams.FirstOrDefault(t => t.CurrentTeam == winner);
 
-        switch (winnerTeam.CurrentTeam)
+        switch (winnerTeam?.CurrentTeam)
         {
             case CsTeam.Terrorist:
                 winnerTeam.Stats.ScoreT += 1;

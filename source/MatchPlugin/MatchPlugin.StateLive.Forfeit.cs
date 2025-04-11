@@ -42,7 +42,7 @@ public partial class StateLive
 
     public void TryForfeitMatch(Player? disconnecting = null)
     {
-        if (!_isForfeiting && Match.forfeit_enabled.Value)
+        if (!_isForfeiting && Match.forfeit_enabled.Value && Match.MapEndResult == null)
             foreach (var team in Match.Teams)
                 if (
                     team.Players.Count > 0
@@ -58,6 +58,7 @@ public partial class StateLive
                         OnMatchCancelled
                     );
                     Match.Log("A team is forfeiting the match.");
+                    // @todo: Notify players a team is forfeiting.
                     return;
                 }
     }
