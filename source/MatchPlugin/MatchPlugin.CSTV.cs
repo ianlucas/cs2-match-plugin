@@ -63,6 +63,7 @@ public class CSTV
         if (value)
         {
             ConVar.Find("tv_enable")?.SetValue(true);
+            ConVar.Find("tv_record_immediate")?.SetValue(1);
             ConVar.Find("tv_delay")?.SetValue(_match.tv_delay.Value);
         }
         else
