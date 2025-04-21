@@ -36,6 +36,8 @@ public class Config
                 "sv_vote_issue_surrrender_allowed 0",
                 "sv_vote_issue_pause_match_allowed 0",
                 "sv_vote_issue_timeout_allowed 0",
+                // Demo settings
+                "tv_record_immediate 1",
                 // Team lock convars
                 $"mp_force_pick_time {(lockTeams ? 0 : 15)}",
                 $"sv_disable_teamselect_menu {(lockTeams ? 1 : 0)}",
@@ -80,8 +82,7 @@ public class Config
     public static void ExecLive(
         int max_rounds = 30,
         int ot_max_rounds = 6,
-        string? backupPath = null,
-        int restartDelay = 25
+        string? backupPath = null
     ) =>
         ServerX.ExecuteCommand(
             [
@@ -203,7 +204,7 @@ public class Config
                 "mp_technical_timeout_duration_s 120",
                 "mp_team_timeout_time 30",
                 // Demo settings
-                $"mp_match_restart_delay {restartDelay}",
+                $"mp_match_restart_delay 25",
                 // ...then end warmup.
                 "mp_warmup_end",
                 "mp_warmup_pausetimer 0"
