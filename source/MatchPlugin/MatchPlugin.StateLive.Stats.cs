@@ -16,7 +16,7 @@ public partial class StateLive
     private readonly Dictionary<CsTeam, bool> _isTeamClutching = [];
     private readonly Dictionary<ulong, int> _roundClutchingCount = [];
     private readonly Dictionary<ulong, int> _roundKills = [];
-    private readonly Dictionary<ulong, (ulong, CsTeam, long)> _playerKilledBy = [];
+    private readonly Dictionary<ulong, (CsTeam, ulong, CsTeam, long)> _playerKilledBy = [];
     private bool _hadFirstDeath = false;
     private bool _hadFirstKill = false;
 
@@ -151,20 +151,29 @@ public partial class StateLive
                 }
 
                 _roundKills[attacker.SteamID] += 1;
-                _playerKilledBy[victim.SteamID] = (attacker.SteamID, attackerTeam, ServerX.Now());
+                _playerKilledBy[victim.SteamID] = (
+                    victimTeam,
+                    attacker.SteamID,
+                    attackerTeam,
+                    ServerX.NowMilliseconds()
+                );
 
-                foreach (var (aVictim, anAttacker) in _playerKilledBy)
-                {
-                    if (anAttacker.Item1 == victim.SteamID && victimTeam == attackerTeam)
+                foreach (
+                    var (
+                        aVictim,
+                        (theVictimTeam, theVictimAttacker, theVictimAttackerTeam, theVictimKilledAt)
+                    ) in _playerKilledBy
+                )
+                    if (
+                        attackerTeam == theVictimTeam
+                        && victim.SteamID == theVictimAttacker
+                        && victimTeam == theVictimAttackerTeam
+                        && (ServerX.NowMilliseconds() - theVictimKilledAt) <= 2_000
+                    )
                     {
-                        var delta = ServerX.Now() - anAttacker.Item3;
-                        if (delta < 2)
-                        {
-                            attacker.Stats.TradeKills += 1;
-                            _playerKilledOrAssistedOrTradedKill[aVictim] = true;
-                        }
+                        attacker.Stats.TradeKills += 1;
+                        _playerKilledOrAssistedOrTradedKill[aVictim] = true;
                     }
-                }
 
                 attacker.Stats.Kills += 1;
                 _playerKilledOrAssistedOrTradedKill[attacker.SteamID] = true;
