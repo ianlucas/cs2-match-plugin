@@ -12,6 +12,7 @@ public class StateWarmup : State
 {
     public override void Load()
     {
+        UtilitiesX.GetGameRules().RoundsPlayedThisPhase = 0;
         Match.Plugin.RegisterEventHandler<EventItemPickup>(OnItemPickup);
     }
 
