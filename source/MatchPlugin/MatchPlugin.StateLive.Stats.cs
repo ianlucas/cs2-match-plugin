@@ -80,14 +80,11 @@ public partial class StateLive
     {
         var attacker = Match.GetPlayerFromSteamID(@event.Attacker?.SteamID);
         var victim = Match.GetPlayerFromSteamID(@event.Userid?.SteamID);
-        if (attacker != null && victim != null)
+        if (attacker != null && victim != null && attacker != victim)
         {
-            if (attacker != victim)
-            {
-                attacker.Stats.Damage += damage;
-                if (ItemUtilities.IsUtilityClassname(@event.Weapon))
-                    attacker.Stats.UtilDamage += damage;
-            }
+            attacker.Stats.Damage += damage;
+            if (ItemUtilities.IsUtilityClassname(@event.Weapon))
+                attacker.Stats.UtilDamage += damage;
         }
     }
 
