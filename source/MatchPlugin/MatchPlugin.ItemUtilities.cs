@@ -3,11 +3,13 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+using CounterStrikeSharp.API.Core;
+
 namespace MatchPlugin;
 
 public class ItemUtilities
 {
-    private static readonly List<string> UtilityClassnames =
+    private static readonly List<string> _utilityClassNames =
     [
         "incgrenade",
         "inferno",
@@ -91,6 +93,17 @@ public class ItemUtilities
             { "customplayer_ct_map_based", 5037 }
         };
 
+    private static readonly string[] _troublesomeClassnames =
+    [
+        "m4a1",
+        "hkp2000",
+        "usp_silencer",
+        "mp7",
+        "mp5sd",
+        "deagle",
+        "revolver"
+    ];
+
     public static int GetItemDefIndex(string designerName)
     {
         return _itemDefinitionIndexes
@@ -99,9 +112,34 @@ public class ItemUtilities
             .FirstOrDefault(65536);
     }
 
+    public static string GetItemClassname(int index)
+    {
+        return _itemDefinitionIndexes
+            .Where(w => w.Value == index)
+            .Select(w => w.Key)
+            .FirstOrDefault("");
+    }
+
     public static bool IsKnifeClassname(string designerName) =>
         designerName.Contains("bayonet") || designerName.Contains("knife");
 
     public static bool IsUtilityClassname(string designerName) =>
-        UtilityClassnames.Any(classname => classname.Contains(designerName));
+        _utilityClassNames.Any(classname => classname.Contains(designerName));
+
+    public static string NormalizeClassname(string name, CCSPlayerController? owner)
+    {
+        name = name.Replace("weapon_", "");
+
+        if (IsKnifeClassname(name))
+            return "knife";
+
+        var activeWeapon = owner?.PlayerPawn.Value?.WeaponServices?.ActiveWeapon.Value;
+        if (activeWeapon != null)
+            foreach (var classname in _troublesomeClassnames)
+                if (name.Contains(classname))
+                    return GetItemClassname(activeWeapon.AttributeManager.Item.ItemDefinitionIndex)
+                        .Replace("weapon_", "");
+
+        return name;
+    }
 }

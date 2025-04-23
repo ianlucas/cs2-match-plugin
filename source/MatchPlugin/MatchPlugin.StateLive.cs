@@ -46,6 +46,7 @@ public partial class StateLive : State
         Match.Plugin.RegisterEventHandler<EventRoundPrestart>(OnRoundPrestart);
         Match.Plugin.RegisterEventHandler<EventRoundStart>(OnRoundStart);
         Match.Plugin.RegisterEventHandler<EventRoundStart>(Stats_OnRoundStart);
+        Match.Plugin.RegisterEventHandler<EventWeaponFire>(Stats_OnWeaponFire);
         Match.Plugin.RegisterEventHandler<EventGrenadeThrown>(OnGrenadeThrown);
         Match.Plugin.RegisterEventHandler<EventDecoyStarted>(OnDecoyStarted);
         Match.Plugin.RegisterEventHandler<EventHegrenadeDetonate>(OnHegrenadeDetonate);
@@ -99,6 +100,7 @@ public partial class StateLive : State
         Match.Plugin.DeregisterEventHandler<EventRoundPrestart>(OnRoundPrestart);
         Match.Plugin.DeregisterEventHandler<EventRoundStart>(OnRoundStart);
         Match.Plugin.DeregisterEventHandler<EventRoundStart>(Stats_OnRoundStart);
+        Match.Plugin.DeregisterEventHandler<EventWeaponFire>(Stats_OnWeaponFire);
         Match.Plugin.DeregisterEventHandler<EventGrenadeThrown>(OnGrenadeThrown);
         Match.Plugin.DeregisterEventHandler<EventDecoyStarted>(OnDecoyStarted);
         Match.Plugin.DeregisterEventHandler<EventHegrenadeDetonate>(OnHegrenadeDetonate);

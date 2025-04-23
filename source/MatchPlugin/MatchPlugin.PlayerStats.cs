@@ -7,6 +7,53 @@ using System.Text.Json.Serialization;
 
 namespace MatchPlugin;
 
+public class PlayerWeaponStats
+{
+    [JsonPropertyName("kills")]
+    public int Kills { get; set; } = 0;
+
+    [JsonPropertyName("shots")]
+    public int Shots { get; set; } = 0;
+
+    [JsonPropertyName("hits")]
+    public int Hits { get; set; } = 0;
+
+    [JsonPropertyName("damage")]
+    public int Damage { get; set; } = 0;
+
+    [JsonPropertyName("headshots")]
+    public int Headshots { get; set; } = 0;
+
+    [JsonPropertyName("head_hits")]
+    public int HeadHits { get; set; } = 0;
+
+    [JsonPropertyName("neck_hits")]
+    public int NeckHits { get; set; } = 0;
+
+    [JsonPropertyName("chest_hits")]
+    public int ChestHits { get; set; } = 0;
+
+    [JsonPropertyName("stomach_hits")]
+    public int StomachHits { get; set; } = 0;
+
+    [JsonPropertyName("left_arm_hits")]
+    public int LeftArmHits { get; set; } = 0;
+
+    [JsonPropertyName("right_arm_hits")]
+    public int RightArmHits { get; set; } = 0;
+
+    [JsonPropertyName("left_leg_hits")]
+    public int LeftLegHits { get; set; } = 0;
+
+    [JsonPropertyName("right_leg_hits")]
+    public int RightLegHits { get; set; } = 0;
+
+    [JsonPropertyName("gear_hits")]
+    public int GearHits { get; set; } = 0;
+
+    public PlayerWeaponStats Clone() => (PlayerWeaponStats)MemberwiseClone();
+}
+
 public class PlayerStats(ulong steamId)
 {
     [JsonPropertyName("steamid")]
@@ -111,5 +158,18 @@ public class PlayerStats(ulong steamId)
     [JsonPropertyName("mvp")]
     public int MVPs { get; set; } = 0;
 
-    public PlayerStats Clone() => (PlayerStats)MemberwiseClone();
+    [JsonPropertyName("weapons")]
+    public Dictionary<string, PlayerWeaponStats> Weapons { get; set; } = [];
+
+    public PlayerWeaponStats GetWeaponStats(string classname) =>
+        Weapons.TryGetValue(classname, out var stats) ? stats : Weapons[classname] = new();
+
+    public PlayerStats Clone()
+    {
+        PlayerStats clone = (PlayerStats)MemberwiseClone();
+        clone.Weapons = [];
+        foreach (var kvp in Weapons)
+            clone.Weapons[kvp.Key] = kvp.Value.Clone();
+        return clone;
+    }
 }
