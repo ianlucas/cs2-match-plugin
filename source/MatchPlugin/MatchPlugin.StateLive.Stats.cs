@@ -50,6 +50,22 @@ public partial class StateLive
         return HookResult.Continue;
     }
 
+    public HookResult Stats_OnWeaponFire(EventWeaponFire @event, GameEventInfo _)
+    {
+        var player = Match.GetPlayerFromSteamID(@event.Userid?.SteamID);
+        if (
+            player != null
+            && @event.Weapon != "world"
+            && !ItemUtilities.IsKnifeClassname(@event.Weapon)
+        )
+            player
+                .Stats.GetWeaponStats(
+                    ItemUtilities.NormalizeClassname(@event.Weapon, player.Controller)
+                )
+                .Shots += 1;
+        return HookResult.Continue;
+    }
+
     public HookResult Stats_OnPlayerBlind(EventPlayerBlind @event, GameEventInfo _)
     {
         var attacker = Match.GetPlayerFromSteamID(@event.Attacker?.SteamID);
@@ -86,6 +102,45 @@ public partial class StateLive
             if (ItemUtilities.IsUtilityClassname(@event.Weapon))
                 attacker.Stats.UtilDamage += damage;
         }
+        if (attacker != null && attacker != victim && @event.Weapon != "world")
+        {
+            var weaponStats = attacker.Stats.GetWeaponStats(
+                ItemUtilities.NormalizeClassname(@event.Weapon, attacker.Controller)
+            );
+            weaponStats.Hits += 1;
+            weaponStats.Damage += damage;
+
+            switch ((HitGroup_t)@event.Hitgroup)
+            {
+                case HitGroup_t.HITGROUP_HEAD:
+                    weaponStats.HeadHits += 1;
+                    break;
+                case HitGroup_t.HITGROUP_NECK:
+                    weaponStats.NeckHits += 1;
+                    break;
+                case HitGroup_t.HITGROUP_CHEST:
+                    weaponStats.ChestHits += 1;
+                    break;
+                case HitGroup_t.HITGROUP_STOMACH:
+                    weaponStats.StomachHits += 1;
+                    break;
+                case HitGroup_t.HITGROUP_LEFTARM:
+                    weaponStats.LeftArmHits += 1;
+                    break;
+                case HitGroup_t.HITGROUP_RIGHTARM:
+                    weaponStats.RightArmHits += 1;
+                    break;
+                case HitGroup_t.HITGROUP_LEFTLEG:
+                    weaponStats.LeftLegHits += 1;
+                    break;
+                case HitGroup_t.HITGROUP_RIGHTLEG:
+                    weaponStats.RightLegHits += 1;
+                    break;
+                case HitGroup_t.HITGROUP_GEAR:
+                    weaponStats.GearHits += 1;
+                    break;
+            }
+        }
     }
 
     public HookResult Stats_OnPlayerDeath(EventPlayerDeath @event, GameEventInfo _)
@@ -115,6 +170,10 @@ public partial class StateLive
         var killedWithKnife = ItemUtilities.IsKnifeClassname(@event.Weapon);
         var isSuicide = (attacker == null || attacker == victim) && !killedByBomb;
         var headshot = @event.Headshot;
+        var normalizedWeapon = ItemUtilities.NormalizeClassname(
+            @event.Weapon,
+            attacker?.Controller
+        );
         Player? assister = null;
 
         victim.Stats.Deaths += 1;
@@ -137,6 +196,11 @@ public partial class StateLive
                 attacker.Stats.Teamkills += 1;
             else if (attacker != null)
             {
+                var weaponStats = attacker.Stats.GetWeaponStats(normalizedWeapon);
+                weaponStats.Kills += 1;
+                if (headshot)
+                    weaponStats.Headshots += 1;
+
                 var attackerTeam = attacker.Team.CurrentTeam;
                 if (!_hadFirstKill)
                 {
@@ -203,7 +267,7 @@ public partial class StateLive
                 player: victim,
                 attacker,
                 assister,
-                weapon: @event.Weapon,
+                weapon: normalizedWeapon,
                 isKilledByBomb: killedByBomb,
                 isHeadshot: headshot,
                 isThruSmoke: @event.Thrusmoke,

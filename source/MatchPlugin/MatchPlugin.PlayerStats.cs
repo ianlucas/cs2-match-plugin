@@ -30,9 +30,6 @@ public class PlayerWeaponStats
     [JsonPropertyName("neck_hits")]
     public int NeckHits { get; set; } = 0;
 
-    [JsonPropertyName("gear_hits")]
-    public int GearHits { get; set; } = 0;
-
     [JsonPropertyName("chest_hits")]
     public int ChestHits { get; set; } = 0;
 
@@ -50,6 +47,9 @@ public class PlayerWeaponStats
 
     [JsonPropertyName("right_leg_hits")]
     public int RightLegHits { get; set; } = 0;
+
+    [JsonPropertyName("gear_hits")]
+    public int GearHits { get; set; } = 0;
 
     public PlayerWeaponStats Clone() => (PlayerWeaponStats)MemberwiseClone();
 }
@@ -161,8 +161,8 @@ public class PlayerStats(ulong steamId)
     [JsonPropertyName("weapons")]
     public Dictionary<string, PlayerWeaponStats> Weapons { get; set; } = [];
 
-    public PlayerWeaponStats GetWeaponStats(string className) =>
-        Weapons.TryGetValue(className, out var stats) ? stats : Weapons[className] = new();
+    public PlayerWeaponStats GetWeaponStats(string classname) =>
+        Weapons.TryGetValue(classname, out var stats) ? stats : Weapons[classname] = new();
 
     public PlayerStats Clone()
     {
