@@ -52,6 +52,16 @@ public partial class StateLive
                         ? "technical"
                         : "admin";
 
+                if (teamWhichPaused != null)
+                    Server.PrintToChatAll(
+                        Match.Plugin.Localizer[
+                            "match.pause_start",
+                            Match.GetChatPrefix(),
+                            teamWhichPaused.FormattedName
+                        ]
+                    );
+
+                Match.SendEvent(Match.Get5.OnMatchPaused(team: teamWhichPaused, pauseType));
                 Match.SendEvent(Match.Get5.OnPauseBegan(team: teamWhichPaused, pauseType));
 
                 _teamWhichPaused = teamWhichPaused;
@@ -75,44 +85,12 @@ public partial class StateLive
             {
                 foreach (var team in Match.Teams)
                     team.IsUnpauseMatch = false;
-                Server.PrintToChatAll(
-                    Match.Plugin.Localizer[
-                        "match.pause_start",
-                        Match.GetChatPrefix(),
-                        player.Team.FormattedName
-                    ]
-                );
                 Server.ExecuteCommand("mp_pause_match");
                 Match.SendEvent(Match.Get5.OnMatchPaused(team: player.Team, pauseType: "tactical"));
                 return;
             }
-            var currentTeam = player.Team.CurrentTeam;
-            var gameRules = UtilitiesX.GetGameRules();
-            var timeouts =
-                currentTeam == CsTeam.Terrorist
-                    ? gameRules.TerroristTimeOuts
-                    : gameRules.CTTimeOuts;
-            var timeoutActive =
-                currentTeam == CsTeam.Terrorist
-                    ? gameRules.TerroristTimeOutActive
-                    : gameRules.CTTimeOutActive;
-            if (timeouts > 0 && timeoutActive == false)
-            {
-                Server.PrintToChatAll(
-                    Match.Plugin.Localizer[
-                        "match.pause_start",
-                        Match.GetChatPrefix(),
-                        player.Team.FormattedName
-                    ]
-                );
-                Server.ExecuteCommand(
-                    currentTeam == CsTeam.Terrorist
-                    && (gameRules?.FreezePeriod == true || !_isLastRoundBeforeHalfTime)
-                        ? "timeout_terrorist_start"
-                        : "timeout_ct_start"
-                );
-                Match.SendEvent(Match.Get5.OnMatchPaused(team: player.Team, pauseType: "tactical"));
-            }
+
+            controller?.ExecuteClientCommandFromServer("callvote StartTimeOut");
         }
     }
 

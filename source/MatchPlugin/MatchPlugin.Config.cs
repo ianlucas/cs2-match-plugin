@@ -82,6 +82,7 @@ public class Config
     public static void ExecLive(
         int max_rounds = 30,
         int ot_max_rounds = 6,
+        bool friendly_pause = false,
         string? backupPath = null
     ) =>
         ServerX.ExecuteCommand(
@@ -196,6 +197,7 @@ public class Config
                 "tv_relayvoice 1",
                 "mp_warmuptime_all_players_connected 0",
                 // Pause settings
+                $"sv_vote_issue_timeout_allowed {(friendly_pause ? 0 : 1)}",
                 "mp_technical_timeout_per_team 1",
                 "mp_team_timeout_max 4",
                 "mp_team_timeout_ot_add_each 0",

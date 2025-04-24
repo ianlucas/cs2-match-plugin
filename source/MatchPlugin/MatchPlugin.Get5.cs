@@ -94,7 +94,7 @@ public class Get5(Match match)
             filename
         };
 
-    public object OnMatchPaused(Team team, string pauseType) =>
+    public object OnMatchPaused(Team? team, string pauseType) =>
         new
         {
             @event = "game_paused",
