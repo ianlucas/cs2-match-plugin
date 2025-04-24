@@ -74,6 +74,7 @@ public partial class StateLive : State
         Config.ExecLive(
             max_rounds: Match.max_rounds.Value,
             ot_max_rounds: Match.ot_max_rounds.Value,
+            friendly_pause: Match.friendly_pause.Value,
             backupPath: Match.GetBackupPrefix()
         );
 
@@ -125,8 +126,7 @@ public partial class StateLive : State
 
     public void OnTick()
     {
-        if (Match.remote_log_url.Value != "")
-            CheckPauseEvents();
+        CheckPauseEvents();
 
         if (Match.server_graphic_url.Value != "")
             foreach (var player in Match.Teams.SelectMany(t => t.Players))
