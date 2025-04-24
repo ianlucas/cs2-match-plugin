@@ -123,6 +123,7 @@ public partial class StateLive
                     ]
                 );
             Server.ExecuteCommand("mp_unpause_match");
+            return;
         }
 
         if (controller == null || AdminManager.PlayerHasPermissions(controller, "@css/config"))
