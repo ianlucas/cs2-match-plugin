@@ -191,6 +191,15 @@ public class State
                 }
             );
         }
+
+        if (Match.Cstv.IsRecording())
+        {
+            var filename = Match.GetDemoFilename();
+            if (filename != null)
+                Match.SendEvent(Match.Get5.OnDemoFinished(filename));
+        }
+
+        Match.Cstv.Stop();
     }
 
     public void OnMapEnd()
@@ -220,14 +229,6 @@ public class State
             Match.SendEvent(Match.Get5.OnSeriesResult(winner, map));
             Match.Reset();
             Match.Plugin.OnMatchMatchmakingChanged(null, Match.matchmaking.Value);
-        }
-
-        // Demo will be stopped at StateWarmupReady::Load.
-        if (Match.Cstv.IsRecording())
-        {
-            var filename = Match.GetDemoFilename();
-            if (filename != null)
-                Match.SendEvent(Match.Get5.OnDemoFinished(filename));
         }
 
         Match.SetState(isSeriesOver ? new StateNone() : new StateWarmupReady());
