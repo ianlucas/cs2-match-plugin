@@ -85,6 +85,13 @@ public partial class StateLive
             {
                 foreach (var team in Match.Teams)
                     team.IsUnpauseMatch = false;
+                Server.PrintToChatAll(
+                    Match.Plugin.Localizer[
+                        "match.pause_start",
+                        Match.GetChatPrefix(),
+                        player.Team.FormattedName
+                    ]
+                );
                 Server.ExecuteCommand("mp_pause_match");
                 Match.SendEvent(Match.Get5.OnMatchPaused(team: player.Team, pauseType: "tactical"));
                 return;
