@@ -4,6 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Events;
 
 namespace MatchPlugin;
 
