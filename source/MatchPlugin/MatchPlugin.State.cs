@@ -9,6 +9,7 @@ using CounterStrikeSharp.API.Core.Commands;
 using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Utils;
+using CounterStrikeSharp.API.ValveConstants.Protobuf;
 
 namespace MatchPlugin;
 
@@ -186,7 +187,9 @@ public class State
                     {
                         Match.Log("Match is over, kicking players.");
                         foreach (var controller in Utilities.GetPlayers().Where(p => !p.IsBot))
-                            controller.Kick();
+                            controller.Disconnect(
+                                NetworkDisconnectionReason.NETWORK_DISCONNECT_REJECT_RESERVED_FOR_LOBBY
+                            );
                     }
                 }
             );

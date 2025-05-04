@@ -7,6 +7,7 @@ using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Events;
+using CounterStrikeSharp.API.ValveConstants.Protobuf;
 
 namespace MatchPlugin;
 
@@ -45,7 +46,9 @@ public partial class MatchPlugin
             && _match.matchmaking_kick.Value
             && !AdminManager.PlayerHasPermissions(controller, "@css/root")
         )
-            controller.Kick();
+            controller.Disconnect(
+                NetworkDisconnectionReason.NETWORK_DISCONNECT_REJECT_RESERVED_FOR_LOBBY
+            );
     }
 
     public HookResult OnPlayerChat(EventPlayerChat @event, GameEventInfo _)

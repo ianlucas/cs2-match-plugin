@@ -10,6 +10,7 @@ using CounterStrikeSharp.API.Core.Translations;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Utils;
+using CounterStrikeSharp.API.ValveConstants.Protobuf;
 using Microsoft.Extensions.Logging;
 using static CounterStrikeSharp.API.Core.Listeners;
 
@@ -236,7 +237,9 @@ public class Match
                 )
                     controller.ChangeTeam(CsTeam.Spectator);
                 else
-                    controller.Kick();
+                    controller.Disconnect(
+                        NetworkDisconnectionReason.NETWORK_DISCONNECT_REJECT_RESERVED_FOR_LOBBY
+                    );
 
         foreach (var team in Teams)
         {

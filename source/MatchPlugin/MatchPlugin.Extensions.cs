@@ -57,12 +57,6 @@ public static partial class Extensions
             0
         );
 
-    public static void Kick(this CCSPlayerController controller)
-    {
-        if (controller.UserId.HasValue)
-            Server.ExecuteCommand($"kickid {(ushort)controller.UserId}");
-    }
-
     public static void TerminateRoundX(
         this CCSGameRules gameRules,
         float delay,

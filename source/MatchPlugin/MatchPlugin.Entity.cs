@@ -64,14 +64,7 @@ public class ItemUtilities
             { "weapon_decoy", 47 },
             { "weapon_incgrenade", 48 },
             { "weapon_c4", 49 },
-            { "item_kevlar", 50 },
-            { "item_assaultsuit", 51 },
-            { "item_heavyassaultsuit", 52 },
-            { "item_nvg", 54 },
-            { "item_defuser", 55 },
-            { "item_cutters", 56 },
             { "weapon_healthshot", 57 },
-            { "musickit_default", 58 },
             { "weapon_knife_t", 59 },
             { "weapon_m4a1_silencer", 60 },
             { "weapon_usp_silencer", 61 },
@@ -86,11 +79,7 @@ public class ItemUtilities
             { "weapon_diversion", 82 },
             { "weapon_frag_grenade", 83 },
             { "weapon_snowball", 84 },
-            { "weapon_bumpmine", 85 },
-            { "t_gloves", 5028 },
-            { "ct_gloves", 5029 },
-            { "customplayer_t_map_based", 5036 },
-            { "customplayer_ct_map_based", 5037 }
+            { "weapon_bumpmine", 85 }
         };
 
     private static readonly string[] _troublesomeClassnames =

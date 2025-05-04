@@ -8,6 +8,7 @@ using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Utils;
+using CounterStrikeSharp.API.ValveConstants.Protobuf;
 
 namespace MatchPlugin;
 
@@ -75,7 +76,9 @@ public partial class MatchPlugin
                     if (AdminManager.PlayerHasPermissions(controller, "@css/root"))
                         controller.ChangeTeam(CsTeam.Spectator);
                     else
-                        controller.Kick();
+                        controller.Disconnect(
+                            NetworkDisconnectionReason.NETWORK_DISCONNECT_REJECT_RESERVED_FOR_LOBBY
+                        );
     }
 
     public void OnBotsTick()
