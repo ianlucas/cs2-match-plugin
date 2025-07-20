@@ -61,14 +61,14 @@ public partial class MatchPlugin
         _pendingOnPlayerConnected.TryRemove(slot, out var _);
     }
 
-    public void OnMatchBotsChanged(object? sender, bool value)
+    public void OnMatchBotsChanged(object? _, bool value)
     {
         ServerX.ExecuteCommand(
             ["bot_quota_mode fill", $"bot_quota {(value ? _match.players_needed.Value : 0)}"]
         );
     }
 
-    public void OnMatchMatchmakingChanged(object? sender, bool value)
+    public void OnMatchMatchmakingChanged(object? _, bool value)
     {
         if (value)
             foreach (var controller in Utilities.GetPlayers().Where(p => !p.IsBot))

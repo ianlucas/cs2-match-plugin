@@ -83,6 +83,8 @@ public partial class StateLive
         {
             if (Match.friendly_pause.Value)
             {
+                if (UtilitiesX.GetGameRules().MatchWaitingForResume)
+                    return;
                 foreach (var team in Match.Teams)
                     team.IsUnpauseMatch = false;
                 Server.PrintToChatAll(
@@ -104,20 +106,28 @@ public partial class StateLive
     public void OnUnpauseCommand(CCSPlayerController? controller, CommandInfo _)
     {
         var player = Match.GetPlayerFromSteamID(controller?.SteamID);
-        if (player != null && Match.friendly_pause.Value)
+        if (
+            player != null
+            && Match.friendly_pause.Value
+            && UtilitiesX.GetGameRules().MatchWaitingForResume
+        )
         {
             var askedForUnpause = player.Team.IsUnpauseMatch;
             player.Team.IsUnpauseMatch = true;
             if (!Match.Teams.All(team => team.IsUnpauseMatch))
             {
                 if (!askedForUnpause)
-                    Server.PrintToChatAll(
-                        Match.Plugin.Localizer[
-                            "match.pause_unpause1",
-                            Match.GetChatPrefix(),
-                            player.Team.FormattedName,
-                            player.Team.Opposition.FormattedName
-                        ]
+                    Match.Plugin.CreateChatTimer(
+                        "PrintFriendlyUnpauseCommand",
+                        () =>
+                            Server.PrintToChatAll(
+                                Match.Plugin.Localizer[
+                                    "match.pause_unpause1",
+                                    Match.GetChatPrefix(),
+                                    player.Team.FormattedName,
+                                    player.Team.Opposition.FormattedName
+                                ]
+                            )
                     );
                 return;
             }
@@ -129,6 +139,7 @@ public partial class StateLive
                         player.Team.FormattedName
                     ]
                 );
+            Match.Plugin.ClearTimer("PrintFriendlyUnpauseCommand");
             Server.ExecuteCommand("mp_unpause_match");
             return;
         }
@@ -143,6 +154,7 @@ public partial class StateLive
                     UtilitiesX.GetPlayerName(controller)
                 ]
             );
+            Match.Plugin.ClearTimer("PrintFriendlyUnpauseCommand");
             Server.ExecuteCommand("mp_unpause_match");
             return;
         }
