@@ -48,7 +48,7 @@ public partial class StateLive
                 Match.Log("Terminating by Surrender");
                 UtilitiesX
                     .GetGameRules()
-                    .TerminateRoundX(
+                    .TerminateRound(
                         0,
                         player.Team.CurrentTeam == CsTeam.Terrorist
                             ? RoundEndReason.TerroristsSurrender

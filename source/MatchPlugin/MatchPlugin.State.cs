@@ -102,7 +102,7 @@ public class State
             Match.Log($"Terminating by Cancelled, winner={winner.Index}, forfeited={loser.Index}");
             UtilitiesX
                 .GetGameRules()
-                .TerminateRoundX(
+                .TerminateRound(
                     0,
                     loser.CurrentTeam == CsTeam.Terrorist
                         ? RoundEndReason.TerroristsSurrender

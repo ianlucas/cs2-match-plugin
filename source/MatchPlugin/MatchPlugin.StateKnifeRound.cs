@@ -5,6 +5,7 @@
 
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
+using CounterStrikeSharp.API.Modules.Memory;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
 
@@ -18,7 +19,7 @@ public class StateKnifeRound : State
     {
         Match.Plugin.RegisterEventHandler<EventRoundStart>(OnRoundStart);
         Extensions.IncrementNumMVPsFunc.Hook(OnIncrementNumMVPs, HookMode.Pre);
-        Extensions.TerminateRoundFunc.Hook(OnTerminateRound, HookMode.Pre);
+        VirtualFunctions.TerminateRoundFunc.Hook(OnTerminateRound, HookMode.Pre);
         Match.Plugin.RegisterEventHandler<EventRoundEnd>(OnRoundEndPre, HookMode.Pre);
 
         Match.Log("Execing Knife Round");
@@ -34,7 +35,7 @@ public class StateKnifeRound : State
     {
         Match.Plugin.DeregisterEventHandler<EventRoundStart>(OnRoundStart);
         Extensions.IncrementNumMVPsFunc.Unhook(OnIncrementNumMVPs, HookMode.Pre);
-        Extensions.TerminateRoundFunc.Unhook(OnTerminateRound, HookMode.Pre);
+        VirtualFunctions.TerminateRoundFunc.Unhook(OnTerminateRound, HookMode.Pre);
         Match.Plugin.DeregisterEventHandler<EventRoundEnd>(OnRoundEndPre, HookMode.Pre);
     }
 
