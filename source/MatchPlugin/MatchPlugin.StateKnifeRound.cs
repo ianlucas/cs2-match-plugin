@@ -61,7 +61,7 @@ public class StateKnifeRound : State
         var winner = UtilitiesX.GetGameRules().GetKnifeRoundWinner();
         Match.KnifeRoundWinner = Match.GetTeamFromCsTeam(winner);
         h.SetParam(
-            2,
+            1,
             (uint)(
                 winner == CsTeam.Terrorist ? RoundEndReason.TerroristsWin : RoundEndReason.CTsWin
             )
