@@ -68,7 +68,6 @@ public class Config
                 "mp_t_default_secondary \"\"",
                 "mp_team_intro_time 0",
                 "mp_teamcashawards 0",
-                "mp_warmuptime_all_players_connected 0",
                 // Team lock convars
                 "mp_force_pick_time 0",
                 "sv_disable_teamselect_menu 0",

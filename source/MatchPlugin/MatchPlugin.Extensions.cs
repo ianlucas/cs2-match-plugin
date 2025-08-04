@@ -14,17 +14,6 @@ namespace MatchPlugin;
 
 public static partial class Extensions
 {
-    public static readonly MemoryFunctionVoid<
-        IntPtr,
-        float,
-        RoundEndReason,
-        int,
-        uint
-    > TerminateRoundFunc = new(GameData.GetSignature("TerminateRound"));
-
-    public static readonly Action<IntPtr, float, RoundEndReason, int, uint> TerminateRound =
-        TerminateRoundFunc.Invoke;
-
     public static readonly MemoryFunctionVoid<IntPtr, int> ChangeTeamFunc =
         new(GameData.GetSignature("ChangeTeam"));
 
@@ -56,12 +45,6 @@ public static partial class Extensions
             )?.Health ?? 0,
             0
         );
-
-    public static void TerminateRoundX(
-        this CCSGameRules gameRules,
-        float delay,
-        RoundEndReason roundEndReason
-    ) => TerminateRound(gameRules.Handle, delay, roundEndReason, 0, 0);
 
     public static CsTeam GetKnifeRoundWinner(this CCSGameRules _)
     {
