@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Memory;
@@ -17,7 +18,6 @@ public class StateKnifeRound : State
 
     public override void Load()
     {
-        Match.Plugin.RegisterEventHandler<EventRoundPrestart>(OnRoundPrestart);
         Match.Plugin.RegisterEventHandler<EventRoundStart>(OnRoundStart);
         Extensions.IncrementNumMVPsFunc.Hook(OnIncrementNumMVPs, HookMode.Pre);
         VirtualFunctions.TerminateRoundFunc.Hook(OnTerminateRound, HookMode.Pre);
@@ -34,25 +34,19 @@ public class StateKnifeRound : State
 
     public override void Unload()
     {
-        Match.Plugin.DeregisterEventHandler<EventRoundPrestart>(OnRoundPrestart);
         Match.Plugin.DeregisterEventHandler<EventRoundStart>(OnRoundStart);
         Extensions.IncrementNumMVPsFunc.Unhook(OnIncrementNumMVPs, HookMode.Pre);
         VirtualFunctions.TerminateRoundFunc.Unhook(OnTerminateRound, HookMode.Pre);
         Match.Plugin.DeregisterEventHandler<EventRoundEnd>(OnRoundEndPre, HookMode.Pre);
     }
 
-    public new HookResult OnRoundPrestart(EventRoundPrestart _, GameEventInfo __)
+    public HookResult OnRoundStart(EventRoundStart @event, GameEventInfo _)
     {
         if (Match.KnifeRoundWinner != null)
         {
-            Match.SetState(new StateWarmupKnifeVote());
+            Server.NextFrame(() => Match.SetState(new StateWarmupKnifeVote()));
         }
-        return HookResult.Continue;
-    }
-
-    public HookResult OnRoundStart(EventRoundStart @event, GameEventInfo _)
-    {
-        if (Match.KnifeRoundWinner == null)
+        else
         {
             ServerX.PrintToChatAllRepeat(
                 Match.Plugin.Localizer["match.knife", Match.GetChatPrefix()]
