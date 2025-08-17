@@ -17,6 +17,7 @@ public class StateKnifeRound : State
 
     public override void Load()
     {
+        Match.Plugin.RegisterEventHandler<EventRoundPrestart>(OnRoundPrestart);
         Match.Plugin.RegisterEventHandler<EventRoundStart>(OnRoundStart);
         Extensions.IncrementNumMVPsFunc.Hook(OnIncrementNumMVPs, HookMode.Pre);
         VirtualFunctions.TerminateRoundFunc.Hook(OnTerminateRound, HookMode.Pre);
@@ -33,19 +34,25 @@ public class StateKnifeRound : State
 
     public override void Unload()
     {
+        Match.Plugin.DeregisterEventHandler<EventRoundPrestart>(OnRoundPrestart);
         Match.Plugin.DeregisterEventHandler<EventRoundStart>(OnRoundStart);
         Extensions.IncrementNumMVPsFunc.Unhook(OnIncrementNumMVPs, HookMode.Pre);
         VirtualFunctions.TerminateRoundFunc.Unhook(OnTerminateRound, HookMode.Pre);
         Match.Plugin.DeregisterEventHandler<EventRoundEnd>(OnRoundEndPre, HookMode.Pre);
     }
 
-    public HookResult OnRoundStart(EventRoundStart @event, GameEventInfo _)
+    public new HookResult OnRoundPrestart(EventRoundPrestart _, GameEventInfo __)
     {
         if (Match.KnifeRoundWinner != null)
         {
             Match.SetState(new StateWarmupKnifeVote());
         }
-        else
+        return HookResult.Continue;
+    }
+
+    public HookResult OnRoundStart(EventRoundStart @event, GameEventInfo _)
+    {
+        if (Match.KnifeRoundWinner == null)
         {
             ServerX.PrintToChatAllRepeat(
                 Match.Plugin.Localizer["match.knife", Match.GetChatPrefix()]
