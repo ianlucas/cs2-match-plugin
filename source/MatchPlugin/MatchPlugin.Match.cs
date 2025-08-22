@@ -46,6 +46,8 @@ public class Match
         new("match_ot_max_rounds", "Additional rounds to determine winner.", 6);
     public readonly FakeConVar<bool> friendly_pause =
         new("match_friendly_pause", "Teams can pause at any time.", false);
+    public readonly FakeConVar<bool> knife_round_enabled =
+        new("match_knife_round_enabled", "Are knife rounds enabled?", true);
     public readonly FakeConVar<int> knife_vote_timeout =
         new("match_knife_vote_timeout", "Time to decide side.", 60);
     public readonly FakeConVar<bool> forfeit_enabled =
