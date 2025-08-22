@@ -18,6 +18,8 @@ public class StateKnifeRound : State
 
     public override void Load()
     {
+        Match.KnifeRoundWinner = null;
+
         Match.Plugin.RegisterEventHandler<EventRoundStart>(OnRoundStart);
         Extensions.IncrementNumMVPsFunc.Hook(OnIncrementNumMVPs, HookMode.Pre);
         VirtualFunctions.TerminateRoundFunc.Hook(OnTerminateRound, HookMode.Pre);
@@ -26,9 +28,7 @@ public class StateKnifeRound : State
         Match.Log("Execing Knife Round");
         Config.ExecKnife();
 
-        Match.KnifeRoundWinner = null;
         Match.Cstv.Record(Match.GetDemoFilename());
-
         UtilitiesX.RemovePlayerClans();
     }
 

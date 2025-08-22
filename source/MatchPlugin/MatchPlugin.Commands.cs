@@ -35,7 +35,7 @@ public partial class MatchPlugin
                     message += "[L]";
                 if (player.Controller != null)
                 {
-                    var playerTeam = (player.Controller.Team) switch
+                    var playerTeam = player.Controller.Team switch
                     {
                         CsTeam.Terrorist => "Terrorist",
                         CsTeam.CounterTerrorist => "CT",
@@ -87,7 +87,7 @@ public partial class MatchPlugin
         );
 
         _match.Setup();
-        _match.SetState(new StateKnifeRound());
+        _match.SetState(_match.knife_round_enabled.Value ? new StateKnifeRound() : new StateLive());
     }
 
     public void OnMapCommand(CCSPlayerController? caller, CommandInfo command)

@@ -85,6 +85,9 @@ public partial class StateLive : State
         foreach (var team in Match.Teams)
             team.IsSurrended = false;
 
+        if (!Match.knife_round_enabled.Value)
+            Match.Cstv.Record(Match.GetDemoFilename());
+
         UtilitiesX.RemovePlayerClans();
 
         TryForfeitMatch();

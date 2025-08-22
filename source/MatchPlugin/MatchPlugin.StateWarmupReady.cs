@@ -195,7 +195,7 @@ public class StateWarmupReady : StateWarmup
             {
                 player.IsReady = true;
                 Match.SendEvent(Match.Get5.OnTeamReadyStatusChanged(team: player.Team));
-                TryStartKnifeRound();
+                TryStartMatch();
             }
         }
     }
@@ -211,14 +211,16 @@ public class StateWarmupReady : StateWarmup
         }
     }
 
-    public void TryStartKnifeRound()
+    public void TryStartMatch()
     {
         var players = Match.Teams.SelectMany(t => t.Players);
         if (players.Count() == Match.GetNeededPlayers() && players.All(p => p.IsReady))
         {
             if (!Match.IsLoadedFromFile)
                 Match.Setup();
-            Match.SetState(new StateKnifeRound());
+            Match.SetState(
+                Match.knife_round_enabled.Value ? new StateKnifeRound() : new StateLive()
+            );
         }
     }
 
