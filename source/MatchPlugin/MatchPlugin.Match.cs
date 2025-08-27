@@ -28,6 +28,8 @@ public class Match
         new("match_bots", "Bots join the game to fill slots.", false);
     public readonly FakeConVar<bool> tv_record =
         new("match_tv_record", "Are we recording demos?", true);
+    public readonly FakeConVar<bool> restart_first_map =
+        new("match_restart_first_map", "Restart the first map?", true);
     public readonly FakeConVar<int> tv_delay =
         new("match_tv_delay", "CSTV's broadcast delay.", 105);
     public readonly FakeConVar<int> players_needed =
@@ -80,6 +82,7 @@ public class Match
     public State State = new();
     public bool IsLoadedFromFile = false;
     public bool IsSeriesStarted = false;
+    public bool IsFirstMapRestarted = false;
     public Team? KnifeRoundWinner;
     public MapEndResult? MapEndResult = null;
 
@@ -103,6 +106,7 @@ public class Match
         IsClinchSeries = true;
         IsLoadedFromFile = false;
         IsSeriesStarted = false;
+        IsFirstMapRestarted = false;
         KnifeRoundWinner = null;
         MapEndResult = null;
         Maps.Clear();
@@ -262,8 +266,16 @@ public class Match
     public bool CheckCurrentMap()
     {
         var currentMap = GetMap();
-        if (currentMap != null && Server.MapName != currentMap.MapName)
+        if (
+            currentMap != null
+            && (
+                Server.MapName != currentMap.MapName
+                || (restart_first_map.Value && !IsFirstMapRestarted)
+            )
+        )
         {
+            if (Server.MapName == currentMap.MapName)
+                IsFirstMapRestarted = true;
             Log($"Need to change map to {currentMap.MapName}");
             Server.ExecuteCommand($"changelevel {currentMap.MapName}");
             return true;
