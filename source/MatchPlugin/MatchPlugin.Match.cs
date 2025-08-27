@@ -29,7 +29,7 @@ public class Match
     public readonly FakeConVar<bool> tv_record =
         new("match_tv_record", "Are we recording demos?", true);
     public readonly FakeConVar<bool> restart_first_map =
-        new("match_restart_first_map", "Restart the first map?", true);
+        new("match_restart_first_map", "Restart the first map?", false);
     public readonly FakeConVar<int> tv_delay =
         new("match_tv_delay", "CSTV's broadcast delay.", 105);
     public readonly FakeConVar<int> players_needed =
