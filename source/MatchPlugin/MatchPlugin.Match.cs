@@ -12,7 +12,6 @@ using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Utils;
 using CounterStrikeSharp.API.ValveConstants.Protobuf;
 using Microsoft.Extensions.Logging;
-using static CounterStrikeSharp.API.Core.Listeners;
 
 namespace MatchPlugin;
 
@@ -185,7 +184,7 @@ public class Match
         }
         catch
         {
-            Log($"This is a bug. Unable to find index for the current map index.");
+            Log($"This is a bug. Failed to find index for the current map index.");
             return 0;
         }
     }
@@ -198,7 +197,7 @@ public class Match
         }
         catch
         {
-            Log($"This is a bug. Unable to find index for map {map?.MapName}.");
+            Log($"This is a bug. Failed to find index for map {map?.MapName}.");
             return 0;
         }
     }
@@ -306,40 +305,6 @@ public class Match
         var methodName = method?.Name;
         var prefix =
             className != null && methodName != null ? $"{className}::{methodName}" : "MatchPlugin";
-        var output = $"{prefix} {message}";
-        Plugin.Logger.LogInformation(output);
-    }
-
-    public bool SetFakeConVarValue<T>(string name, T value)
-    {
-        var field = GetType()
-            .GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-            .FirstOrDefault(f =>
-                f.Name == name.Replace("get5_", "").Replace("match_", "")
-                && f.FieldType.IsGenericType
-                && f.FieldType.GetGenericTypeDefinition() == typeof(FakeConVar<>)
-            );
-        if (field == null)
-            return false;
-        var instance = field.GetValue(this);
-        if (instance == null)
-            return false;
-        Type convarType = field.FieldType.GetGenericArguments()[0];
-        try
-        {
-            object? convertedValue = Convert.ChangeType(value, convarType);
-            if (convertedValue == null)
-                return false;
-            var valueProperty = field.FieldType.GetProperty("Value");
-            if (valueProperty == null)
-                return false;
-            valueProperty.SetValue(instance, convertedValue);
-            Log($"Set {name} as {value} ({convertedValue.GetType()})");
-            return true;
-        }
-        catch (Exception)
-        {
-            return false;
-        }
+        Plugin.Logger.LogInformation("{Prefix} {Message}", prefix, message);
     }
 }

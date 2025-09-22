@@ -60,6 +60,7 @@ public partial class MatchPlugin
         if (_match.State is not StateWarmupReady)
             return;
         if (!_match.IsLoadedFromFile)
+        {
             foreach (var controller in UtilitiesX.GetPlayersInTeams())
             {
                 var player = _match.GetPlayerFromSteamID(controller.SteamID);
@@ -77,6 +78,12 @@ public partial class MatchPlugin
                 if (player != null)
                     player.IsReady = true;
             }
+            _match.Setup();
+        }
+        else
+            foreach (var player in _match.Teams.SelectMany(t => t.Players))
+                player.IsReady = true;
+
         _match.Log(
             printToChat: true,
             message: Localizer[
@@ -86,7 +93,6 @@ public partial class MatchPlugin
             ]
         );
 
-        _match.Setup();
         _match.SetState(_match.knife_round_enabled.Value ? new StateKnifeRound() : new StateLive());
     }
 
@@ -201,18 +207,17 @@ public partial class MatchPlugin
         }
 
         if (match.Cvars != null)
-            foreach (var cvar in match.Cvars)
+            foreach (var (key, value) in match.Cvars)
             {
-                var key = cvar.Key;
-                var value = cvar.Value.ToString();
-                // This bypass FakeConVar validations, but we need to update them immediatelly.
-                _match.SetFakeConVarValue(key, value.StripQuotes());
                 var cmd = $"{key} {value}";
                 _match.Log($"Execing {cmd}");
                 Server.ExecuteCommand(cmd);
             }
 
-        _match.Setup();
-        _match.SetState(new StateWarmupReady());
+        Server.NextFrame(() =>
+        {
+            _match.Setup();
+            _match.SetState(new StateWarmupReady());
+        });
     }
 }
