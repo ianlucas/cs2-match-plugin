@@ -12,6 +12,7 @@ public class Config
             [
                 "bot_chatter off",
                 "bot_join_after_player 0",
+                "bot_quota_mode fill",
                 "mp_autokick 0",
                 "mp_autoteambalance 0",
                 "mp_buy_allow_grenades 0",
@@ -27,7 +28,6 @@ public class Config
                 "mp_warmuptime_all_players_connected 0",
                 "mp_weapons_allow_typecount -1",
                 "sv_hibernate_when_empty 0",
-                "tv_enable_dynamic 1",
                 // Voting convars
                 "sv_allow_votes 0",
                 "sv_vote_allow_spectators 0",
@@ -39,6 +39,7 @@ public class Config
                 "sv_vote_issue_timeout_allowed 0",
                 // Demo settings
                 "tv_record_immediate 1",
+                "tv_enable_dynamic 1",
                 // Team lock convars
                 $"mp_force_pick_time {(lockTeams ? 0 : 15)}",
                 $"sv_disable_teamselect_menu {(lockTeams ? 1 : 0)}",

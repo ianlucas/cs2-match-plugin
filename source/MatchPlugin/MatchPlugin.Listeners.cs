@@ -33,8 +33,6 @@ public partial class MatchPlugin
             _pendingInternalPush = false;
             OnConfigsExecuted();
         }
-        if (_match.bots.Value)
-            OnBotsTick();
         if (_match.AreTeamsLocked())
             OnTeamsLocked();
     }
@@ -51,8 +49,7 @@ public partial class MatchPlugin
         // It may be too early to get controller from the slot.
         _pendingOnPlayerConnected.TryAdd(
             slot,
-            (CCSPlayerController controller) =>
-                _match.SendEvent(_match.Get5.OnPlayerConnected(controller, ipAddress))
+            controller => _match.SendEvent(_match.Get5.OnPlayerConnected(controller, ipAddress))
         );
     }
 
@@ -63,9 +60,8 @@ public partial class MatchPlugin
 
     public void OnMatchBotsChanged(object? _, bool value)
     {
-        ServerX.ExecuteCommand(
-            ["bot_quota_mode fill", $"bot_quota {(value ? _match.players_needed.Value : 0)}"]
-        );
+        if (value)
+            _rememberBotKick = false;
     }
 
     public void OnMatchMatchmakingChanged(object? _, bool value)
@@ -79,35 +75,6 @@ public partial class MatchPlugin
                         controller.Disconnect(
                             NetworkDisconnectionReason.NETWORK_DISCONNECT_REJECT_RESERVED_FOR_LOBBY
                         );
-    }
-
-    public void OnBotsTick()
-    {
-        var neededPerTeam = _match.players_needed_per_team.Value;
-        List<IEnumerable<CCSPlayerController>> teams =
-        [
-            UtilitiesX.GetPlayersFromTeam(CsTeam.Terrorist),
-            UtilitiesX.GetPlayersFromTeam(CsTeam.CounterTerrorist)
-        ];
-        foreach (var team in teams)
-        {
-            int botCount = 0;
-            int humanCount = 0;
-            int? botToKick = null;
-            foreach (var controller in team)
-            {
-                if (controller.IsBot == true)
-                {
-                    botCount++;
-                    if (botToKick == null && controller.UserId != null)
-                        botToKick = controller.UserId;
-                }
-                else
-                    humanCount++;
-            }
-            if (botCount + humanCount > neededPerTeam && botToKick != null)
-                Server.ExecuteCommand($"kickid {botToKick}");
-        }
     }
 
     public void OnTeamsLocked()

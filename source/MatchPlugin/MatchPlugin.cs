@@ -33,6 +33,7 @@ public partial class MatchPlugin : BasePlugin
         RegisterListener<Listeners.OnClientConnect>(OnClientConnect);
         RegisterListener<Listeners.OnClientDisconnect>(OnClientDisconnect);
         Extensions.ChangeTeamFunc.Hook(OnChangeTeam, HookMode.Pre);
+        Extensions.MaintainBotQuotaFunc.Hook(OnMaintainBotQuota, HookMode.Pre);
         RegisterEventHandler<EventPlayerConnect>(OnPlayerConnect);
         RegisterEventHandler<EventPlayerConnectFull>(OnPlayerConnectFull);
         RegisterEventHandler<EventPlayerChat>(OnPlayerChat);

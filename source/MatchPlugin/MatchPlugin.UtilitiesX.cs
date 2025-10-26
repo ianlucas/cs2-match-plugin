@@ -18,10 +18,11 @@ public class UtilitiesX
     public static IEnumerable<CCSPlayerController> GetPlayersFromTeam(CsTeam team) =>
         Utilities.GetPlayers().Where(p => p.Team == team);
 
+    public static IEnumerable<CCSPlayerController> GetAllPlayersInTeams() =>
+        Utilities.GetPlayers().Where(p => p.Team is CsTeam.Terrorist or CsTeam.CounterTerrorist);
+
     public static IEnumerable<CCSPlayerController> GetPlayersInTeams() =>
-        Utilities
-            .GetPlayers()
-            .Where(p => p.Team is CsTeam.Terrorist or CsTeam.CounterTerrorist && !p.IsBot);
+        GetAllPlayersInTeams().Where(p => !p.IsBot);
 
     public static IEnumerable<CCSPlayerController> GetUnfilteredPlayers() =>
         Utilities.FindAllEntitiesByDesignerName<CCSPlayerController>("cs_player_controller");

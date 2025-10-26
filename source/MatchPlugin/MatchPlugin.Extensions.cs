@@ -6,7 +6,6 @@
 using System.Text.RegularExpressions;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
 
@@ -28,6 +27,9 @@ public static partial class Extensions
 
     public static readonly MemoryFunctionWithReturn<IntPtr, bool> AreTeamsPlayingSwitchedSidesFunc =
         new(GameData.GetSignature("AreTeamsPlayingSwitchedSides"));
+
+    public static readonly MemoryFunctionWithReturn<IntPtr, byte> MaintainBotQuotaFunc =
+        new(GameData.GetSignature("MaintainBotQuota"));
 
     public static void HandleSwapTeams(this CCSGameRules gameRules) =>
         HandleSwapTeamsFunc.Invoke(gameRules.Handle);
