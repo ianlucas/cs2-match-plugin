@@ -266,17 +266,14 @@ public class Match
     {
         var currentMap = GetMap();
         if (
-            currentMap != null
-            && (
-                Server.MapName != currentMap.MapName
-                || (restart_first_map.Value && !IsFirstMapRestarted)
-            )
+            (currentMap != null && (Server.MapName != currentMap.MapName))
+            || (restart_first_map.Value && !IsFirstMapRestarted)
         )
         {
-            if (Server.MapName == currentMap.MapName)
-                IsFirstMapRestarted = true;
-            Log($"Need to change map to {currentMap.MapName}");
-            Server.ExecuteCommand($"changelevel {currentMap.MapName}");
+            IsFirstMapRestarted = true;
+            var currentMapName = currentMap?.MapName ?? Server.MapName;
+            Log($"Need to change map to {currentMapName}");
+            Server.ExecuteCommand($"changelevel {currentMapName}");
             return true;
         }
         return false;
